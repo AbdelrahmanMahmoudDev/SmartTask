@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35919.96 d17.13
+VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.Web", "SmartTask.Web\SmartTask.Web.csproj", "{2908528D-1C59-4725-8059-1251CA59D9E9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5CA57473-D659-428E-A0DA-CBE506A553BD} = {5CA57473-D659-428E-A0DA-CBE506A553BD}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.DataAccess", "SmartTask.DataAccess\SmartTask.DataAccess.csproj", "{74809FDA-5555-40F1-81D9-BA98A9F7A3AA}"
 EndProject

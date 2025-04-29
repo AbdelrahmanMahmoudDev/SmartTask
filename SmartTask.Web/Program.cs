@@ -1,3 +1,5 @@
+using SmartTask.BL.Services.EmailService;
+
 namespace SmartTask.Web
 {
     public class Program
@@ -8,7 +10,7 @@ namespace SmartTask.Web
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-
+            builder.Services.AddTransient<EmailService>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
