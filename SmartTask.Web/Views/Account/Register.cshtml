@@ -1,0 +1,74 @@
+﻿@model SmartTask.Web.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .form-title {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+</style>
+<div class="m-5 text-center">
+    <span>You have an account? </span>
+    <a href="/account/login" class="btn btn-outline-primary">Login</a>
+</div>
+<div class="container">
+    <div class="form-container">
+        <form asp-action="Register">
+            <h2 class="form-title">Register</h2>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="FName" class="control-label"></label>
+                <input asp-for="FName" class="form-control" />
+                <span asp-validation-for="FName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="ConfirmedPassowrd" class="control-label"></label>
+                <input asp-for="ConfirmedPassowrd" class="form-control" />
+                <span asp-validation-for="ConfirmedPassowrd" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Address" class="control-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="mb-3 text-center">
+                <input type="submit" value="Register" class="btn btn-primary w-50" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
