@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SmartTask.BL.Services.EmailService;
+using SmartTask.BL.IServices;
+using SmartTask.BL.Services.NotificationService;
+using SmartTask.DataAccess.ExternalServices.EmailService;
+using SmartTask.Domain.Models;
 using SmartTask.Web.Models;
 
 namespace SmartTask.Web
@@ -13,7 +16,13 @@ namespace SmartTask.Web
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-            builder.Services.AddTransient<EmailService>();
+
+            builder.Services.Configure<SmtpSettings>(
+    builder.Configuration.GetSection("SmtpSettings"));
+            builder.Services.AddScoped<IEmailSender, EmailService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+
+
             builder.Services.AddDbContext<ProjectContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("cs"));

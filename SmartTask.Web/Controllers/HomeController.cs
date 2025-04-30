@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using SmartTask.BL.IServices;
 using SmartTask.Web.Models;
 
 namespace SmartTask.Web.Controllers
@@ -7,13 +8,14 @@ namespace SmartTask.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly INotificationService notificationService;
+        public HomeController(ILogger<HomeController> logger,INotificationService notificationService)
         {
             _logger = logger;
+            this.notificationService = notificationService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> IndexAsync()
         {
             return View();
         }

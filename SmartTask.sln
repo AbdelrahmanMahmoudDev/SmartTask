@@ -9,10 +9,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.Web", "SmartTask.
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.DataAccess", "SmartTask.DataAccess\SmartTask.DataAccess.csproj", "{74809FDA-5555-40F1-81D9-BA98A9F7A3AA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5CA57473-D659-428E-A0DA-CBE506A553BD} = {5CA57473-D659-428E-A0DA-CBE506A553BD}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.BL", "SmartTask.BL\SmartTask.BL.csproj", "{5CA57473-D659-428E-A0DA-CBE506A553BD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E9434F3C-BA99-4489-BCFB-9FC2E76A629E} = {E9434F3C-BA99-4489-BCFB-9FC2E76A629E}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.Tests", "SmartTask.Tests\SmartTask.Tests.csproj", "{001F4FF7-C20E-4980-9C26-3C29277E819A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.Domain", "DomainLayer\SmartTask.Domain.csproj", "{E9434F3C-BA99-4489-BCFB-9FC2E76A629E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +44,10 @@ Global
 		{001F4FF7-C20E-4980-9C26-3C29277E819A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{001F4FF7-C20E-4980-9C26-3C29277E819A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{001F4FF7-C20E-4980-9C26-3C29277E819A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9434F3C-BA99-4489-BCFB-9FC2E76A629E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9434F3C-BA99-4489-BCFB-9FC2E76A629E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9434F3C-BA99-4489-BCFB-9FC2E76A629E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9434F3C-BA99-4489-BCFB-9FC2E76A629E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
