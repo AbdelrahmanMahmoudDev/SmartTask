@@ -1,0 +1,128 @@
+﻿@model List<UserRoleAssignmentViewModel>
+@{
+    ViewData["Title"] = "Manage User Roles";
+}
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4>Manage User Roles</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="ManageUserRoles" method="post">
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <input type="text" id="searchUser" class="form-control" placeholder="Search by username" onkeyup="debouncedSearch()" />
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button type="button" class="btn btn-secondary w-100" onclick="clearSearch()">Clear</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="userTable">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>User</th>
+                                <th>Roles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                                <tr class="user-row">
+                                    <td class="user-name">
+                                        @Model[i].UserName
+                                        <input type="hidden" asp-for="@Model[i].UserId" />
+                                        <span class="badge bg-info ms-2">
+                                            @Model[i].Roles.Count(r => r.IsAssigned) roles
+                                        </span>
+                                    </td>
+                                    <td class="user-roles">
+                                        <div class="d-flex flex-wrap">
+                                            @for (int j = 0; j < Model[i].Roles.Count; j++)
+                                            {
+                                                <div class="form-check me-3">
+                                                    <input type="checkbox"
+                                                           asp-for="@Model[i].Roles[j].IsAssigned"
+                                                           class="form-check-input" />
+                                                    <label class="form-check-label">
+                                                        @Model[i].Roles[j].RoleName
+                                                    </label>
+                                                    <input type="hidden" asp-for="@Model[i].Roles[j].RoleName" />
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <div id="noResults" class="text-center text-danger mt-3" style="display: none;">
+                        No users match the search/filter criteria.
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success">Update Roles</button>
+                </div>
+
+                @if (TempData["Message"] != null)
+                {
+                    <div class="alert alert-success text-center mt-3">@TempData["Message"]</div>
+                }
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let debounceTimer;
+
+        function debouncedSearch() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(filterUsers, 300);
+        }
+
+        function filterUsers() {
+            const query = document.getElementById("searchUser").value.toLowerCase();
+            const rows = document.querySelectorAll(".user-row");
+            let anyVisible = false;
+
+            rows.forEach(row => {
+                const userName = row.querySelector(".user-name").textContent.toLowerCase();
+
+                const checkedRoles = Array.from(row.querySelectorAll(".user-roles input[type='checkbox']:checked"))
+                                          .map(cb => cb.closest(".form-check").querySelector(".form-check-label").textContent.toLowerCase());
+
+                const matchesName = userName.includes(query);
+
+                if (matchesName) {
+                    row.style.display = "";
+                    anyVisible = true;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            document.getElementById("noResults").style.display = anyVisible ? "none" : "block";
+        }
+
+        function clearSearch() {
+            document.getElementById("searchUser").value = "";
+            filterUsers();
+        }
+
+        document.querySelectorAll(".form-check-input").forEach(cb => {
+            cb.addEventListener("change", () => {
+                const row = cb.closest("tr");
+                const count = row.querySelectorAll(".form-check-input:checked").length;
+                const badge = row.querySelector("span.badge");
+                badge.textContent = `${count} role${count !== 1 ? 's' : ''}`;
+            });
+        });
+    </script>
+}

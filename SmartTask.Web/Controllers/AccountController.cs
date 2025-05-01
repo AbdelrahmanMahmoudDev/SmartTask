@@ -116,5 +116,56 @@ namespace SmartTask.Web.Controllers
 
             return View();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ManageUserRoles()
+        {
+            var users = await userManager.Users.ToListAsync();
+            var roles = await roleManager.Roles.Select(r => r.Name).ToListAsync();
+
+            var model = new List<UserRoleAssignmentViewModel>();
+
+            foreach (var user in users)
+            {
+                var userRoles = await userManager.GetRolesAsync(user);
+
+                model.Add(new UserRoleAssignmentViewModel
+                {
+                    UserId = user.Id,
+                    UserName = user.FullName,
+                    Roles = roles.Select(role => new RoleCheckbox
+                    {
+                        RoleName = role,
+                        IsAssigned = userRoles.Contains(role)
+                    }).ToList()
+                });
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ManageUserRoles(List<UserRoleAssignmentViewModel> model)
+        {
+            foreach (var userModel in model)
+            {
+                var user = await userManager.FindByIdAsync(userModel.UserId);
+                if (user == null) continue;
+
+                var currentRoles = await userManager.GetRolesAsync(user);
+
+                foreach (var role in userModel.Roles)
+                {
+                    if (role.IsAssigned && !currentRoles.Contains(role.RoleName))
+                        await userManager.AddToRoleAsync(user, role.RoleName);
+
+                    if (!role.IsAssigned && currentRoles.Contains(role.RoleName))
+                        await userManager.RemoveFromRoleAsync(user, role.RoleName);
+                }
+            }
+
+            TempData["Message"] = "Roles updated successfully!";
+            return RedirectToAction("ManageUserRoles");
+        }
     }
 }
