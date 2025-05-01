@@ -19,11 +19,13 @@ namespace SmartTask.Web.Controllers
             signInManager = _signInManager;
             roleManager = _roleManager;
         }
+
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel account)
         {
@@ -43,6 +45,7 @@ namespace SmartTask.Web.Controllers
             }
             return View("Login", account);
         }
+
         [HttpGet]
         public IActionResult Register()
         {
@@ -71,9 +74,46 @@ namespace SmartTask.Web.Controllers
                 {
                     ModelState.AddModelError("", item.Description);
                 }
-
             }
             return View("Register", register);
+        }
+
+        [HttpGet]
+        public IActionResult AddRole()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddRole(string roleName)
+        {
+            if (string.IsNullOrWhiteSpace(roleName))
+            {
+                ViewBag.Message = "Role name is required";
+            }
+            else
+            {
+                var roleExists = await roleManager.RoleExistsAsync(roleName);
+                if (!roleExists)
+                {
+                    var newRole = new IdentityRole
+                    {
+                        Name = roleName.Trim(),
+                        NormalizedName = roleName.Trim().ToUpper(),
+                        ConcurrencyStamp = Guid.NewGuid().ToString()
+                    };
+
+                    var result = await roleManager.CreateAsync(newRole);
+
+                    ViewBag.Message = result.Succeeded ? "Role created successfully!" : "Failed to create role!";
+                }
+                else
+                {
+                    ViewBag.Message = "Role already exists";
+                }
+            }
+
+            return View();
         }
     }
 }
