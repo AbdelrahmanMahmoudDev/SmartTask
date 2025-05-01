@@ -94,7 +94,11 @@ namespace SmartTask.Web.Controllers
             else
             {
                 var roleExists = await roleManager.RoleExistsAsync(roleName);
-                if (!roleExists)
+                if (roleExists)
+                {
+                    ViewBag.Message = "Role already exists";
+                }
+                else
                 {
                     var newRole = new IdentityRole
                     {
@@ -106,10 +110,6 @@ namespace SmartTask.Web.Controllers
                     var result = await roleManager.CreateAsync(newRole);
 
                     ViewBag.Message = result.Succeeded ? "Role created successfully!" : "Failed to create role!";
-                }
-                else
-                {
-                    ViewBag.Message = "Role already exists";
                 }
             }
 
