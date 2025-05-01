@@ -62,7 +62,8 @@ namespace SmartTask.Web.Controllers
                 applicationUser.FullName = register.FName;
                 applicationUser.Email = register.Email;
                 applicationUser.PhoneNumber = register.PhoneNumber;
-                applicationUser.Address = register.Address;
+                applicationUser.createdAt = DateTime.Now;
+                applicationUser.updatedAt = DateTime.Now;
 
                 IdentityResult identityResult = await userManager.CreateAsync(applicationUser, register.Password);
 

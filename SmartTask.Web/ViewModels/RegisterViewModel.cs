@@ -30,7 +30,5 @@ namespace SmartTask.Web.ViewModels
         [Display(Name ="Phone Number")]
         [RegularExpression("^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$", ErrorMessage = "Enter a Valid Phone Number")]
         public string PhoneNumber { get; set; }
-        [Required]
-        public string Address { get; set; }
     }
 }
