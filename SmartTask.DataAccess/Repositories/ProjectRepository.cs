@@ -1,0 +1,102 @@
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using SmartTask.DataAccess.Data;
+using SmartTask.Core.IRepositories;
+using Project = SmartTask.Core.Models.Project;
+
+
+namespace SmartTask.DataAccess.Repositories
+{
+    public class ProjectRepository : IProjectRepository
+    {
+        private readonly SmartTaskContext _context;
+
+        public ProjectRepository(SmartTaskContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<IEnumerable<Project>> GetAllAsync()
+        {
+            return await _context.Projects
+                .Include(p => p.Owner)
+                .Include(p => p.CreatedBy)
+                .ToListAsync();
+        }
+
+        public async Task<Project> GetByIdAsync(int id)
+        {
+            return await _context.Projects
+                .Include(p => p.Owner)
+                .Include(p => p.CreatedBy)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<Project> GetWithDetailsAsync(int id)
+        {
+            return await _context.Projects
+                .Include(p => p.Owner)
+                .Include(p => p.CreatedBy)
+                .Include(p => p.ProjectRoles)
+                    .ThenInclude(pr => pr.ProjectRolePermissions)
+                        .ThenInclude(prp => prp.Permission)
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(pm => pm.User)
+                .Include(p => p.Tasks)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<IEnumerable<Project>> GetByOwnerIdAsync(int ownerId)
+        {
+            return await _context.Projects
+                .Where(p => p.OwnerId == ownerId)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Project>> GetByCreatedByIdAsync(int createdById)
+        {
+            return await _context.Projects
+                .Where(p => p.CreatedById == createdById)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Project>> GetProjectsByUserIdAsync(int userId)
+        {
+            return await _context.ProjectMembers
+                .Where(pm => pm.UserId == userId)
+                .Select(pm => pm.Project)
+                .Include(p => p.Owner)
+                .ToListAsync();
+        }
+
+        public async Task<Project> AddAsync(Project project)
+        {
+            _context.Projects.Add(project);
+            await _context.SaveChangesAsync();
+            return project;
+        }
+
+        public async Task UpdateAsync(Project project)
+        {
+            _context.Entry(project).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var project = await _context.Projects.FindAsync(id);
+            if (project != null)
+            {
+                _context.Projects.Remove(project);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await _context.Projects.AnyAsync(p => p.Id == id);
+        }
+    }
+}

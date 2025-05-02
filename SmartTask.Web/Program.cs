@@ -6,6 +6,13 @@ using SmartTask.DataAccess.ExternalServices.EmailService;
 using SmartTask.Domain.Models;
 using SmartTask.Web.Models;
 
+using Microsoft.EntityFrameworkCore;
+using SmartTask.Core.IRepositories;
+
+using SmartTask.DataAccess.Repositories;
+using SmartTask.DataAccess.Data;
+using System;
+
 namespace SmartTask.Web
 {
     public class Program
@@ -14,7 +21,7 @@ namespace SmartTask.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Core MVC services configuration
             builder.Services.AddControllersWithViews();
 
             builder.Services.Configure<SmtpSettings>(
@@ -29,17 +36,30 @@ namespace SmartTask.Web
             });
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ProjectContext>();
+            // Database context configuration
+            builder.Services.AddDbContext<SmartTaskContext>(options =>
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection"),
+                    sqlOptions => sqlOptions.EnableRetryOnFailure()));
+
+            // Dependency injection registrations
+            RegisterRepositories(builder.Services);
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Middleware pipeline configuration
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
+                app.UseHsts();
             }
-            app.UseRouting();
 
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            app.UseRouting();
             app.UseAuthorization();
 
+            // Endpoint routing configuration
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
@@ -47,6 +67,29 @@ namespace SmartTask.Web
                 .WithStaticAssets();
 
             app.Run();
+        }
+
+        private static void RegisterRepositories(IServiceCollection services)
+        {
+            // Repository layer DI registrations
+            services.AddScoped<  IAISuggestionRepository, AISuggestionRepository> ();
+            services.AddScoped<IAssignTaskRepository, AssignTaskRepository>();
+            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+            services.AddScoped<IBranchDepartmentRepository, BranchDepartmentRepository>();
+            services.AddScoped<IBranchRepository, BranchRepository>();
+            services.AddScoped<ICommentRepository, CommentRepository>();
+            services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IPermissionRepository, PermissionRepository>();
+            services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<IProjectRolePermissionRepository, ProjectRolePermissionRepository>();
+            services.AddScoped<IProjectRoleRepository, ProjectRoleRepository>();
+            services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<ITaskDependencyRepository, TaskDependencyRepository>();
+            services.AddScoped<ITaskRepository, TaskRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
         }
     }
 }

@@ -26,4 +26,11 @@
     <ProjectReference Include="..\SmartTask.BL\SmartTask.BL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+
+	 
+
+	  <ProjectReference Include="..\SmartTask.Core\SmartTask.Core.csproj" />
+  </ItemGroup>
+
 </Project>
