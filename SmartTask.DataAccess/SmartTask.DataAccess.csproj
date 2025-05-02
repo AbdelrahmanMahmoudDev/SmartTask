@@ -23,14 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SmartTask.BL\SmartTask.BL.csproj" />
+    <ProjectReference Include="..\SmartTask.Bl\SmartTask.Bl.csproj" />
+    <ProjectReference Include="..\SmartTask.Core\SmartTask.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
 
-	 
-
-	  <ProjectReference Include="..\SmartTask.Core\SmartTask.Core.csproj" />
-  </ItemGroup>
 
 </Project>

@@ -4,13 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.Web", "SmartTask.Web\SmartTask.Web.csproj", "{2908528D-1C59-4725-8059-1251CA59D9E9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5CA57473-D659-428E-A0DA-CBE506A553BD} = {5CA57473-D659-428E-A0DA-CBE506A553BD}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.DataAccess", "SmartTask.DataAccess\SmartTask.DataAccess.csproj", "{74809FDA-5555-40F1-81D9-BA98A9F7A3AA}"
 	ProjectSection(ProjectDependencies) = postProject
-		{5CA57473-D659-428E-A0DA-CBE506A553BD} = {5CA57473-D659-428E-A0DA-CBE506A553BD}
+		{5C1FFBF0-E55B-47BA-A138-27541A5424D4} = {5C1FFBF0-E55B-47BA-A138-27541A5424D4}
+		{8BBE0EC9-FF02-444A-AA36-8FEAD9C4A397} = {8BBE0EC9-FF02-444A-AA36-8FEAD9C4A397}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.Tests", "SmartTask.Tests\SmartTask.Tests.csproj", "{001F4FF7-C20E-4980-9C26-3C29277E819A}"

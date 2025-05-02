@@ -10,7 +10,7 @@ using SmartTask.Web.Models;
 
 namespace SmartTask.Web.Migrations
 {
-    [DbContext(typeof(ProjectContext))]
+    //[DbContext(typeof(ProjectContext))]
     partial class ProjectContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

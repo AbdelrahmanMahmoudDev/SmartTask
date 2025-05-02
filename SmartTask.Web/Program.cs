@@ -3,15 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using SmartTask.BL.IServices;
 using SmartTask.BL.Services.NotificationService;
 using SmartTask.DataAccess.ExternalServices.EmailService;
-using SmartTask.Domain.Models;
-using SmartTask.Web.Models;
-
-using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.IRepositories;
-
 using SmartTask.DataAccess.Repositories;
 using SmartTask.DataAccess.Data;
-using System;
+using SmartTask.Core.Models.Mail;
+using SmartTask.Core.Models;
 
 namespace SmartTask.Web
 {
@@ -26,21 +22,14 @@ namespace SmartTask.Web
 
             builder.Services.Configure<SmtpSettings>(
     builder.Configuration.GetSection("SmtpSettings"));
-            builder.Services.AddScoped<IEmailSender, EmailService>();
-            builder.Services.AddScoped<INotificationService, NotificationService>();
 
-
-            builder.Services.AddDbContext<ProjectContext>(options =>
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
-            });
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ProjectContext>();
             // Database context configuration
             builder.Services.AddDbContext<SmartTaskContext>(options =>
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection"),
                     sqlOptions => sqlOptions.EnableRetryOnFailure()));
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<SmartTaskContext>();
 
             // Dependency injection registrations
             RegisterRepositories(builder.Services);
@@ -71,6 +60,8 @@ namespace SmartTask.Web
 
         private static void RegisterRepositories(IServiceCollection services)
         {
+            services.AddScoped<IEmailSender, EmailService>();
+            services.AddScoped<INotificationService, NotificationService>();
             // Repository layer DI registrations
             services.AddScoped<  IAISuggestionRepository, AISuggestionRepository> ();
             services.AddScoped<IAssignTaskRepository, AssignTaskRepository>();

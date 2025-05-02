@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.Models;
 using TaskModel = SmartTask.Core.Models.Task;
@@ -8,7 +9,7 @@ namespace SmartTask.DataAccess.Data
     /// Represents the EF Core database context for SmartTask.
     /// Manages DbSet properties and configures entity relationships.
     /// </summary>
-    public class SmartTaskContext : DbContext
+    public class SmartTaskContext : IdentityDbContext
     {
         /// <summary>
         /// Initializes the context with the specified options.

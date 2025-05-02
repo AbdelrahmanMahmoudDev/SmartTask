@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using SmartTask.Web.Models;
+using SmartTask.Core.Models;
 using SmartTask.Web.ViewModels;
 
 namespace SmartTask.Web.Controllers

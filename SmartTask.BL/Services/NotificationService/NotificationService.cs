@@ -1,5 +1,5 @@
 ﻿using SmartTask.BL.IServices;
-using SmartTask.Domain.Models;
+using SmartTask.Core.Models.Mail;
 using System;
 using System.Collections.Generic;
 using System.Linq;

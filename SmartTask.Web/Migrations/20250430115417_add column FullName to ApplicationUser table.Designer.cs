@@ -11,7 +11,7 @@ using SmartTask.Web.Models;
 
 namespace SmartTask.Web.Migrations
 {
-    [DbContext(typeof(ProjectContext))]
+    //[DbContext(typeof(ProjectContext))]
     [Migration("20250430115417_add column FullName to ApplicationUser table")]
     partial class addcolumnFullNametoApplicationUsertable
     {

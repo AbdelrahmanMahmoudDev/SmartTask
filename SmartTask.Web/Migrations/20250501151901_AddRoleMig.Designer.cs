@@ -11,7 +11,7 @@ using SmartTask.Web.Models;
 
 namespace SmartTask.Web.Migrations
 {
-    [DbContext(typeof(ProjectContext))]
+    //[DbContext(typeof(ProjectContext))]
     [Migration("20250501151901_AddRoleMig")]
     partial class AddRoleMig
     {

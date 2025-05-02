@@ -11,7 +11,7 @@ using SmartTask.Web.Models;
 
 namespace SmartTask.Web.Migrations
 {
-    [DbContext(typeof(ProjectContext))]
+    //[DbContext(typeof(ProjectContext))]
     [Migration("20250501161827_add two columns and delete one column in user")]
     partial class addtwocolumnsanddeleteonecolumninuser
     {
