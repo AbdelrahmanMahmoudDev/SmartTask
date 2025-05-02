@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using SmartTask.BL.IServices;
-using SmartTask.Web.Models;
+using SmartTask.Web.ViewModels;
 
 namespace SmartTask.Web.Controllers
 {
@@ -9,7 +9,8 @@ namespace SmartTask.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly INotificationService notificationService;
-        public HomeController(ILogger<HomeController> logger,INotificationService notificationService)
+
+        public HomeController(ILogger<HomeController> logger, INotificationService notificationService)
         {
             _logger = logger;
             this.notificationService = notificationService;

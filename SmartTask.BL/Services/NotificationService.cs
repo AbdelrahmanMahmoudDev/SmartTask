@@ -1,13 +1,8 @@
 ﻿using SmartTask.BL.IServices;
 using SmartTask.Core.IExternalServices;
 using SmartTask.Core.Models.Mail;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SmartTask.BL.Services.NotificationService
+namespace SmartTask.Bl.Services
 {
     public class NotificationService : INotificationService
     {
