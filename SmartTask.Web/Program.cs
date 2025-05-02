@@ -8,6 +8,7 @@ using SmartTask.DataAccess.Repositories;
 using SmartTask.DataAccess.Data;
 using SmartTask.Core.Models.Mail;
 using SmartTask.Core.Models;
+using SmartTask.Core.IExternalServices;
 
 namespace SmartTask.Web
 {

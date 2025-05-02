@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MailKit.Net.Smtp;
 using MimeKit;
-using SmartTask.BL.IServices;
 using SmartTask.Core.Models.Mail;
 using Microsoft.Extensions.Options;
+using SmartTask.Core.IExternalServices;
 
 namespace SmartTask.DataAccess.ExternalServices.EmailService
 {

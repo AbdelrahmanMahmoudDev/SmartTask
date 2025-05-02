@@ -6,7 +6,7 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SmartTask.BL.IServices
+namespace SmartTask.Core.IExternalServices
 {
     public interface IEmailSender
     {
