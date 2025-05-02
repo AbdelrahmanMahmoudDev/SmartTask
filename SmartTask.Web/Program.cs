@@ -4,6 +4,8 @@ using SmartTask.Core.IRepositories;
 using SmartTask.DataAccess.Repositories;
 using SmartTask.DataAccess.Data;
 using System;
+using SmartTask.Bl.Interfaces;
+using SmartTask.Bl.Services;
 
 namespace SmartTask.Web
 {
@@ -24,6 +26,9 @@ namespace SmartTask.Web
 
             // Dependency injection registrations
             RegisterRepositories(builder.Services);
+
+            builder.Services.AddScoped(typeof(IPaginatedService<>), typeof(PaginatedService<>));
+
 
             var app = builder.Build();
 
