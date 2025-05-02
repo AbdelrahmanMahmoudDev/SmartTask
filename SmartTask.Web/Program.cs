@@ -9,6 +9,8 @@ using SmartTask.DataAccess.Data;
 using SmartTask.Core.Models.Mail;
 using SmartTask.Core.Models;
 using SmartTask.Core.IExternalServices;
+using SmartTask.Bl.IServices;
+using SmartTask.Bl.Services;
 
 namespace SmartTask.Web
 {
@@ -34,6 +36,8 @@ namespace SmartTask.Web
 
             // Dependency injection registrations
             RegisterRepositories(builder.Services);
+
+            builder.Services.AddScoped(typeof(IPaginatedService<>), typeof(PaginatedService<>));
 
             var app = builder.Build();
 
