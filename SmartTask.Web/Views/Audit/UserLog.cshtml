@@ -1,0 +1,33 @@
+﻿@model IEnumerable<UserLoginHistoryViewModel>
+
+@{
+    ViewData["Title"] = "User Login History";
+}
+
+<h1 class="my-4">User Login History</h1>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Id)</th>
+            <th>@Html.DisplayNameFor(model => model.UserId)</th>
+            <th>@Html.DisplayNameFor(model => model.UserName)</th>
+            <th>@Html.DisplayNameFor(model => model.LoginTime)</th>
+            <th>@Html.DisplayNameFor(model => model.IPAddress)</th>
+            <th>@Html.DisplayNameFor(model => model.UserAgent)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Id)</td>
+                <td>@Html.DisplayFor(modelItem => item.UserId)</td>
+                <td>@Html.DisplayFor(modelItem => item.UserName)</td>
+                <td>@Html.DisplayFor(modelItem => item.LoginTime)</td>
+                <td>@Html.DisplayFor(modelItem => item.IPAddress)</td>
+                <td>@Html.DisplayFor(modelItem => item.UserAgent)</td>
+            </tr>
+        }
+    </tbody>
+</table>

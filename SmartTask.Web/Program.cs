@@ -12,11 +12,13 @@ using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
 using SmartTask.Bl.Hubs;
 
+using System;
+using task=System.Threading.Tasks.Task;
 namespace SmartTask.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +47,19 @@ namespace SmartTask.Web
             RegisterRepositories(builder.Services);
 
             var app = builder.Build();
-
+            using var scope = app.Services.CreateScope();
+            var services = scope.ServiceProvider;
+            var context = services.GetRequiredService<SmartTaskContext>();
+            var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+            try
+            {
+                await context.Database.MigrateAsync();
+            }
+            catch (Exception ex)
+            {
+                var logger = loggerFactory.CreateLogger<Program>();
+                logger.LogError(ex, "An error occurred while migrating the database.");
+            }
             // Error Handling
             if (!app.Environment.IsDevelopment())
             {
@@ -80,6 +94,7 @@ namespace SmartTask.Web
             services.AddScoped<INotificationService, NotificationService>();
 
             // Repository Interfaces to Implementations
+         
             services.AddScoped<IAISuggestionRepository, AISuggestionRepository>();
             services.AddScoped<IAssignTaskRepository, AssignTaskRepository>();
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
@@ -97,6 +112,8 @@ namespace SmartTask.Web
             services.AddScoped<ITaskDependencyRepository, TaskDependencyRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserLoginHistoryRepository, UserLoginHistoryRepository>();
+            services.AddScoped<IAuditRepository, AuditRepository>();
         }
     }
 }
