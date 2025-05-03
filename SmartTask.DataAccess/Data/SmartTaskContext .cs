@@ -4,7 +4,6 @@ using SmartTask.Core.Models;
 using SmartTask.Core.Models.BasePermission;
 using SmartTask.Core.Models.AuditModels;
 using TaskModel = SmartTask.Core.Models.Task;
-using TempTask= SmartTask.Core.Models.TemporaryTable.Task;//temp table
 
 namespace SmartTask.DataAccess.Data
 {
@@ -18,8 +17,6 @@ namespace SmartTask.DataAccess.Data
         {
         }
 
-        //Temp table
-        public DbSet<TempTask> TempTasks { get; set; }
         public DbSet<TaskModel> Tasks { get; set; }
         //public DbSet<Role> RolesSmart { get; set; }
         //public DbSet<Permission> Permissions { get; set; }

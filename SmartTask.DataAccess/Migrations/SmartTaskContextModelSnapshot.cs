@@ -170,6 +170,9 @@ namespace SmartTask.DataAccess.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("DepartmentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -221,6 +224,8 @@ namespace SmartTask.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -309,6 +314,82 @@ namespace SmartTask.DataAccess.Migrations
                     b.HasIndex("UploadedById");
 
                     b.ToTable("Attachments");
+                });
+
+            modelBuilder.Entity("SmartTask.Core.Models.AuditModels.Audit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AffectedColumns")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValues")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OldValues")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TableName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Audits");
+                });
+
+            modelBuilder.Entity("SmartTask.Core.Models.AuditModels.UserLoginHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("IPAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LoginTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserAgent")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserLoginHistories");
                 });
 
             modelBuilder.Entity("SmartTask.Core.Models.BasePermission.ApplicationRole", b =>
@@ -478,24 +559,6 @@ namespace SmartTask.DataAccess.Migrations
                     b.ToTable("Events");
                 });
 
-            modelBuilder.Entity("SmartTask.Core.Models.Permission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Permissions");
-                });
-
             modelBuilder.Entity("SmartTask.Core.Models.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -557,96 +620,11 @@ namespace SmartTask.DataAccess.Migrations
                         .HasColumnType("nvarchar(450)")
                         .HasColumnOrder(1);
 
-                    b.Property<int>("ProjectRoleId")
-                        .HasColumnType("int");
-
                     b.HasKey("ProjectId", "UserId");
-
-                    b.HasIndex("ProjectRoleId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("ProjectMembers");
-                });
-
-            modelBuilder.Entity("SmartTask.Core.Models.ProjectRole", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("ProjectRoles");
-                });
-
-            modelBuilder.Entity("SmartTask.Core.Models.ProjectRolePermission", b =>
-                {
-                    b.Property<int>("ProjectRoleId")
-                        .HasColumnType("int")
-                        .HasColumnOrder(0);
-
-                    b.Property<int>("PermissionId")
-                        .HasColumnType("int")
-                        .HasColumnOrder(1);
-
-                    b.HasKey("ProjectRoleId", "PermissionId");
-
-                    b.HasIndex("PermissionId");
-
-                    b.ToTable("ProjectRolePermissions");
-                });
-
-            modelBuilder.Entity("SmartTask.Core.Models.Role", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RolesSmart");
-                });
-
-            modelBuilder.Entity("SmartTask.Core.Models.RolePermission", b =>
-                {
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int")
-                        .HasColumnOrder(0);
-
-                    b.Property<int>("PermissionId")
-                        .HasColumnType("int")
-                        .HasColumnOrder(1);
-
-                    b.Property<string>("ApplicationRoleId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("RoleId", "PermissionId");
-
-                    b.HasIndex("ApplicationRoleId");
-
-                    b.HasIndex("PermissionId");
-
-                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("SmartTask.Core.Models.Task", b =>
@@ -793,108 +771,6 @@ namespace SmartTask.DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.HasOne("SmartTask.Core.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.HasOne("SmartTask.Core.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SmartTask.Core.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.HasOne("SmartTask.Core.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.HasOne("SmartTask.Core.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.HasOne("SmartTask.Core.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SmartTask.Core.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.HasOne("SmartTask.Core.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("SmartTask.Core.Models.AISuggestion", b =>
                 {
                     b.HasOne("SmartTask.Core.Models.Task", "Task")
@@ -911,10 +787,6 @@ namespace SmartTask.DataAccess.Migrations
                     b.HasOne("SmartTask.Core.Models.Department", "Department")
                         .WithMany("Users")
                         .HasForeignKey("DepartmentId");
-
-                    b.HasOne("SmartTask.Core.Models.Role", null)
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId");
 
                     b.Navigation("Department");
                 });
@@ -1066,12 +938,6 @@ namespace SmartTask.DataAccess.Migrations
                     b.HasOne("SmartTask.Core.Models.Project", "Project")
                         .WithMany("ProjectMembers")
                         .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SmartTask.Core.Models.ProjectRole", "ProjectRole")
-                        .WithMany("ProjectMembers")
-                        .HasForeignKey("ProjectRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1083,62 +949,7 @@ namespace SmartTask.DataAccess.Migrations
 
                     b.Navigation("Project");
 
-                    b.Navigation("ProjectRole");
-
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("SmartTask.Core.Models.ProjectRole", b =>
-                {
-                    b.HasOne("SmartTask.Core.Models.Project", "Project")
-                        .WithMany("ProjectRoles")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("SmartTask.Core.Models.ProjectRolePermission", b =>
-                {
-                    b.HasOne("SmartTask.Core.Models.Permission", "Permission")
-                        .WithMany("ProjectRolePermissions")
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SmartTask.Core.Models.ProjectRole", "ProjectRole")
-                        .WithMany("ProjectRolePermissions")
-                        .HasForeignKey("ProjectRoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Permission");
-
-                    b.Navigation("ProjectRole");
-                });
-
-            modelBuilder.Entity("SmartTask.Core.Models.RolePermission", b =>
-                {
-                    b.HasOne("SmartTask.Core.Models.BasePermission.ApplicationRole", null)
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("ApplicationRoleId");
-
-                    b.HasOne("SmartTask.Core.Models.Permission", "Permission")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SmartTask.Core.Models.Role", "Role")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Permission");
-
-                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("SmartTask.Core.Models.Task", b =>
@@ -1229,11 +1040,6 @@ namespace SmartTask.DataAccess.Migrations
                     b.Navigation("UpdatedTasks");
                 });
 
-            modelBuilder.Entity("SmartTask.Core.Models.BasePermission.ApplicationRole", b =>
-                {
-                    b.Navigation("RolePermissions");
-                });
-
             modelBuilder.Entity("SmartTask.Core.Models.Branch", b =>
                 {
                     b.Navigation("BranchDepartments");
@@ -1246,34 +1052,11 @@ namespace SmartTask.DataAccess.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("SmartTask.Core.Models.Permission", b =>
-                {
-                    b.Navigation("ProjectRolePermissions");
-
-                    b.Navigation("RolePermissions");
-                });
-
             modelBuilder.Entity("SmartTask.Core.Models.Project", b =>
                 {
                     b.Navigation("ProjectMembers");
 
-                    b.Navigation("ProjectRoles");
-
                     b.Navigation("Tasks");
-                });
-
-            modelBuilder.Entity("SmartTask.Core.Models.ProjectRole", b =>
-                {
-                    b.Navigation("ProjectMembers");
-
-                    b.Navigation("ProjectRolePermissions");
-                });
-
-            modelBuilder.Entity("SmartTask.Core.Models.Role", b =>
-                {
-                    b.Navigation("RolePermissions");
-
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("SmartTask.Core.Models.Task", b =>
