@@ -1,0 +1,39 @@
+﻿@model IEnumerable<AuditViewModel>
+
+@{
+    ViewData["Title"] = "Audit Log";
+}
+
+<h1 class="my-4">Audit Log</h1>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Id)</th>
+            <th>@Html.DisplayNameFor(model => model.UserId)</th>
+            <th>@Html.DisplayNameFor(model => model.TableName)</th>
+            <th>@Html.DisplayNameFor(model => model.Action)</th>
+            <th>@Html.DisplayNameFor(model => model.Username)</th>
+            <th>@Html.DisplayNameFor(model => model.Timestamp)</th>
+            <th>@Html.DisplayNameFor(model => model.OldValues)</th>
+            <th>@Html.DisplayNameFor(model => model.NewValues)</th>
+            <th>@Html.DisplayNameFor(model => model.AffectedColumns)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Id)</td>
+                <td>@Html.DisplayFor(modelItem => item.UserId)</td>
+                <td>@Html.DisplayFor(modelItem => item.TableName)</td>
+                <td>@Html.DisplayFor(modelItem => item.Action)</td>
+                <td>@Html.DisplayFor(modelItem => item.Username)</td>
+                <td>@Html.DisplayFor(modelItem => item.Timestamp)</td>
+                <td>@Html.DisplayFor(modelItem => item.OldValues)</td>
+                <td>@Html.DisplayFor(modelItem => item.NewValues)</td>
+                <td>@Html.DisplayFor(modelItem => item.AffectedColumns)</td>
+            </tr>
+        }
+    </tbody>
+</table>

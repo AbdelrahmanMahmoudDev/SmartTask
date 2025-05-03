@@ -1,16 +1,20 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.Models;
+using SmartTask.Core.Models.AuditModels;
 using TaskModel = SmartTask.Core.Models.Task;
+using TempTask= SmartTask.Core.Models.TemporaryTable.Task;//temp table
 
 namespace SmartTask.DataAccess.Data
 {
-    public class SmartTaskContext : IdentityDbContext
+    public class SmartTaskContext : IdentityDbContext<ApplicationUser>
     {
         public SmartTaskContext(DbContextOptions<SmartTaskContext> options) : base(options)
         {
         }
 
+        //Temp table
+        public DbSet<TempTask> TempTasks { get; set; }
         public DbSet<TaskModel> Tasks { get; set; }
 
         public DbSet<Role> Roles { get; set; }
@@ -30,6 +34,8 @@ namespace SmartTask.DataAccess.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<AISuggestion> AISuggestions { get; set; }
         public DbSet<AssignTask> AssignTasks { get; set; }
+        public DbSet<Audit> Audits { get; set; }
+        public DbSet<UserLoginHistory>UserLoginHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -121,6 +127,63 @@ namespace SmartTask.DataAccess.Data
 
             // Table Mapping
             modelBuilder.Entity<User>().ToTable("Users");
+        }
+        public async Task<int> SaveChangesAsync(string UserId, string UserName)
+        {
+            BeforeSaveChanges(UserId, UserName);
+            var result = await base.SaveChangesAsync();
+
+            return result;
+        }
+        private void BeforeSaveChanges(string UserId, string UserName)
+        {
+            ChangeTracker.DetectChanges();
+            var AuditEntries = new List<AuditEntry>();
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.Entity is Audit || entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
+                {
+                    continue;
+                }
+                var AuditEntry = new AuditEntry();
+                AuditEntry.UserId = UserId;
+                AuditEntry.TableName = entry.Entity.GetType().Name;
+                AuditEntry.Username = UserName;
+
+                AuditEntries.Add(AuditEntry);
+                foreach (var property in entry.Properties)
+                {
+                    string propertyName = property.Metadata.Name;
+
+                    switch (entry.State)
+                    {
+                        case EntityState.Added:
+                            AuditEntry.Action = AuditAction.Create;
+                            AuditEntry.NewValues[propertyName] = property.CurrentValue;
+                            break;
+                        case EntityState.Deleted:
+                            AuditEntry.Action = AuditAction.Delete;
+                            AuditEntry.OldValues[propertyName] = property.OriginalValue;
+                            break;
+                        case EntityState.Modified:
+                            if (property.IsModified)
+                            {
+                                AuditEntry.Action = AuditAction.Update;
+                                AuditEntry.OldValues[propertyName] = property.OriginalValue;
+                                AuditEntry.NewValues[propertyName] = property.CurrentValue;
+                                AuditEntry.AffectedColumns.Add(propertyName);
+                            }
+                            break;
+                    }
+
+                }
+
+            }
+            foreach (var AuditEntry in AuditEntries)
+            {
+                var audit = AuditEntry.ToAudit();
+                Audits.Add(audit);
+            }
         }
     }
 }
