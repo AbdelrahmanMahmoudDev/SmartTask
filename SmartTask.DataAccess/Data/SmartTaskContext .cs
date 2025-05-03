@@ -5,7 +5,7 @@ using TaskModel = SmartTask.Core.Models.Task;
 
 namespace SmartTask.DataAccess.Data
 {
-    public class SmartTaskContext : IdentityDbContext
+    public class SmartTaskContext : IdentityDbContext<ApplicationUser>
     {
         public SmartTaskContext(DbContextOptions<SmartTaskContext> options) : base(options)
         {
