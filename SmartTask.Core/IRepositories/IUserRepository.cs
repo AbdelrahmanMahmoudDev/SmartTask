@@ -1,22 +1,22 @@
+using SmartTask.Core.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using User = SmartTask.Core.Models.User;
 
 
 namespace SmartTask.Core.IRepositories
 {
     public interface IUserRepository
     {
-        Task<IEnumerable<User>> GetAllAsync();
-        Task<User> GetByIdAsync(int id);
-        Task<User> GetByEmailAsync(string email);
-        Task<User> GetWithDetailsAsync(int id);
-        Task<IEnumerable<User>> GetByDepartmentIdAsync(int departmentId);
-        Task<IEnumerable<User>> GetByRoleIdAsync(int roleId);
-        Task<User> AddAsync(User user);
-        Task UpdateAsync(User user);
-        Task DeleteAsync(int id);
-        Task<bool> ExistsAsync(int id);
-        Task<bool> EmailExistsAsync(string email);
+        Task<IEnumerable<ApplicationUser>> GetAllAsync();
+        Task<ApplicationUser> GetByIdAsync(String id);
+        Task<ApplicationUser> GetByEmailAsync(string email);
+        Task<ApplicationUser> GetWithDetailsAsync(String id);
+        Task<IEnumerable<ApplicationUser>> GetByDepartmentIdAsync(int departmentId);
+        //Task<IEnumerable<ApplicationUser>> GetByRoleIdAsync(int roleId);
+        //Task<ApplicationUser> AddAsync(ApplicationUser user);
+        //Task UpdateAsync(ApplicationUser user);
+        //Task DeleteAsync(int id);
+        //Task<bool> ExistsAsync(int id);
+        //Task<bool> EmailExistsAsync(string email);
     }
 }

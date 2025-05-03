@@ -9,7 +9,7 @@ namespace SmartTask.Core.IRepositories
         Task<IEnumerable<Department>> GetAllAsync();
         Task<Department> GetByIdAsync(int id);
         Task<Department> GetWithDetailsAsync(int id);
-        Task<IEnumerable<Department>> GetByManagerIdAsync(int managerId);
+        Task<IEnumerable<Department>> GetByManagerIdAsync(string managerId);
         Task<IEnumerable<Department>> GetByBranchIdAsync(int branchId);
         Task<Department> AddAsync(Department department);
         Task UpdateAsync(Department department);

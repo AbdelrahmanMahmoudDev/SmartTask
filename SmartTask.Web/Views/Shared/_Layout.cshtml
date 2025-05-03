@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using SmartTask.Web.TagHelpers;
+@addTagHelper *, SmartTask.Web.TagHelpers
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -8,8 +10,10 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SmartTask.Web.styles.css" asp-append-version="true" />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link rel="stylesheet" href="~/css/notification.css"/>
 </head>
+@RenderSection("Header", required: false)
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
@@ -24,9 +28,11 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark"  asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        <secure-content asp-area="" asp-controller="Home" asp-action="Privacy">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        </secure-content>
                          <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
                         </li>
@@ -38,6 +44,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Account" asp-action="ManageUserRoles">Manage Roles</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Notification" asp-action="Index">Notification</a>
                         </li>
                     </ul>
                 </div>
@@ -56,8 +65,12 @@
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/notification.js">
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

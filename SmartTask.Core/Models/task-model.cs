@@ -13,7 +13,7 @@ namespace SmartTask.Core.Models
         public int Id { get; set; }
 
         public int ProjectId { get; set; }
-        public int? AssignedToId { get; set; }
+        public string? AssignedToId { get; set; }
         public int? ParentTaskId { get; set; }
 
         [Required]
@@ -34,8 +34,8 @@ namespace SmartTask.Core.Models
         [StringLength(50)]
         public string Priority { get; set; }
 
-        public int CreatedById { get; set; }
-        public int? UpdatedById { get; set; }
+        public string CreatedById { get; set; }
+        public string? UpdatedById { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }
@@ -47,16 +47,16 @@ namespace SmartTask.Core.Models
         public virtual Project Project { get; set; }
 
         [ForeignKey("AssignedToId")]
-        public virtual User AssignedTo { get; set; }
+        public virtual ApplicationUser AssignedTo { get; set; }
 
         [ForeignKey("ParentTaskId")]
         public virtual Task ParentTask { get; set; }
 
         [ForeignKey("CreatedById")]
-        public virtual User CreatedBy { get; set; }
+        public virtual ApplicationUser CreatedBy { get; set; }
 
         [ForeignKey("UpdatedById")]
-        public virtual User UpdatedBy { get; set; }
+        public virtual ApplicationUser UpdatedBy { get; set; }
 
         public virtual ICollection<Task> SubTasks { get; set; }
         public virtual ICollection<TaskDependency> PredecessorDependencies { get; set; }

@@ -9,7 +9,7 @@ namespace SmartTask.Core.IRepositories
         Task<IEnumerable<Attachment>> GetAllAsync();
         Task<Attachment> GetByIdAsync(int id);
         Task<IEnumerable<Attachment>> GetByTaskIdAsync(int taskId);
-        Task<IEnumerable<Attachment>> GetByUploadedByIdAsync(int uploadedById);
+        Task<IEnumerable<Attachment>> GetByUploadedByIdAsync(string uploadedById);
         Task<Attachment> AddAsync(Attachment attachment);
         Task UpdateAsync(Attachment attachment);
         Task DeleteAsync(int id);

@@ -41,7 +41,7 @@ namespace SmartTask.DataAccess.Repositories
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
-        public async Task<IEnumerable<Branch>> GetByManagerIdAsync(int managerId)
+        public async Task<IEnumerable<Branch>> GetByManagerIdAsync(string managerId)
         {
             return await _context.Branches
                 .Where(b => b.ManagerId == managerId)

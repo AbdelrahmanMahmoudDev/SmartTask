@@ -10,7 +10,7 @@ namespace SmartTask.Core.Models
         public int Id { get; set; }
 
         public int TaskId { get; set; }
-        public int AuthorId { get; set; }
+        public string AuthorId { get; set; }
 
         [Required]
         public string Content { get; set; }
@@ -23,6 +23,6 @@ namespace SmartTask.Core.Models
         public virtual Task Task { get; set; }
 
         [ForeignKey("AuthorId")]
-        public virtual User Author { get; set; }
+        public virtual ApplicationUser Author { get; set; }
     }
 }

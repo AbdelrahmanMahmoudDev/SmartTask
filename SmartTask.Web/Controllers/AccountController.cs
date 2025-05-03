@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.Models;
+using SmartTask.Core.Models.BasePermission;
 using SmartTask.Web.ViewModels;
 
 namespace SmartTask.Web.Controllers
@@ -10,9 +11,9 @@ namespace SmartTask.Web.Controllers
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
-        private readonly RoleManager<IdentityRole> roleManager;
+        private readonly RoleManager<ApplicationRole> roleManager;
 
-        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, RoleManager<IdentityRole> _roleManager)
+        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, RoleManager<ApplicationRole> _roleManager)
         {
             userManager = _userManager;
             signInManager = _signInManager;
@@ -83,7 +84,7 @@ namespace SmartTask.Web.Controllers
         {
             return View();
         }
-
+/*
         [HttpPost]
         public async Task<IActionResult> AddRole(string roleName)
         {
@@ -100,7 +101,7 @@ namespace SmartTask.Web.Controllers
                 }
                 else
                 {
-                    var newRole = new IdentityRole
+                    var newRole = new ApplicationRole
                     {
                         Name = roleName.Trim(),
                         NormalizedName = roleName.Trim().ToUpper(),
@@ -115,7 +116,7 @@ namespace SmartTask.Web.Controllers
 
             return View();
         }
-
+        */
         [HttpGet]
         public async Task<IActionResult> ManageUserRoles()
         {
