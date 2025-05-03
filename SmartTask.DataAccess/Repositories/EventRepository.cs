@@ -43,7 +43,7 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Event>> GetByImportedByIdAsync(int importedById)
+        public async Task<IEnumerable<Event>> GetByImportedByIdAsync(string importedById)
         {
             return await _context.Events
                 .Include(e => e.Task)

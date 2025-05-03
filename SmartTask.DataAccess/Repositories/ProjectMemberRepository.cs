@@ -23,16 +23,14 @@ namespace SmartTask.DataAccess.Repositories
             return await _context.ProjectMembers
                 .Include(pm => pm.Project)
                 .Include(pm => pm.User)
-                .Include(pm => pm.ProjectRole)
                 .ToListAsync();
         }
 
-        public async Task<ProjectMember> GetByIdsAsync(int projectId, int userId)
+        public async Task<ProjectMember> GetByIdsAsync(int projectId, string userId)
         {
             return await _context.ProjectMembers
                 .Include(pm => pm.Project)
                 .Include(pm => pm.User)
-                .Include(pm => pm.ProjectRole)
                 .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
         }
 
@@ -40,28 +38,26 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.ProjectMembers
                 .Include(pm => pm.User)
-                .Include(pm => pm.ProjectRole)
                 .Where(pm => pm.ProjectId == projectId)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ProjectMember>> GetByUserIdAsync(int userId)
+        public async Task<IEnumerable<ProjectMember>> GetByUserIdAsync(string userId)
         {
             return await _context.ProjectMembers
                 .Include(pm => pm.Project)
-                .Include(pm => pm.ProjectRole)
                 .Where(pm => pm.UserId == userId)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ProjectMember>> GetByProjectRoleIdAsync(int projectRoleId)
-        {
-            return await _context.ProjectMembers
-                .Include(pm => pm.Project)
-                .Include(pm => pm.User)
-                .Where(pm => pm.ProjectRoleId == projectRoleId)
-                .ToListAsync();
-        }
+        //public async Task<IEnumerable<ProjectMember>> GetByProjectRoleIdAsync(int projectRoleId)
+        //{
+        //    return await _context.ProjectMembers
+        //        .Include(pm => pm.Project)
+        //        .Include(pm => pm.User)
+        //        .Where(pm => pm.ProjectRoleId == projectRoleId)
+        //        .ToListAsync();
+        //}
 
         public async Task AddAsync(ProjectMember projectMember)
         {
@@ -75,7 +71,7 @@ namespace SmartTask.DataAccess.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int projectId, int userId)
+        public async Task DeleteAsync(int projectId, string userId)
         {
             var entity = await _context.ProjectMembers.FindAsync(projectId, userId);
             if (entity != null)
@@ -85,7 +81,7 @@ namespace SmartTask.DataAccess.Repositories
             }
         }
 
-        public async Task<bool> ExistsAsync(int projectId, int userId)
+        public async Task<bool> ExistsAsync(int projectId, string userId)
         {
             return await _context.ProjectMembers
                 .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);

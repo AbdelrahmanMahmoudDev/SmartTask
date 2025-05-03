@@ -10,9 +10,9 @@ namespace SmartTask.Core.Models
         public int TaskId { get; set; }
 
         [Key, Column(Order = 1)]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
-        public int AssignedById { get; set; }
+        public string AssignedById { get; set; }
 
         [Required]
         public DateTime AssignedAt { get; set; }
@@ -33,9 +33,9 @@ namespace SmartTask.Core.Models
         public virtual Task Task { get; set; }
 
         [ForeignKey("UserId")]
-        public virtual User User { get; set; }
+        public virtual ApplicationUser User { get; set; }
 
         [ForeignKey("AssignedById")]
-        public virtual User AssignedBy { get; set; }
+        public virtual ApplicationUser AssignedBy { get; set; }
     }
 }

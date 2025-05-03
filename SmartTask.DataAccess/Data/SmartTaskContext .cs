@@ -1,28 +1,35 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.Models;
+using SmartTask.Core.Models.BasePermission;
+using SmartTask.Core.Models.AuditModels;
 using TaskModel = SmartTask.Core.Models.Task;
+using TempTask= SmartTask.Core.Models.TemporaryTable.Task;//temp table
 
 namespace SmartTask.DataAccess.Data
 {
-    public class SmartTaskContext : IdentityDbContext<ApplicationUser>
+    /// <summary>
+    /// Represents the EF Core database context for SmartTask.
+    /// Manages DbSet properties and configures entity relationships.
+    /// </summary>
+    public class SmartTaskContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
         public SmartTaskContext(DbContextOptions<SmartTaskContext> options) : base(options)
         {
         }
 
+        //Temp table
+        public DbSet<TempTask> TempTasks { get; set; }
         public DbSet<TaskModel> Tasks { get; set; }
-
-        public DbSet<Role> Roles { get; set; }
-        public DbSet<Permission> Permissions { get; set; }
-        public DbSet<RolePermission> RolePermissions { get; set; }
+        //public DbSet<Role> RolesSmart { get; set; }
+        //public DbSet<Permission> Permissions { get; set; }
+        //public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<BranchDepartment> BranchDepartments { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Project> Projects { get; set; }
-        public DbSet<ProjectRole> ProjectRoles { get; set; }
-        public DbSet<ProjectRolePermission> ProjectRolePermissions { get; set; }
+        //public DbSet<ProjectRole> ProjectRoles { get; set; }
+        //public DbSet<ProjectRolePermission> ProjectRolePermissions { get; set; }
         public DbSet<ProjectMember> ProjectMembers { get; set; }
         public DbSet<TaskDependency> TaskDependencies { get; set; }
         public DbSet<Comment> Comments { get; set; }
@@ -30,15 +37,17 @@ namespace SmartTask.DataAccess.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<AISuggestion> AISuggestions { get; set; }
         public DbSet<AssignTask> AssignTasks { get; set; }
+        public DbSet<Audit> Audits { get; set; }
+        public DbSet<UserLoginHistory>UserLoginHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // Composite Primary Keys
-            modelBuilder.Entity<RolePermission>().HasKey(rp => new { rp.RoleId, rp.PermissionId });
+            //modelBuilder.Entity<RolePermission>().HasKey(rp => new { rp.RoleId, rp.PermissionId });
             modelBuilder.Entity<BranchDepartment>().HasKey(bd => new { bd.BranchId, bd.DepartmentId });
-            modelBuilder.Entity<ProjectRolePermission>().HasKey(prp => new { prp.ProjectRoleId, prp.PermissionId });
+            //modelBuilder.Entity<ProjectRolePermission>().HasKey(prp => new { prp.ProjectRoleId, prp.PermissionId });
             modelBuilder.Entity<ProjectMember>().HasKey(pm => new { pm.ProjectId, pm.UserId });
             modelBuilder.Entity<AssignTask>().HasKey(at => new { at.TaskId, at.UserId });
 
@@ -119,8 +128,66 @@ namespace SmartTask.DataAccess.Data
                 .HasForeignKey(at => at.AssignedById)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Table Mapping
-            modelBuilder.Entity<User>().ToTable("Users");
+            // Map User entity to a custom table if needed
+            //modelBuilder.Entity<User>()
+            //    .ToTable("Users");
+        }
+        public async Task<int> SaveChangesAsync(string UserId, string UserName)
+        {
+            BeforeSaveChanges(UserId, UserName);
+            var result = await base.SaveChangesAsync();
+
+            return result;
+        }
+        private void BeforeSaveChanges(string UserId, string UserName)
+        {
+            ChangeTracker.DetectChanges();
+            var AuditEntries = new List<AuditEntry>();
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.Entity is Audit || entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
+                {
+                    continue;
+                }
+                var AuditEntry = new AuditEntry();
+                AuditEntry.UserId = UserId;
+                AuditEntry.TableName = entry.Entity.GetType().Name;
+                AuditEntry.Username = UserName;
+
+                AuditEntries.Add(AuditEntry);
+                foreach (var property in entry.Properties)
+                {
+                    string propertyName = property.Metadata.Name;
+
+                    switch (entry.State)
+                    {
+                        case EntityState.Added:
+                            AuditEntry.Action = AuditAction.Create;
+                            AuditEntry.NewValues[propertyName] = property.CurrentValue;
+                            break;
+                        case EntityState.Deleted:
+                            AuditEntry.Action = AuditAction.Delete;
+                            AuditEntry.OldValues[propertyName] = property.OriginalValue;
+                            break;
+                        case EntityState.Modified:
+                            if (property.IsModified)
+                            {
+                                AuditEntry.Action = AuditAction.Update;
+                                AuditEntry.OldValues[propertyName] = property.OriginalValue;
+                                AuditEntry.NewValues[propertyName] = property.CurrentValue;
+                                AuditEntry.AffectedColumns.Add(propertyName);
+                            }
+                            break;
+                    }
+
+                }
+
+            }
+            foreach (var AuditEntry in AuditEntries)
+            {
+                var audit = AuditEntry.ToAudit();
+                Audits.Add(audit);
+            }
         }
     }
 }

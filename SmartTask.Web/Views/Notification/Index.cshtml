@@ -1,0 +1,103 @@
+﻿@{
+    ViewData["Title"] = "SignalR Notifications Demo";
+}
+
+<div class="text-center">
+    <h1 class="display-4">SignalR Notifications Demo</h1>
+    <p>This demo shows how to send real-time notifications to all users or specific users using SignalR.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Send Notification</h5>
+            </div>
+            <div class="card-body">
+                <form id="notification-form">
+                    <div class="form-group mb-3">
+                        <label for="message">Message</label>
+                        <textarea id="message" class="form-control" required></textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="type">Type</label>
+                        <select id="type" class="form-control">
+                            <option value="info">Info</option>
+                            <option value="success">Success</option>
+                            <option value="warning">Warning</option>
+                            <option value="error">Error</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="userId">User ID (leave empty for broadcast)</label>
+                        <input type="text" id="userId" class="form-control" placeholder="Enter user ID for targeted notification">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Notification</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Notification History</h5>
+            </div>
+            <div class="card-body">
+                <div id="notification-history" class="overflow-auto" style="max-height: 400px;">
+                    <div class="text-center text-muted">No notifications yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <strong>Your User ID:</strong> <span id="current-user-id">@ViewBag.UserId</span>
+            <p class="mb-0">Open this page in another browser window and try sending a notification to this specific user ID.</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/notification.js"></script>
+    <script>
+        // Initialize the notification system
+        $(document).ready(function() {
+            // Set up the user ID
+            const userId = '@ViewBag.UserId';
+            document.getElementById('current-user-id').textContent = userId;
+
+            // Initialize the SignalR notification system
+            initializeNotifications(userId);
+
+            // Handle notification form submission
+            $('#notification-form').on('submit', function(e) {
+                e.preventDefault();
+
+                const message = $('#message').val();
+                const type = $('#type').val();
+                const targetUserId = $('#userId').val() || null;
+
+                $.ajax({
+                    url: '/Notification/SendNotification',
+                    type: 'POST',
+                    data: {
+                        message: message,
+                        type: type,
+                        userId: targetUserId
+                    },
+                    success: function() {
+                        $('#message').val('');
+                        $('#userId').val('');
+                    },
+                    error: function() {
+                        toastr.error('Failed to send notification');
+                    }
+                });
+            });
+        });
+    </script>
+}

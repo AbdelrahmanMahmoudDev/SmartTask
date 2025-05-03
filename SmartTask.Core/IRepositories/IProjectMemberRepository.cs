@@ -7,13 +7,13 @@ namespace SmartTask.Core.IRepositories
     public interface IProjectMemberRepository
     {
         Task<IEnumerable<ProjectMember>> GetAllAsync();
-        Task<ProjectMember> GetByIdsAsync(int projectId, int userId);
+        Task<ProjectMember> GetByIdsAsync(int projectId, string userId);
         Task<IEnumerable<ProjectMember>> GetByProjectIdAsync(int projectId);
-        Task<IEnumerable<ProjectMember>> GetByUserIdAsync(int userId);
-        Task<IEnumerable<ProjectMember>> GetByProjectRoleIdAsync(int projectRoleId);
+        Task<IEnumerable<ProjectMember>> GetByUserIdAsync(string userId);
+        //Task<IEnumerable<ProjectMember>> GetByProjectRoleIdAsync(int projectRoleId);
         Task AddAsync(ProjectMember projectMember);
         Task UpdateAsync(ProjectMember projectMember);
-        Task DeleteAsync(int projectId, int userId);
-        Task<bool> ExistsAsync(int projectId, int userId);
+        Task DeleteAsync(int projectId, string userId);
+        Task<bool> ExistsAsync(int projectId, string userId);
     }
 }

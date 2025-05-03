@@ -39,30 +39,27 @@ namespace SmartTask.DataAccess.Repositories
             return await _context.Projects
                 .Include(p => p.Owner)
                 .Include(p => p.CreatedBy)
-                .Include(p => p.ProjectRoles)
-                    .ThenInclude(pr => pr.ProjectRolePermissions)
-                        .ThenInclude(prp => prp.Permission)
                 .Include(p => p.ProjectMembers)
                     .ThenInclude(pm => pm.User)
                 .Include(p => p.Tasks)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<IEnumerable<Project>> GetByOwnerIdAsync(int ownerId)
+        public async Task<IEnumerable<Project>> GetByOwnerIdAsync(string ownerId)
         {
             return await _context.Projects
                 .Where(p => p.OwnerId == ownerId)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Project>> GetByCreatedByIdAsync(int createdById)
+        public async Task<IEnumerable<Project>> GetByCreatedByIdAsync(string createdById)
         {
             return await _context.Projects
                 .Where(p => p.CreatedById == createdById)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Project>> GetProjectsByUserIdAsync(int userId)
+        public async Task<IEnumerable<Project>> GetProjectsByUserIdAsync(string userId)
         {
             return await _context.ProjectMembers
                 .Where(pm => pm.UserId == userId)

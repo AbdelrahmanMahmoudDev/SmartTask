@@ -12,7 +12,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
   </ItemGroup>
+
+  
 	<ItemGroup>
 		<ProjectReference Include="..\SmartTask.Core\SmartTask.Core.csproj" />
 		<ProjectReference Include="..\SmartTask.DataAccess\SmartTask.DataAccess.csproj" />

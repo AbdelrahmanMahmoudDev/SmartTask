@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using SmartTask.Web.TagHelpers;
+@addTagHelper *, SmartTask.Web.TagHelpers
+<!DOCTYPE html>
 <html lang="en" data-color="lavared">
 <head>
     <meta charset="utf-8" />
@@ -53,7 +55,13 @@
     @* <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
     @* <link rel="stylesheet" href="~/SmartTask.Web.styles.css" asp-append-version="true" /> *@
 
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SmartTask.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link rel="stylesheet" href="~/css/notification.css"/>
 </head>
+@RenderSection("Header", required: false)
 <body>
     <div id="global-loader" style="display: none;">
         <div class="page-loader"></div>
@@ -2310,6 +2318,18 @@
     @* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
     @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
     @* <script src="~/js/site.js" asp-append-version="true"></script> *@
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - SmartTask.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/notification.js">
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

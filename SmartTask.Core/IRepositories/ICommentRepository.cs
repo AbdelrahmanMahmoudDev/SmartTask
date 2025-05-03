@@ -9,7 +9,7 @@ namespace SmartTask.Core.IRepositories
         Task<IEnumerable<Comment>> GetAllAsync();
         Task<Comment> GetByIdAsync(int id);
         Task<IEnumerable<Comment>> GetByTaskIdAsync(int taskId);
-        Task<IEnumerable<Comment>> GetByAuthorIdAsync(int authorId);
+        Task<IEnumerable<Comment>> GetByAuthorIdAsync(string authorId);
         Task<Comment> AddAsync(Comment comment);
         Task UpdateAsync(Comment comment);
         Task DeleteAsync(int id);
