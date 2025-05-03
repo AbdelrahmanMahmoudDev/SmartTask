@@ -11,6 +11,9 @@ using SmartTask.DataAccess.Data;
 using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
 using SmartTask.Bl.Hubs;
+using SmartTask.Core.IExternalServices;
+using SmartTask.Bl.IServices;
+using SmartTask.Bl.Services;
 
 using System;
 using task=System.Threading.Tasks.Task;
@@ -45,6 +48,8 @@ namespace SmartTask.Web
 
             // Dependency Injection
             RegisterRepositories(builder.Services);
+
+            builder.Services.AddScoped(typeof(IPaginatedService<>), typeof(PaginatedService<>));
 
             var app = builder.Build();
             using var scope = app.Services.CreateScope();
