@@ -38,7 +38,6 @@ namespace SmartTask.Web
             RegisterRepositories(builder.Services);
 
             builder.Services.AddScoped(typeof(IPaginatedService<>), typeof(PaginatedService<>));
-
             var app = builder.Build();
 
             // Middleware pipeline configuration
@@ -86,6 +85,8 @@ namespace SmartTask.Web
             services.AddScoped<ITaskDependencyRepository, TaskDependencyRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+
+            services.AddScoped<IBranchService, BranchService>();
         }
     }
 }
