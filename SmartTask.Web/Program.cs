@@ -9,6 +9,7 @@ using SmartTask.Core.Models.Mail;
 using SmartTask.DataAccess.Data;
 using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
+using SmartTask.Bl.Hubs;
 
 namespace SmartTask.Web
 {
@@ -21,6 +22,10 @@ namespace SmartTask.Web
             // MVC & Configuration
             builder.Services.AddControllersWithViews();
             builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+
+
+            //signal R
+            builder.Services.AddSignalR();
 
             // Database & Identity
             builder.Services.AddDbContext<SmartTaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -52,6 +57,8 @@ namespace SmartTask.Web
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
+
+            app.MapHub<NotificationHub>("/notificationHub");
 
             app.Run();
         }

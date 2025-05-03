@@ -18,6 +18,7 @@ namespace SmartTask.Web.Controllers
 
         public async Task<IActionResult> IndexAsync()
         {
+            
             return View();
         }
 
