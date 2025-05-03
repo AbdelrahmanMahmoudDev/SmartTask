@@ -48,7 +48,6 @@ namespace SmartTask.DataAccess.Repositories
                 .Include(u => u.ProjectMemberships)
                     .ThenInclude(pm => pm.Project)
                 .Include(u => u.ProjectMemberships)
-                    .ThenInclude(pm => pm.ProjectRole)
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 

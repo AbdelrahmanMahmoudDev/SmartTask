@@ -17,15 +17,15 @@ namespace SmartTask.DataAccess.Data
         }
 
         public DbSet<TaskModel> Tasks { get; set; }
-        public DbSet<Role> RolesSmart { get; set; }
-        public DbSet<Permission> Permissions { get; set; }
-        public DbSet<RolePermission> RolePermissions { get; set; }
+        //public DbSet<Role> RolesSmart { get; set; }
+        //public DbSet<Permission> Permissions { get; set; }
+        //public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<BranchDepartment> BranchDepartments { get; set; }
         public DbSet<Project> Projects { get; set; }
-        public DbSet<ProjectRole> ProjectRoles { get; set; }
-        public DbSet<ProjectRolePermission> ProjectRolePermissions { get; set; }
+        //public DbSet<ProjectRole> ProjectRoles { get; set; }
+        //public DbSet<ProjectRolePermission> ProjectRolePermissions { get; set; }
         public DbSet<ProjectMember> ProjectMembers { get; set; }
         public DbSet<TaskDependency> TaskDependencies { get; set; }
         public DbSet<Comment> Comments { get; set; }
@@ -39,9 +39,9 @@ namespace SmartTask.DataAccess.Data
             base.OnModelCreating(modelBuilder);
 
             // Composite Primary Keys
-            modelBuilder.Entity<RolePermission>().HasKey(rp => new { rp.RoleId, rp.PermissionId });
+            //modelBuilder.Entity<RolePermission>().HasKey(rp => new { rp.RoleId, rp.PermissionId });
             modelBuilder.Entity<BranchDepartment>().HasKey(bd => new { bd.BranchId, bd.DepartmentId });
-            modelBuilder.Entity<ProjectRolePermission>().HasKey(prp => new { prp.ProjectRoleId, prp.PermissionId });
+            //modelBuilder.Entity<ProjectRolePermission>().HasKey(prp => new { prp.ProjectRoleId, prp.PermissionId });
             modelBuilder.Entity<ProjectMember>().HasKey(pm => new { pm.ProjectId, pm.UserId });
             modelBuilder.Entity<AssignTask>().HasKey(at => new { at.TaskId, at.UserId });
 

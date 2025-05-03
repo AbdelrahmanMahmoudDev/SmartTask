@@ -10,7 +10,7 @@ namespace SmartTask.Core.IRepositories
         Task<ProjectMember> GetByIdsAsync(int projectId, string userId);
         Task<IEnumerable<ProjectMember>> GetByProjectIdAsync(int projectId);
         Task<IEnumerable<ProjectMember>> GetByUserIdAsync(string userId);
-        Task<IEnumerable<ProjectMember>> GetByProjectRoleIdAsync(int projectRoleId);
+        //Task<IEnumerable<ProjectMember>> GetByProjectRoleIdAsync(int projectRoleId);
         Task AddAsync(ProjectMember projectMember);
         Task UpdateAsync(ProjectMember projectMember);
         Task DeleteAsync(int projectId, string userId);

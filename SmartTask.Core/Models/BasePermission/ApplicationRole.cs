@@ -10,6 +10,5 @@ namespace SmartTask.Core.Models.BasePermission
     public class ApplicationRole : IdentityRole
     {
         public string Access { get; set; }
-        public virtual ICollection<RolePermission> RolePermissions { get; set; }
     }
 }

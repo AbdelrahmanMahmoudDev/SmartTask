@@ -11,7 +11,7 @@ namespace SmartTask.Core.Models
         [Key, Column(Order = 1)]
         public string UserId { get; set; }
 
-        public int ProjectRoleId { get; set; }
+        //public int ProjectRoleId { get; set; }
 
         // Navigation properties
         [ForeignKey("ProjectId")]
@@ -20,7 +20,7 @@ namespace SmartTask.Core.Models
         [ForeignKey("UserId")]
         public virtual ApplicationUser User { get; set; }
 
-        [ForeignKey("ProjectRoleId")]
-        public virtual ProjectRole ProjectRole { get; set; }
+        //[ForeignKey("ProjectRoleId")]
+        //public virtual ProjectRole ProjectRole { get; set; }
     }
 }

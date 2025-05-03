@@ -23,7 +23,6 @@ namespace SmartTask.DataAccess.Repositories
             return await _context.ProjectMembers
                 .Include(pm => pm.Project)
                 .Include(pm => pm.User)
-                .Include(pm => pm.ProjectRole)
                 .ToListAsync();
         }
 
@@ -32,7 +31,6 @@ namespace SmartTask.DataAccess.Repositories
             return await _context.ProjectMembers
                 .Include(pm => pm.Project)
                 .Include(pm => pm.User)
-                .Include(pm => pm.ProjectRole)
                 .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
         }
 
@@ -40,7 +38,6 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.ProjectMembers
                 .Include(pm => pm.User)
-                .Include(pm => pm.ProjectRole)
                 .Where(pm => pm.ProjectId == projectId)
                 .ToListAsync();
         }
@@ -49,19 +46,18 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.ProjectMembers
                 .Include(pm => pm.Project)
-                .Include(pm => pm.ProjectRole)
                 .Where(pm => pm.UserId == userId)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ProjectMember>> GetByProjectRoleIdAsync(int projectRoleId)
-        {
-            return await _context.ProjectMembers
-                .Include(pm => pm.Project)
-                .Include(pm => pm.User)
-                .Where(pm => pm.ProjectRoleId == projectRoleId)
-                .ToListAsync();
-        }
+        //public async Task<IEnumerable<ProjectMember>> GetByProjectRoleIdAsync(int projectRoleId)
+        //{
+        //    return await _context.ProjectMembers
+        //        .Include(pm => pm.Project)
+        //        .Include(pm => pm.User)
+        //        .Where(pm => pm.ProjectRoleId == projectRoleId)
+        //        .ToListAsync();
+        //}
 
         public async Task AddAsync(ProjectMember projectMember)
         {

@@ -39,9 +39,6 @@ namespace SmartTask.DataAccess.Repositories
             return await _context.Projects
                 .Include(p => p.Owner)
                 .Include(p => p.CreatedBy)
-                .Include(p => p.ProjectRoles)
-                    .ThenInclude(pr => pr.ProjectRolePermissions)
-                        .ThenInclude(prp => prp.Permission)
                 .Include(p => p.ProjectMembers)
                     .ThenInclude(pm => pm.User)
                 .Include(p => p.Tasks)

@@ -40,13 +40,13 @@ namespace SmartTask.Core.Models
         [ForeignKey("CreatedById")]
         public virtual ApplicationUser CreatedBy { get; set; }
 
-        public virtual ICollection<ProjectRole> ProjectRoles { get; set; }
+        //public virtual ICollection<ProjectRole> ProjectRoles { get; set; }
         public virtual ICollection<ProjectMember> ProjectMembers { get; set; }
         public virtual ICollection<Task> Tasks { get; set; }
 
         public Project()
         {
-            ProjectRoles = new HashSet<ProjectRole>();
+            //ProjectRoles = new HashSet<ProjectRole>();
             ProjectMembers = new HashSet<ProjectMember>();
             Tasks = new HashSet<Task>();
         }

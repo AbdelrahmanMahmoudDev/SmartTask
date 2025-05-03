@@ -1,15 +1,12 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.BL.IServices;
 using SmartTask.Bl.Services;
 using SmartTask.Core.IExternalServices;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
-using SmartTask.Core.IExternalServices;
 using SmartTask.Core.Models.BasePermission;
 using SmartTask.BL.Services;
 using SmartTask.Web.CustomFilter;
-using SmartTask.Core.Models.Mail;
 using SmartTask.DataAccess.Data;
 using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
@@ -87,13 +84,12 @@ namespace SmartTask.Web
             //services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
-            services.AddScoped<IProjectRolePermissionRepository, ProjectRolePermissionRepository>();
-            services.AddScoped<IProjectRoleRepository, ProjectRoleRepository>();
+            
             //services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
             //services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<ITaskDependencyRepository, TaskDependencyRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
-            //services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
         }
     }
 }
