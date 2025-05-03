@@ -27,7 +27,7 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<ProjectMember> GetByIdsAsync(int projectId, int userId)
+        public async Task<ProjectMember> GetByIdsAsync(int projectId, string userId)
         {
             return await _context.ProjectMembers
                 .Include(pm => pm.Project)
@@ -45,7 +45,7 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ProjectMember>> GetByUserIdAsync(int userId)
+        public async Task<IEnumerable<ProjectMember>> GetByUserIdAsync(string userId)
         {
             return await _context.ProjectMembers
                 .Include(pm => pm.Project)
@@ -75,7 +75,7 @@ namespace SmartTask.DataAccess.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int projectId, int userId)
+        public async Task DeleteAsync(int projectId, string userId)
         {
             var entity = await _context.ProjectMembers.FindAsync(projectId, userId);
             if (entity != null)
@@ -85,7 +85,7 @@ namespace SmartTask.DataAccess.Repositories
             }
         }
 
-        public async Task<bool> ExistsAsync(int projectId, int userId)
+        public async Task<bool> ExistsAsync(int projectId, string userId)
         {
             return await _context.ProjectMembers
                 .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);

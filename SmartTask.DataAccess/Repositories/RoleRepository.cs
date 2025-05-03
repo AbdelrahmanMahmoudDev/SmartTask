@@ -8,7 +8,7 @@ using Role = SmartTask.Core.Models.Role;
 
 namespace SmartTask.DataAccess.Repositories
 {
-    public class RoleRepository : IRoleRepository
+  /*  public class RoleRepository : IRoleRepository
     {
         private readonly SmartTaskContext _context;
 
@@ -63,4 +63,5 @@ namespace SmartTask.DataAccess.Repositories
             return await _context.Roles.AnyAsync(r => r.Id == id);
         }
     }
+*/
 }

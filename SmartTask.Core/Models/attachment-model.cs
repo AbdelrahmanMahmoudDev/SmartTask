@@ -19,7 +19,7 @@ namespace SmartTask.Core.Models
         [StringLength(1000)]
         public string FilePath { get; set; }
 
-        public int UploadedById { get; set; }
+        public string UploadedById { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }
@@ -29,6 +29,6 @@ namespace SmartTask.Core.Models
         public virtual Task Task { get; set; }
 
         [ForeignKey("UploadedById")]
-        public virtual User UploadedBy { get; set; }
+        public virtual ApplicationUser UploadedBy { get; set; }
     }
 }

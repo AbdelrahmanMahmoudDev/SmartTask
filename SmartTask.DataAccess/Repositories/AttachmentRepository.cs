@@ -43,7 +43,7 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Attachment>> GetByUploadedByIdAsync(int uploadedById)
+        public async Task<IEnumerable<Attachment>> GetByUploadedByIdAsync(string uploadedById)
         {
             return await _context.Attachments
                 .Include(a => a.Task)

@@ -9,7 +9,7 @@ using RolePermission = SmartTask.Core.Models.RolePermission;
 
 namespace SmartTask.DataAccess.Repositories
 {
-    public class RolePermissionRepository : IRolePermissionRepository
+  /*  public class RolePermissionRepository : IRolePermissionRepository
     {
         private readonly SmartTaskContext _context;
 
@@ -65,4 +65,5 @@ namespace SmartTask.DataAccess.Repositories
                 .AnyAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
         }
     }
+*/
 }

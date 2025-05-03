@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.Models;
+using SmartTask.Core.Models.BasePermission;
 using TaskModel = SmartTask.Core.Models.Task;
 
 namespace SmartTask.DataAccess.Data
@@ -9,7 +10,7 @@ namespace SmartTask.DataAccess.Data
     /// Represents the EF Core database context for SmartTask.
     /// Manages DbSet properties and configures entity relationships.
     /// </summary>
-    public class SmartTaskContext : IdentityDbContext
+    public class SmartTaskContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
         /// <summary>
         /// Initializes the context with the specified options.
@@ -22,13 +23,12 @@ namespace SmartTask.DataAccess.Data
 
         // Tables
         public DbSet<TaskModel> Tasks { get; set; }
-        public DbSet<Role> Roles { get; set; }
+        public DbSet<Role> RolesSmart { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<BranchDepartment> BranchDepartments { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<ProjectRole> ProjectRoles { get; set; }
         public DbSet<ProjectRolePermission> ProjectRolePermissions { get; set; }
@@ -102,7 +102,11 @@ namespace SmartTask.DataAccess.Data
                 .WithMany(u => u.CreatedProjects)
                 .HasForeignKey(p => p.CreatedById)
                 .OnDelete(DeleteBehavior.Restrict);
-
+            modelBuilder.Entity<ProjectMember>()
+    .HasOne(pm => pm.Project)
+    .WithMany(p => p.ProjectMembers)
+    .HasForeignKey(pm => pm.ProjectId)
+    .OnDelete(DeleteBehavior.Restrict);
             // Task audit fields
             modelBuilder.Entity<TaskModel>()
                 .HasOne(t => t.CreatedBy)
@@ -133,8 +137,8 @@ namespace SmartTask.DataAccess.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Map User entity to a custom table if needed
-            modelBuilder.Entity<User>()
-                .ToTable("Users");
+            //modelBuilder.Entity<User>()
+            //    .ToTable("Users");
         }
     }
 }

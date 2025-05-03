@@ -22,7 +22,7 @@ namespace SmartTask.Core.Models
 
         public string Attendees { get; set; }
 
-        public int ImportedById { get; set; }
+        public string ImportedById { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }
@@ -32,6 +32,6 @@ namespace SmartTask.Core.Models
         public virtual Task Task { get; set; }
 
         [ForeignKey("ImportedById")]
-        public virtual User ImportedBy { get; set; }
+        public virtual ApplicationUser ImportedBy { get; set; }
     }
 }

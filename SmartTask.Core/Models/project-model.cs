@@ -10,8 +10,8 @@ namespace SmartTask.Core.Models
         [Key]
         public int Id { get; set; }
 
-        public int OwnerId { get; set; }
-        public int CreatedById { get; set; }
+        public string OwnerId { get; set; }
+        public string CreatedById { get; set; }
 
         [Required]
         [StringLength(100)]
@@ -35,10 +35,10 @@ namespace SmartTask.Core.Models
 
         // Navigation properties
         [ForeignKey("OwnerId")]
-        public virtual User Owner { get; set; }
+        public virtual ApplicationUser Owner { get; set; }
 
         [ForeignKey("CreatedById")]
-        public virtual User CreatedBy { get; set; }
+        public virtual ApplicationUser CreatedBy { get; set; }
 
         public virtual ICollection<ProjectRole> ProjectRoles { get; set; }
         public virtual ICollection<ProjectMember> ProjectMembers { get; set; }

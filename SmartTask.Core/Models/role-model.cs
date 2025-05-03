@@ -15,12 +15,12 @@ namespace SmartTask.Core.Models
 
         // Navigation properties
         public virtual ICollection<RolePermission> RolePermissions { get; set; }
-        public virtual ICollection<User> Users { get; set; }
+        public virtual ICollection<ApplicationUser> Users { get; set; }
 
         public Role()
         {
             RolePermissions = new HashSet<RolePermission>();
-            Users = new HashSet<User>();
+            Users = new HashSet<ApplicationUser>();
         }
     }
 }

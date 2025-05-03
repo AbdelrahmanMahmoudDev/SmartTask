@@ -9,6 +9,9 @@ using SmartTask.DataAccess.Data;
 using SmartTask.Core.Models.Mail;
 using SmartTask.Core.Models;
 using SmartTask.Core.IExternalServices;
+using SmartTask.Core.Models.BasePermission;
+using SmartTask.BL.Services;
+using SmartTask.Web.CustomFilter;
 
 namespace SmartTask.Web
 {
@@ -19,7 +22,10 @@ namespace SmartTask.Web
             var builder = WebApplication.CreateBuilder(args);
 
             // Core MVC services configuration
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews(options =>
+            {
+                options.Filters.Add(typeof(DynamicAuthorizationFilter));
+            });
 
             builder.Services.Configure<SmtpSettings>(
     builder.Configuration.GetSection("SmtpSettings"));
@@ -29,7 +35,7 @@ namespace SmartTask.Web
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection"),
                     sqlOptions => sqlOptions.EnableRetryOnFailure()));
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+            builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<SmartTaskContext>();
 
             // Dependency injection registrations
@@ -61,6 +67,8 @@ namespace SmartTask.Web
 
         private static void RegisterRepositories(IServiceCollection services)
         {
+            services.AddSingleton<IMvcControllerDiscovery, MvcControllerDiscovery>();
+            services.AddSingleton(new DynamicAuthorizationOptions { DefaultAdminUser = "aelashry@outlook.com" });
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<INotificationService, NotificationService>();
             // Repository layer DI registrations
@@ -72,16 +80,16 @@ namespace SmartTask.Web
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             services.AddScoped<IEventRepository, EventRepository>();
-            services.AddScoped<IPermissionRepository, PermissionRepository>();
+            //services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IProjectRolePermissionRepository, ProjectRolePermissionRepository>();
             services.AddScoped<IProjectRoleRepository, ProjectRoleRepository>();
-            services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
-            services.AddScoped<IRoleRepository, RoleRepository>();
+            //services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
+            //services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<ITaskDependencyRepository, TaskDependencyRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
+            //services.AddScoped<IUserRepository, UserRepository>();
         }
     }
 }

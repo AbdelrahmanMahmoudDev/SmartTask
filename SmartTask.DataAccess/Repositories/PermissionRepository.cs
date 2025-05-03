@@ -9,7 +9,7 @@ using Permission = SmartTask.Core.Models.Permission;
 
 namespace SmartTask.DataAccess.Repositories
 {
-    public class PermissionRepository : IPermissionRepository
+  /*  public class PermissionRepository : IPermissionRepository
     {
         private readonly SmartTaskContext _context;
 
@@ -64,4 +64,5 @@ namespace SmartTask.DataAccess.Repositories
             return await _context.Permissions.AnyAsync(p => p.Id == id);
         }
     }
+*/
 }

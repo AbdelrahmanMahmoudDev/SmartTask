@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SmartTask.DataAccess.Data;
 using SmartTask.Core.IRepositories;
-using User = SmartTask.Core.Models.User;
+using SmartTask.Core.Models;
 
 
 namespace SmartTask.DataAccess.Repositories
@@ -18,34 +18,30 @@ namespace SmartTask.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<User>> GetAllAsync()
+        public async Task<IEnumerable<ApplicationUser>> GetAllAsync()
         {
             return await _context.Users
-                .Include(u => u.Role)
+                .Include(u => u)
                 .Include(u => u.Department)
                 .ToListAsync();
         }
 
-        public async Task<User> GetByIdAsync(int id)
+        public async Task<ApplicationUser> GetByIdAsync(String id)
         {
             return await _context.Users
-                .Include(u => u.Role)
                 .Include(u => u.Department)
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public async Task<User> GetByEmailAsync(string email)
+        public async Task<ApplicationUser> GetByEmailAsync(string email)
         {
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<User> GetWithDetailsAsync(int id)
+        public async Task<ApplicationUser> GetWithDetailsAsync(String id)
         {
             return await _context.Users
-                .Include(u => u.Role)
-                    .ThenInclude(r => r.RolePermissions)
-                        .ThenInclude(rp => rp.Permission)
                 .Include(u => u.Department)
                 .Include(u => u.ManagedBranches)
                 .Include(u => u.ManagedDepartments)
@@ -56,53 +52,52 @@ namespace SmartTask.DataAccess.Repositories
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public async Task<IEnumerable<User>> GetByDepartmentIdAsync(int departmentId)
+        public async Task<IEnumerable<ApplicationUser>> GetByDepartmentIdAsync(int departmentId)
         {
             return await _context.Users
-                .Include(u => u.Role)
                 .Where(u => u.DepartmentId == departmentId)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<User>> GetByRoleIdAsync(int roleId)
-        {
-            return await _context.Users
-                .Include(u => u.Department)
-                .Where(u => u.RoleId == roleId)
-                .ToListAsync();
-        }
+        //public async Task<IEnumerable<ApplicationUser>> GetByRoleIdAsync(int roleId)
+        //{
+        //    return await _context.Users
+        //        .Include(u => u.Department)
+        //        .Where(u => u.RoleId == roleId)
+        //        .ToListAsync();
+        //}
 
-        public async Task<User> AddAsync(User user)
-        {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            return user;
-        }
+        //public async Task<User> AddAsync(User user)
+        //{
+        //    _context.Users.Add(user);
+        //    await _context.SaveChangesAsync();
+        //    return user;
+        //}
 
-        public async Task UpdateAsync(User user)
-        {
-            _context.Entry(user).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-        }
+        //public async Task UpdateAsync(User user)
+        //{
+        //    _context.Entry(user).State = EntityState.Modified;
+        //    await _context.SaveChangesAsync();
+        //}
 
-        public async Task DeleteAsync(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-            }
-        }
+        //public async Task DeleteAsync(int id)
+        //{
+        //    var user = await _context.Users.FindAsync(id);
+        //    if (user != null)
+        //    {
+        //        _context.Users.Remove(user);
+        //        await _context.SaveChangesAsync();
+        //    }
+        //}
 
-        public async Task<bool> ExistsAsync(int id)
-        {
-            return await _context.Users.AnyAsync(u => u.Id == id);
-        }
+        //public async Task<bool> ExistsAsync(string id)
+        //{
+        //    return await _context.Users.AnyAsync(u => u.Id == id);
+        //}
 
-        public async Task<bool> EmailExistsAsync(string email)
-        {
-            return await _context.Users.AnyAsync(u => u.Email == email);
-        }
+        //public async Task<bool> EmailExistsAsync(string email)
+        //{
+        //    return await _context.Users.AnyAsync(u => u.Email == email);
+        //}
     }
 }

@@ -48,21 +48,21 @@ namespace SmartTask.DataAccess.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<IEnumerable<Project>> GetByOwnerIdAsync(int ownerId)
+        public async Task<IEnumerable<Project>> GetByOwnerIdAsync(string ownerId)
         {
             return await _context.Projects
                 .Where(p => p.OwnerId == ownerId)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Project>> GetByCreatedByIdAsync(int createdById)
+        public async Task<IEnumerable<Project>> GetByCreatedByIdAsync(string createdById)
         {
             return await _context.Projects
                 .Where(p => p.CreatedById == createdById)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Project>> GetProjectsByUserIdAsync(int userId)
+        public async Task<IEnumerable<Project>> GetProjectsByUserIdAsync(string userId)
         {
             return await _context.ProjectMembers
                 .Where(pm => pm.UserId == userId)

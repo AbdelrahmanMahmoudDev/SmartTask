@@ -43,7 +43,7 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Comment>> GetByAuthorIdAsync(int authorId)
+        public async Task<IEnumerable<Comment>> GetByAuthorIdAsync(string authorId)
         {
             return await _context.Comments
                 .Include(c => c.Task)

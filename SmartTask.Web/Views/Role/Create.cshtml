@@ -1,0 +1,111 @@
+﻿@using SmartTask.Core.Models.BasePermission
+@model SmartTask.Web.ViewModels.RoleViewModel
+
+@{
+    ViewData["Title"] = "Create Role";
+    var controllers = (IEnumerable<MvcControllerInfo>)ViewData["Controllers"];
+}
+
+@section Header {
+    <link href="~/lib/jquery-bonsai/jquery.bonsai.css" rel="stylesheet" />
+}
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Create New Role</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-4">
+                    <label asp-for="Name" class="form-label fw-semibold"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Access Permissions</label>
+                    <div class="border rounded p-3" style="background-color: #f8f9fa;">
+                        <ol id="tree" class="mb-0">
+                            @foreach (var controller in controllers)
+                            {
+                                var name = controller.DisplayName ?? controller.Name;
+
+                                <li class="controller mb-1" data-value="@controller.Name">
+                                    <input type="hidden" class="area" value="@controller.AreaName" />
+                                    <span class="fw-bold">@name</span>
+                                    @if (controller.Actions.Any())
+                                    {
+                                        <ul>
+                                            @foreach (var action in controller.Actions)
+                                            {
+                                                name = action.DisplayName ?? action.Name;
+                                                <li data-value="@action.Name">@name</li>
+                                            }
+                                        </ul>
+                                    }
+                                </li>
+                            }
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Back to List
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Create Role
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/lib/jquery-qubit/jquery.qubit.js"></script>
+    <script src="~/lib/jquery-bonsai/jquery.bonsai.js"></script>
+    <script>
+        $(function () {
+            $('#tree').bonsai({
+                expandAll: false,
+                checkboxes: true,
+                createInputs: 'checkbox'
+            });
+
+            $('form').submit(function () {
+                var i = 0, j = 0;
+                $('.controller > input[type="checkbox"]:checked, .controller > input[type="checkbox"]:indeterminate').each(function () {
+                    var controller = $(this);
+                    if (controller.prop('indeterminate')) {
+                        controller.prop("checked", true);
+                    }
+
+                    var controllerName = 'SelectedControllers[' + i + ']';
+                    controller.prop('name', controllerName + '.Name');
+
+                    var area = controller.siblings('.area');
+                    area.prop('name', controllerName + '.AreaName');
+
+                    $('ul > li > input[type="checkbox"]:checked', controller.closest('li')).each(function () {
+                        var action = $(this);
+                        var actionName = controllerName + '.Actions[' + j + '].Name';
+                        action.prop('name', actionName);
+                        j++;
+                    });
+
+                    j = 0;
+                    i++;
+                });
+
+                return true;
+            });
+        });
+    </script>
+}
