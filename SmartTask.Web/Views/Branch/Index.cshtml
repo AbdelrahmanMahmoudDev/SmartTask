@@ -25,7 +25,7 @@
         {
             <tr>
                 <td>@branch.Name</td>
-                <td>@branch.Manager?.Name</td> 
+                <td>@branch.Manager?.FullName</td> 
                 @if(User.IsInRole("Admin")){
                     <td><a ="/branch/Delete/@branch.Id" onclick="return confirm('Do you want to Delete this Branch?')" class="btn btn-danger">Delete</a></td>
                 }

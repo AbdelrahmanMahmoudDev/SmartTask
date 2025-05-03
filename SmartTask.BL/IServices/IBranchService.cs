@@ -19,7 +19,7 @@ namespace SmartTask.Bl.IServices
 
         Task DeleteAsync(int id);
 
-        PaginatedList<Branch> GetFiltered(string searchString, int? managerId, int page, int pageSize);
+        PaginatedList<Branch> GetFiltered(string searchString, string? managerId, int page, int pageSize);
 
     }
 }
