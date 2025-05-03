@@ -1,0 +1,51 @@
+﻿@model SmartTask.Web.Models.Notification
+
+@{
+    ViewData["Title"] = "Send Notification";
+}
+
+<h1>Send Notification</h1>
+
+@* @if (Request.Query.ContainsKey("sent") && Request.Query["sent"] == "True") *@
+@* { *@
+@*     <div class="alert alert-success"> *@
+@*         Notification has been sent successfully! *@
+@*     </div> *@
+@* } *@
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Send">
+            <div class="form-group">
+                <label asp-for="Message" class="control-label"></label>
+                <textarea asp-for="Message" class="form-control" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label asp-for="Type" class="control-label"></label>
+                <select asp-for="Type" class="form-control" required>
+                    <option value="info">Info</option>
+                    <option value="success">Success</option>
+                    <option value="warning">Warning</option>
+                    <option value="error">Error</option>
+                </select>
+            </div>
+            <div class="form-group mt-3">
+                <input type="submit" value="Send Notification" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <div id="notification-container">
+            <h3>Real-time Notifications</h3>
+            <div id="notifications" class="list-group">
+                <!-- Notifications will appear here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
+    <script src="~/js/notification.js"></script>
+
+}
