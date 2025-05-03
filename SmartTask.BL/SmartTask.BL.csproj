@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SmartTask.Core\SmartTask.Core.csproj" />
+    <ProjectReference Include="..\SmartTask.DataAccess\SmartTask.DataAccess.csproj" />
   </ItemGroup>
 
 
