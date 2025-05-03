@@ -31,7 +31,7 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<AssignTask> GetByIdAsync(int taskId, int userId)
+        public async Task<AssignTask> GetByIdAsync(int taskId, string userId)
         {
             return await _context.AssignTasks
                 .Include(a => a.Task)
@@ -49,7 +49,7 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<AssignTask>> GetByUserIdAsync(int userId)
+        public async Task<IEnumerable<AssignTask>> GetByUserIdAsync(string userId)
         {
             return await _context.AssignTasks
                 .Include(a => a.Task)
@@ -71,7 +71,7 @@ namespace SmartTask.DataAccess.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int taskId, int userId)
+        public async Task DeleteAsync(int taskId, string userId)
         {
             var assignTask = await _context.AssignTasks.FindAsync(taskId, userId);
             if (assignTask != null)
@@ -81,10 +81,11 @@ namespace SmartTask.DataAccess.Repositories
             }
         }
 
-        public async Task<bool> ExistsAsync(int taskId, int userId)
+        public async Task<bool> ExistsAsync(int taskId, string userId)
         {
             return await _context.AssignTasks
                 .AnyAsync(a => a.TaskId == taskId && a.UserId == userId);
         }
+
     }
 }

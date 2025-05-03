@@ -72,7 +72,7 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ModelTask>> GetByAssignedToIdAsync(int userId)
+        public async Task<IEnumerable<ModelTask>> GetByAssignedToIdAsync(string userId)
         {
             return await _context.Tasks
                 .Include(t => t.Project)
@@ -88,7 +88,7 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ModelTask>> GetByCreatedByIdAsync(int userId)
+        public async Task<IEnumerable<ModelTask>> GetByCreatedByIdAsync(string userId)
         {
             return await _context.Tasks
                 .Include(t => t.Project)

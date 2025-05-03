@@ -9,7 +9,7 @@ namespace SmartTask.Core.IRepositories
         Task<IEnumerable<Event>> GetAllAsync();
         Task<Event> GetByIdAsync(int id);
         Task<IEnumerable<Event>> GetByTaskIdAsync(int taskId);
-        Task<IEnumerable<Event>> GetByImportedByIdAsync(int importedById);
+        Task<IEnumerable<Event>> GetByImportedByIdAsync(string importedById);
         Task<Event> AddAsync(Event eventEntity);
         Task UpdateAsync(Event eventEntity);
         Task DeleteAsync(int id);

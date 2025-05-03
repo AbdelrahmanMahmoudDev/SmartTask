@@ -1,0 +1,33 @@
+﻿@model IEnumerable<AuditViewModel>
+
+@{
+    ViewData["Title"] = "Audit Log";
+}
+<select class="form-control" onchange="filter(this.value)">
+	<option value="">Select User</option>
+	@foreach (var user in ViewBag.Users)
+	{
+		<option value="@user.Id">@user.UserName</option>
+	}
+</select>
+<div id="div1">
+    <partial name="FindAuditByUserId" model="Model" />
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script>
+         function filter(id){
+            event.preventDefault()
+             $.ajax({
+              url: "/Audit/FindAuditByUserId/"+id,
+
+              success: function(result)
+          {
+              console.log(result);
+            $("#div1").html(result);
+          }
+            });
+        }
+	</script>
+}

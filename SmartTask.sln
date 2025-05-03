@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.Tests", "SmartTas
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.Core", "SmartTask.Core\SmartTask.Core.csproj", "{8BBE0EC9-FF02-444A-AA36-8FEAD9C4A397}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.Bl", "SmartTask.Bl\SmartTask.Bl.csproj", "{5C1FFBF0-E55B-47BA-A138-27541A5424D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTask.BL", "SmartTask.Bl\SmartTask.BL.csproj", "{5C1FFBF0-E55B-47BA-A138-27541A5424D4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{74809FDA-5555-40F1-81D9-BA98A9F7A3AA} = {74809FDA-5555-40F1-81D9-BA98A9F7A3AA}
 	EndProjectSection

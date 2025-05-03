@@ -13,11 +13,11 @@ namespace SmartTask.Core.Models
         [StringLength(100)]
         public string Name { get; set; }
 
-        public int? ManagerId { get; set; }
+        public string? ManagerId { get; set; }
 
         // Navigation properties
         [ForeignKey("ManagerId")]
-        public virtual User Manager { get; set; }
+        public virtual ApplicationUser Manager { get; set; }
 
         public virtual ICollection<BranchDepartment> BranchDepartments { get; set; }
 

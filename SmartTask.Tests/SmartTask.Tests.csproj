@@ -21,7 +21,7 @@
   </ItemGroup>
 	<ItemGroup>
 		
-		<ProjectReference Include="..\SmartTask.Bl\SmartTask.Bl.csproj" />
+		<ProjectReference Include="..\SmartTask.Bl\SmartTask.BL.csproj" />
 		
 		<ProjectReference Include="..\SmartTask.Core\SmartTask.Core.csproj" />
 		
