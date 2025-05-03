@@ -6,17 +6,17 @@
 <div class="container mt-5">
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
-            <h4>Manage User Roles</h4>
+            <h4 class="text-center">Manage User Roles</h4>
         </div>
         <div class="card-body">
             <form asp-action="ManageUserRoles" method="post">
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <input type="text" id="searchUser" class="form-control" placeholder="Search by username" onkeyup="debouncedSearch()" />
+                        <input type="text" id="searchUser" class="form-control" placeholder="Search by username" />
                     </div>
                     <div class="col-md-2 text-end">
-                        <button type="button" class="btn btn-secondary w-100" onclick="clearSearch()">Clear</button>
+                        <button type="button" class="btn btn-secondary w-100" id="clearSearch">Clear</button>
                     </div>
                 </div>
 
@@ -35,9 +35,6 @@
                                     <td class="user-name">
                                         @Model[i].UserName
                                         <input type="hidden" asp-for="@Model[i].UserId" />
-                                        <span class="badge bg-info ms-2">
-                                            @Model[i].Roles.Count(r => r.IsAssigned) roles
-                                        </span>
                                     </td>
                                     <td class="user-roles">
                                         <div class="d-flex flex-wrap">
@@ -61,7 +58,7 @@
                     </table>
 
                     <div id="noResults" class="text-center text-danger mt-3" style="display: none;">
-                        No users match the search/filter criteria.
+                        No users match the written word
                     </div>
                 </div>
 
@@ -80,48 +77,39 @@
 
 @section Scripts {
     <script>
-        let debounceTimer;
-
-        function debouncedSearch() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(filterUsers, 300);
-        }
-
-        function filterUsers() {
-            const query = document.getElementById("searchUser").value.toLowerCase();
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("searchUser");
+            const clearButton = document.getElementById("clearSearch");
             const rows = document.querySelectorAll(".user-row");
-            let anyVisible = false;
+            const noResults = document.getElementById("noResults");
 
-            rows.forEach(row => {
-                const userName = row.querySelector(".user-name").textContent.toLowerCase();
+            searchInput.addEventListener("input", function () {
+                const query = searchInput.value.toLowerCase();
+                let anyVisible = false;
 
-                const checkedRoles = Array.from(row.querySelectorAll(".user-roles input[type='checkbox']:checked"))
-                                          .map(cb => cb.closest(".form-check").querySelector(".form-check-label").textContent.toLowerCase());
+                rows.forEach(function (row) {
+                    const userName = row.querySelector(".user-name").textContent.toLowerCase();
+                    if (userName.includes(query)) {
+                        row.style.display = "";
+                        anyVisible = true;
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
 
-                const matchesName = userName.includes(query);
-
-                if (matchesName) {
-                    row.style.display = "";
-                    anyVisible = true;
-                } else {
-                    row.style.display = "none";
-                }
+                noResults.style.display = anyVisible ? "none" : "block"; 
             });
 
-            document.getElementById("noResults").style.display = anyVisible ? "none" : "block";
-        }
 
-        function clearSearch() {
-            document.getElementById("searchUser").value = "";
-            filterUsers();
-        }
+            clearButton.addEventListener("click", function () {
+                searchInput.value = "";
+                searchInput.focus();
 
-        document.querySelectorAll(".form-check-input").forEach(cb => {
-            cb.addEventListener("change", () => {
-                const row = cb.closest("tr");
-                const count = row.querySelectorAll(".form-check-input:checked").length;
-                const badge = row.querySelector("span.badge");
-                badge.textContent = `${count} role${count !== 1 ? 's' : ''}`;
+                rows.forEach(function (row) {
+                    row.style.display = "";
+                });
+
+                noResults.style.display = "none";
             });
         });
     </script>

@@ -1,17 +1,18 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.BL.IServices;
-using SmartTask.BL.Services.NotificationService;
-using SmartTask.DataAccess.ExternalServices.EmailService;
+using SmartTask.Bl.Services;
+using SmartTask.Core.IExternalServices;
 using SmartTask.Core.IRepositories;
-using SmartTask.DataAccess.Repositories;
-using SmartTask.DataAccess.Data;
-using SmartTask.Core.Models.Mail;
 using SmartTask.Core.Models;
 using SmartTask.Core.IExternalServices;
 using SmartTask.Core.Models.BasePermission;
 using SmartTask.BL.Services;
 using SmartTask.Web.CustomFilter;
+using SmartTask.Core.Models.Mail;
+using SmartTask.DataAccess.Data;
+using SmartTask.DataAccess.ExternalServices;
+using SmartTask.DataAccess.Repositories;
 
 namespace SmartTask.Web
 {
@@ -27,8 +28,8 @@ namespace SmartTask.Web
                 options.Filters.Add(typeof(DynamicAuthorizationFilter));
             });
 
-            builder.Services.Configure<SmtpSettings>(
-    builder.Configuration.GetSection("SmtpSettings"));
+            // Database & Identity
+            builder.Services.AddDbContext<SmartTaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Database context configuration
             builder.Services.AddDbContext<SmartTaskContext>(options =>
@@ -38,24 +39,26 @@ namespace SmartTask.Web
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<SmartTaskContext>();
 
-            // Dependency injection registrations
+            // Dependency Injection
             RegisterRepositories(builder.Services);
 
             var app = builder.Build();
 
-            // Middleware pipeline configuration
+            // Error Handling
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
 
+            // Middleware Pipeline
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            // Endpoint routing configuration
+            // Endpoints
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
@@ -71,8 +74,9 @@ namespace SmartTask.Web
             services.AddSingleton(new DynamicAuthorizationOptions { DefaultAdminUser = "aelashry@outlook.com" });
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<INotificationService, NotificationService>();
-            // Repository layer DI registrations
-            services.AddScoped<  IAISuggestionRepository, AISuggestionRepository> ();
+
+            // Repository Interfaces to Implementations
+            services.AddScoped<IAISuggestionRepository, AISuggestionRepository>();
             services.AddScoped<IAssignTaskRepository, AssignTaskRepository>();
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
             services.AddScoped<IBranchDepartmentRepository, BranchDepartmentRepository>();

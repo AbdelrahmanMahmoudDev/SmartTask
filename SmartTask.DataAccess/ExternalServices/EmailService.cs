@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
-using MailKit.Net.Smtp;
+﻿using MailKit.Net.Smtp;
 using MimeKit;
 using SmartTask.Core.Models.Mail;
 using Microsoft.Extensions.Options;
 using SmartTask.Core.IExternalServices;
 
-namespace SmartTask.DataAccess.ExternalServices.EmailService
+namespace SmartTask.DataAccess.ExternalServices
 {
     public class EmailService : IEmailSender
     {
@@ -16,10 +15,8 @@ namespace SmartTask.DataAccess.ExternalServices.EmailService
             _smtpSettings = smtpSettings.Value;
         }
 
-
         public async Task SendEmailAsync(EmailMessage message)
         {
-
             var email = new MimeMessage();
             email.From.Add(new MailboxAddress(_smtpSettings.SenderName, _smtpSettings.SenderEmail));
             email.To.Add(new MailboxAddress("", message.To));
