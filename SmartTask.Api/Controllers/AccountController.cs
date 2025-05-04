@@ -65,7 +65,7 @@ namespace SmartTask.Api.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register2(RegisterDTO register)
+        public async Task<IActionResult> Register(RegisterDTO register)
         {
             if (ModelState.IsValid)
             {
