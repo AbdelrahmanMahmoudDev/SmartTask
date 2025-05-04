@@ -7,6 +7,7 @@ using TaskModel = SmartTask.Core.Models.Task;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
+
 namespace SmartTask.DataAccess.Data
 {
     /// <summary>
@@ -42,7 +43,7 @@ namespace SmartTask.DataAccess.Data
         public DbSet<AssignTask> AssignTasks { get; set; }
         public DbSet<Audit> Audits { get; set; }
         public DbSet<UserLoginHistory>UserLoginHistories { get; set; }
-
+     
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
