@@ -23,7 +23,6 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> TasksForUserInProject(int projectId)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            Console.WriteLine("ggg@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + userId);
             var tasks = await _context.Tasks
                 .Where(t => t.ProjectId == projectId && t.AssignedToId == userId)
                 .ToListAsync();
@@ -41,10 +40,12 @@ namespace SmartTask.Web.Controllers
         }
 
         // الأكشن الثاني: هيجيب كل التاسكات الخاصة بيوزر معين
-        public async Task<IActionResult> TasksForUser(string userid)
+        public async Task<IActionResult> TasksForUser()
         {
+
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var tasks = await _context.Tasks
-                .Where(t => t.AssignedToId == userid)
+                .Where(t => t.AssignedToId == userId)
                 .ToListAsync();
 
             return View("Tasks", tasks);
