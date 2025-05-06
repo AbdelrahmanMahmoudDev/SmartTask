@@ -25,6 +25,11 @@ namespace SmartTask.DataAccess.Repositories
                 .Include(p => p.CreatedBy)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<Project>> GetAllAsyncWithoutInclude()
+        {
+            return await _context.Projects
+                .ToListAsync();
+        }
 
         public async Task<Project> GetByIdAsync(int id)
         {

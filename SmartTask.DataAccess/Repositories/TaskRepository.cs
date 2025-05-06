@@ -115,11 +115,12 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<ModelTask> AddAsync(ModelTask task)
+        public async Task AddAsync(ModelTask task)
         {
             _context.Tasks.Add(task);
-            await _context.SaveChangesAsync();
-            return task;
+           
+                await _context.SaveChangesAsync();
+             
         }
 
         public async Task UpdateAsync(ModelTask task)
@@ -141,6 +142,12 @@ namespace SmartTask.DataAccess.Repositories
         public async Task<bool> ExistsAsync(int id)
         {
             return await _context.Tasks.AnyAsync(t => t.Id == id);
+        }
+
+        public async Task<IEnumerable<ModelTask>> GetAllTasksPerProject(int projectId)
+        {
+
+            return await _context.Tasks.Where(t => t.ProjectId == projectId).Include(t=>t.Project).ToListAsync();
         }
     }
 }
