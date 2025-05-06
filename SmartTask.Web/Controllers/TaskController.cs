@@ -22,8 +22,7 @@ namespace SmartTask.Web.Controllers
             var tasks = await _context.Tasks
                 .Where(t => t.ProjectId == projectId && t.AssignedToId == userId)
                 .ToListAsync();
-
-            return View(tasks);
+            return View("Tasks",tasks);
         }
 
         // الأكشن الثاني: هيجيب كل التاسكات الخاصة بمشروع معين
@@ -33,7 +32,7 @@ namespace SmartTask.Web.Controllers
                 .Where(t => t.ProjectId == projectId)
                 .ToListAsync();
 
-            return View(tasks);
+            return View("Tasks", tasks);
         }
 
         // الأكشن الثاني: هيجيب كل التاسكات الخاصة بيوزر معين
@@ -43,7 +42,7 @@ namespace SmartTask.Web.Controllers
                 .Where(t => t.AssignedToId == userid)
                 .ToListAsync();
 
-            return View(tasks);
+            return View("Tasks", tasks);
         }
 
         public IActionResult Index()
