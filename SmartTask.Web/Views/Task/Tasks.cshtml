@@ -64,7 +64,7 @@
             <tbody>
                 @foreach (var task in Model)
                 {
-                    <tr>
+                    <tr id="row @task.Id">
                         <td class="fw-bold">@task.Title</td>
 
                         <td>
@@ -125,22 +125,30 @@
 
 
                                 <!-- Details Button (opens modal) -->
+                                <secure-content asp-area="" asp-controller="" asp-action="">
                                 <button class="btn btn-info btn-action" id="openPopup">
                                     <i class="bi bi-eye"></i>
                                 </button>
+                                </secure-content>
                                 <!-- Assign to User Button -->
+                                <secure-content asp-area="" asp-controller="" asp-action="">
                                 <button class="btn btn-warning btn-action" title="Assign Task"
                                         data-bs-toggle="modal" data-bs-target="#assignModal"
                                         data-id="@task.Id">
                                     <i class="bi bi-person-plus"></i>
                                 </button>
+                                </secure-content>
+                                <secure-content asp-area="" asp-controller="" asp-action="">
                                 <button class="btn btn-primary btn-action">
                                     <i class="bi bi-pencil"></i>
                                 </button>
+                                </secure-content>
+                                <secure-content asp-area="" asp-controller="Task" asp-action="DeleteTask">
                                 <button class="btn btn-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                        data-id="@task.Id">
+                                        data-id="@task.Id" onclick="numofdepend(@task.Id)">
                                     <i class="bi bi-trash"></i>
                                 </button>
+                                </secure-content>
 
                             </div>
                         </td>
@@ -162,16 +170,15 @@
             <div class="modal-body">
                 <!-- Confirmation text -->
                 <p class="fw-bold ">Are you sure you want to delete this task?</p>
-                <p class="text-danger">Maybe has Tasks depend on it</p>
+                <p id="depend" class="text-danger">Maybe has Tasks depend on it</p>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-danger">Delete</button>
+                <button class="btn btn-danger" data-bs-dismiss="modal" id="condelte" onclick="deleteTask(this)">Delete</button>
             </div>
         </div>
     </div>
 </div>
-
 
 
 <!-- Bootstrap & Script -->
@@ -215,3 +222,40 @@
         };
     }
 }
+
+<script>
+    function numofdepend(taskId) {
+        document.querySelector('#condelte').dataset.id = taskId;
+        $.ajax({
+                    url: '/Task/Depend',
+            type: 'GET',
+            data: { taskid: taskId },
+            success: function(x) {
+                            document.getElementById('depend').innerText='this task depend on :'+x+' Tasks';
+                        },
+            error: function(xhr) {
+                            alert('Error: ' + xhr.responseText);
+                        }
+                    });
+                }
+</script>
+
+
+
+<script>
+function deleteTask(b) {
+      var a=  b.dataset.id;
+    $.ajax({
+                url: '/Task/DeleteTask',
+        type: 'DELETE',
+            data: { taskid: a },
+        success: function() {
+                        alert('Task deleted successfully!');
+                                document.getElementById(`row ${a}`).remove();
+                    },
+        error: function(xhr) {
+                        alert('Error: ' + xhr.responseText);
+                    }
+                });
+            }
+</script>
