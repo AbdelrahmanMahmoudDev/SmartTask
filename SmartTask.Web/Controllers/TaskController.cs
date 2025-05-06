@@ -45,6 +45,40 @@ namespace SmartTask.Web.Controllers
 
             return View(tasks);
         }
+        public async Task<IActionResult> DeleteTask(int taskid)
+        {
+            var task = _context.Tasks.FirstOrDefault(x => x.Id == taskid);
+            if (task.Description=="")
+            {
+                return BadRequest("task cann't deleted it is started");
+            }
+            var TaskDependencies = await _context.TaskDependencies
+                .Where(t => t.PredecessorId == taskid)
+                .ToListAsync();
+            _context.TaskDependencies.RemoveRange(TaskDependencies);
+            _context.Tasks.Remove(task);
+            return Ok();
+
+            //< button onclick = "deleteTask(5)" > Delete Task </ button >
+
+//< script src = "https://code.jquery.com/jquery-3.6.0.min.js" ></ script >
+//< script >
+//function deleteTask(taskId) {
+//    $.ajax({
+//                url: '/YourController/DeleteTask',
+//        type: 'POST',
+//        data: { taskid: taskId },
+//        success: function() {
+//                        alert('Task deleted successfully!');
+//                        location.reload(); // Reload or update the UI
+//                    },
+//        error: function(xhr) {
+//                        alert('Error: ' + xhr.responseText);
+//                    }
+//                });
+//            }
+//</ script >
+        }
 
         public IActionResult Index()
         {
