@@ -14,5 +14,7 @@ namespace SmartTask.Core.IRepositories
         Task UpdateAsync(Branch branch);
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
+
+        IQueryable<Branch> GetQueryable();
     }
 }

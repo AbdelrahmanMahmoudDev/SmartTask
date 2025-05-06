@@ -1,0 +1,52 @@
+﻿@using SmartTask.Bl.Helpers
+@using SmartTask.Core.Models
+@model PaginatedList<Branch>
+
+@{
+    ViewData["Title"] = "Branch";
+}
+
+@if(User.IsInRole("Admin")){ 
+    <a href="/branch/Branch" class="btn btn-primary">Add Branch</a>
+} 
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Branch Name</th>
+            <th>Manager</th>
+            @if(User.IsInRole("Admin")){
+                <th>Delete</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var branch in Model)
+        {
+            <tr>
+                <td>@branch.Name</td>
+                <td>@branch.Manager?.FullName</td> 
+                @if(User.IsInRole("Admin")){
+                    <td><a ="/branch/Delete/@branch.Id" onclick="return confirm('Do you want to Delete this Branch?')" class="btn btn-danger">Delete</a></td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-page="@(Model.PageIndex - 1)"
+   class="btn btn-primary @prevDisabled">
+    Previous
+</a>
+
+<a asp-action="Index"
+   asp-route-page="@(Model.PageIndex + 1)"
+   class="btn btn-primary @nextDisabled">
+    Next
+</a>
