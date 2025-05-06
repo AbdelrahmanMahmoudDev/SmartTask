@@ -55,7 +55,7 @@
                     <th>Title</th>
 
                     <th>Priority</th>
-                    <th>Due Date</th>
+                    <th>Start Date</th>
                     <th class="text-center">Status</th>
                     <th class="text-center">Actions</th>
                     
@@ -71,8 +71,8 @@
                             <span class="badge bg-@(GetPriorityColor(task.Priority))">@task.Priority</span>
                         </td>
                         <td>
-                            <div>@DateTime.Now.AddDays(task.Id * 3).ToString("dd-MM-yyyy")</div>
-                            <div class="small text-muted">@(task.Id * 5) days</div>
+                            <div>@task.StartDate?.Date.ToString("dd-MM-yyyy")</div>
+                            <div class="small text-muted">@((task.StartDate?.Day - DateTime.Now.Day < 0 ? 0 : task.StartDate?.Day - DateTime.Now.Day)) days</div>
                         </td>
                         <td style="width: 200px;">
                             @* <div class="d-flex align-items-center gap-2"> *@
@@ -125,11 +125,11 @@
 
 
                                 <!-- Details Button (opens modal) -->
-                                <secure-content asp-area="" asp-controller="" asp-action="">
-                                <button class="btn btn-info btn-action" id="openPopup">
+                                <button class="btn btn-info btn-action" id="openPopup"
+                                        onclick="loadTaskDetails(@task.Id)">
                                     <i class="bi bi-eye"></i>
                                 </button>
-                                </secure-content>
+                                
                                 <!-- Assign to User Button -->
                                 <secure-content asp-area="" asp-controller="" asp-action="">
                                 <button class="btn btn-warning btn-action" title="Assign Task"
@@ -158,7 +158,13 @@
         </table>
     </div>
 </div>
-
+<div class="modal fade" id="taskDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow" id="taskDetailsContent">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -187,29 +193,6 @@
 
 
 @functions {
-    string GetStatusColor(string status)
-    {
-        return status switch
-        {
-            "Completed" => "success",
-            "In Progress" => "info",
-            "Pending" => "warning",
-            "Not Started" => "danger",
-            _ => "secondary"
-        };
-    }
-
-    int GetStatusProgress(string status)
-    {
-        return status switch
-        {
-            "Completed" => 100,
-            "In Progress" => 60,
-            "Pending" => 30,
-            "Not Started" => 5,
-            _ => 10
-        };
-    }
 
     string GetPriorityColor(string priority)
     {
@@ -222,8 +205,26 @@
         };
     }
 }
+<script>
+    function loadTaskDetails(taskId) {
+            $.ajax({
+                url: '@Url.Action("Details", "Task")/' + taskId,
+                type: 'GET',
+                success: function(response) {
+                    $('#taskDetailsContent').html(response);
+                    var detailsModal = new bootstrap.Modal(document.getElementById('taskDetailsModal'));
+                    detailsModal.show();
+                },
+                error: function(error) {
+                    console.log('Error loading task details:', error);
+                    alert('Failed to load task details. Please try again.');
+                }
+            });
+        }
+</script>
 
 <script>
+
     function numofdepend(taskId) {
         document.querySelector('#condelte').dataset.id = taskId;
         $.ajax({
