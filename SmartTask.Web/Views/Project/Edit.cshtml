@@ -1,0 +1,55 @@
+﻿@using SmartTask.Web.Views.Project
+@model ProjectEditViewModel;
+
+@{
+    ViewData["Title"] = "Edit Project";
+}
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header">
+            <h3 class="mb-0">Edit Project</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit">
+                <input type="hidden" asp-for="Id" />
+                <div class="form-group">
+                    <label asp-for="Name"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description"></label>
+                    <textarea asp-for="Description" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StartDate"></label>
+                    <input asp-for="StartDate" class="form-control" type="date" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="EndDate"></label>
+                    <input asp-for="EndDate" class="form-control" type="date" />
+                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="OwnerId"></label>
+                    <select asp-for="OwnerId" asp-items="@ViewBag.AdminUsers" class="form-control">
+                        <option value="">-- Select Owner --</option>
+                    </select>
+                    <span asp-validation-for="OwnerId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Status"></label>
+                    <select asp-for="Status" class="form-control">
+                        <option value="Active">Active</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

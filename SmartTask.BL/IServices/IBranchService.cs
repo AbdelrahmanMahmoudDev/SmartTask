@@ -21,5 +21,7 @@ namespace SmartTask.Bl.IServices
 
         Task<PaginatedList<Branch>> GetFiltered(string searchString, string? managerId, int page, int pageSize);
 
+        Task<Branch> GetBranchWithDetailsAsync(int id);
+
     }
 }
