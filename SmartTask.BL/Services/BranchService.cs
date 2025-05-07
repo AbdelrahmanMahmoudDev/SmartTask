@@ -49,13 +49,13 @@ namespace SmartTask.Bl.Services
         }
 
 
-        public PaginatedList<Branch> GetFiltered(string searchString, string? managerId, int page, int pageSize)
+        public async Task< PaginatedList<Branch>> GetFiltered(string searchString, string? managerId, int page, int pageSize)
         {
             Expression<Func<Branch, bool>> filter = b =>
                 (string.IsNullOrEmpty(searchString) || b.Name.Contains(searchString)) &&
                 (managerId != null || b.ManagerId == managerId);
 
-            return paginatedService.GetFiltered(filter, page, pageSize);
+            return await paginatedService.GetFiltered(filter, page, pageSize);
         }
     }
 }

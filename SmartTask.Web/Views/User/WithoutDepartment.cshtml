@@ -1,0 +1,45 @@
+﻿@model SmartTask.Web.ViewModels.UsersViewModel
+
+@{
+    ViewData["Title"] = "Users Without Department";
+    var prevDisabled = !Model.Users.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.Users.HasNextPage ? "disabled" : "";
+}
+
+<h2>Users Without Department</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>@user.FullName</td>
+                <td>@user.Email</td> 
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Pagination Controls -->
+<div class="d-flex justify-content-between align-items-center">
+    <a asp-action="WithoutDepartment"
+       asp-route-page="@(Model.Users.PageIndex - 1)"
+       class="btn btn-primary @prevDisabled">
+        Previous
+    </a>
+
+    <span>Page @Model.Users.PageIndex of @Model.Users.TotalPages</span>
+
+    <a asp-action="WithoutDepartment"
+       asp-route-page="@(Model.Users.PageIndex + 1)"
+       class="btn btn-primary @nextDisabled">
+        Next
+    </a>
+</div>

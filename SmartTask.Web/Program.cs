@@ -50,6 +50,10 @@ namespace SmartTask.Web
             RegisterRepositories(builder.Services);
 
             builder.Services.AddScoped(typeof(IPaginatedService<>), typeof(PaginatedService<>));
+
+            // IUser service
+            builder.Services.AddScoped<IUserService, UserService>();
+
             var app = builder.Build();
             using var scope = app.Services.CreateScope();
             var services = scope.ServiceProvider;
