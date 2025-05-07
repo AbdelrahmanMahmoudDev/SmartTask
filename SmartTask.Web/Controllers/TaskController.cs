@@ -1,7 +1,10 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
 using SmartTask.Web.ViewModels;
@@ -53,7 +56,6 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.Users = await _userManager.Users.ToListAsync();
-          
             ViewBag.Projects = await _projectRepository.GetAllAsyncWithoutInclude();
             return View();
         }
@@ -91,17 +93,66 @@ namespace SmartTask.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Edit([FromRoute]int id)
+        public async Task<IActionResult> Edit([FromRoute]int id)
         {
-            return View();
+            var task = await _taskRepository.GetByIdAsync(id);
+            if (task == null) return NotFound();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var taskVM = new TaskViewModel()
+            {
+                Id = task.Id,
+                Title = task.Title,
+                Description = task.Description,
+                StartDate = task.StartDate,
+                EndDate = task.EndDate,
+                Status = task.Status,
+                Priority = task.Priority,
+                CreatedById = userId,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                ProjectId = task.ProjectId,
+                AssignedToId = task.AssignedToId,
+                ParentTaskId = task.ParentTaskId,
+                UpdatedById = userId,
+            };
+            var tasks = await GetTaskByProject(task.ProjectId);
+            ViewBag.Tasks = JsonSerializer.Deserialize<List<TaskViewModel>>(JsonSerializer.Serialize(tasks.Value));
+            ViewBag.Users = await _userManager.Users.ToListAsync();
+            ViewBag.Projects = await _projectRepository.GetAllAsyncWithoutInclude();
+            return View(taskVM);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(TaskViewModel taskVM)
+        public async Task<IActionResult> Edit(TaskViewModel taskVM)
         {
-            return View();
+            if (ModelState.IsValid) 
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                TaskModel task = new TaskModel
+                {
+                    Id= taskVM.Id,
+                    Title = taskVM.Title,
+                    Description = taskVM.Description,
+                    StartDate = taskVM.StartDate,
+                    EndDate = taskVM.EndDate,
+                    Status = taskVM.Status,
+                    Priority = taskVM.Priority,
+                    CreatedById = userId,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    ProjectId = taskVM.ProjectId,
+                    AssignedToId = taskVM.AssignedToId,
+                    ParentTaskId = taskVM.ParentTaskId,
+                    UpdatedById = userId,
+                };
+                await _taskRepository.UpdateAsync(task);
+                return RedirectToAction(nameof(Index));
+            }
+            ViewBag.Users = await _userManager.Users.ToListAsync();
+            ViewBag.Projects = await _projectRepository.GetAllAsyncWithoutInclude();
+            return View(taskVM);
         }
-        public async Task<IActionResult> GetTaskByProject(int id)
+        public async Task<JsonResult> GetTaskByProject(int id)
         {
             var tasks = await _taskRepository.GetAllTasksPerProject(id);
             List<TaskViewModel> taskViewModels = new List<TaskViewModel>();
@@ -110,16 +161,7 @@ namespace SmartTask.Web.Controllers
                 TaskViewModel taskVM = new TaskViewModel
                 {
                     Id = task.Id,
-                    Title = task.Title,
-                    Description = task.Description,
-                    StartDate = task.StartDate,
-                    EndDate = task.EndDate,
-                    Status = task.Status,
-                    Priority = task.Priority,
-                    CreatedById = task.CreatedById,
-                    CreatedAt = task.CreatedAt,
-                    ProjectName= task.Project.Name,
-                    ProjectId = task.ProjectId, 
+                    Title = task.Title, 
                 };
                 taskViewModels.Add(taskVM);
             }

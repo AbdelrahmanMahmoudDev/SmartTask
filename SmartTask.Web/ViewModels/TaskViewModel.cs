@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using TaskModel = SmartTask.Core.Models.Task;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace SmartTask.Web.ViewModels
 {
@@ -44,16 +45,16 @@ namespace SmartTask.Web.ViewModels
     
         public virtual string? ProjectName { get; set; }
 
-        
-    
+
+        [Display(Name ="Assign To")]
         public virtual ApplicationUser? AssignedTo { get; set; }
 
-
+        [Display(Name ="Parent Task")]
         public virtual TaskModel? ParentTask { get; set; }
 
-      
+        [Display(Name ="Created By")]
         public virtual ApplicationUser? CreatedBy { get; set; }
-
+        [Display(Name ="Updated By")]
         public virtual ApplicationUser? UpdatedBy { get; set; }
 
         public virtual ICollection<TaskModel>? SubTasks { get; set; }
