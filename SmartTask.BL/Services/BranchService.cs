@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using SmartTask.Bl.Helpers;
 using SmartTask.Bl.IServices;
 using SmartTask.Core.IRepositories;
@@ -16,7 +17,9 @@ namespace SmartTask.Bl.Services
         private readonly IBranchRepository branchRepository;
         private readonly IPaginatedService<Branch> paginatedService;
 
-        public BranchService(IBranchRepository branchRepository, IPaginatedService<Branch> paginatedService)
+        public BranchService(IBranchRepository branchRepository, IPaginatedService<Branch> paginatedService,
+            IDepartmentRepository departmentRepository
+            )
         {
             this.branchRepository = branchRepository;
             this.paginatedService = paginatedService;
@@ -45,17 +48,43 @@ namespace SmartTask.Bl.Services
 
         public async Task UpdateAsync(Branch branch)
         {
-           await branchRepository.UpdateAsync(branch);
+            var existingBranch = await branchRepository.GetWithDetailsAsync(branch.Id);
+            if (existingBranch == null)
+            {
+                throw new Exception("Branch not found");
+            }
+
+            existingBranch.Name = branch.Name;
+            existingBranch.ManagerId = branch.ManagerId;
+
+            existingBranch.BranchDepartments.Clear(); 
+            if (branch.BranchDepartments != null && branch.BranchDepartments.Any())
+            {
+                foreach (var bd in branch.BranchDepartments)
+                {
+                    existingBranch.BranchDepartments.Add(new BranchDepartment
+                    {
+                        BranchId = branch.Id,
+                        DepartmentId = bd.DepartmentId
+                    });
+                }
+            }
+
+            await branchRepository.UpdateAsync(existingBranch);
         }
 
 
-        public PaginatedList<Branch> GetFiltered(string searchString, string? managerId, int page, int pageSize)
+        public async Task< PaginatedList<Branch>> GetFiltered(string searchString, string? managerId, int page, int pageSize)
         {
             Expression<Func<Branch, bool>> filter = b =>
-                (string.IsNullOrEmpty(searchString) || b.Name.Contains(searchString)) &&
-                (managerId != null || b.ManagerId == managerId);
+                (string.IsNullOrEmpty(searchString) || b.Name.Contains(searchString));
 
-            return paginatedService.GetFiltered(filter, page, pageSize);
+            return await paginatedService.GetFiltered(filter, page, pageSize);
+        }
+
+        public async Task<Branch> GetBranchWithDetailsAsync(int id)
+        {
+            return await branchRepository.GetWithDetailsAsync(id);
         }
     }
 }

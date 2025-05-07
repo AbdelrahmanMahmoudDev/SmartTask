@@ -12,7 +12,7 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
-    [Migration("20250503151419_SmartContext")]
+    [Migration("20250503221020_SmartContext")]
     partial class SmartContext
     {
         /// <inheritdoc />

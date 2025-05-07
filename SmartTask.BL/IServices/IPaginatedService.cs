@@ -10,6 +10,6 @@ namespace SmartTask.Bl.IServices
 {
     public interface IPaginatedService<T>
     {
-        PaginatedList<T> GetFiltered(Expression<Func<T, bool>>? filter, int page, int pageSize);
+        Task<PaginatedList<T>> GetFiltered(Expression<Func<T, bool>>? filter, int page, int pageSize);
     }
 }

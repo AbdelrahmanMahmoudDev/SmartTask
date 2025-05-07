@@ -9,22 +9,28 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form method="post" asp-controller="Branch" asp-action="AddBranch">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            
+        <form asp-action="AddBranch" method="post">
             <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
+                <label asp-for="Name"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="ManagerId" class="control-label"></label>
-                <input asp-for="ManagerId" class="form-control" />
+                <label asp-for="ManagerId">Manager</label>
+                <select asp-for="ManagerId" class="form-control" asp-items="ViewBag.Managers">
+                    <option value="">Select a Manager</option>
+                </select>
                 <span asp-validation-for="ManagerId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <input type="submit" value="Add Branch" class="btn btn-primary" />
+                <label asp-for="SelectedDepartmentIds">Departments</label>
+                <select asp-for="SelectedDepartmentIds" class="form-control" asp-items="ViewBag.Departments" multiple>
+                </select>
             </div>
+
+            <button type="submit" class="btn btn-primary">Add Branch</button>
         </form>
     </div>
 </div>

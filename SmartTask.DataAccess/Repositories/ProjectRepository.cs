@@ -95,5 +95,13 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Projects.AnyAsync(p => p.Id == id);
         }
+
+        public IQueryable<Project> GetQueryable()
+        {
+            return _context.Projects
+                .Include(p => p.Owner)
+                .Include(p => p.CreatedBy)
+                .AsQueryable();
+        }
     }
 }

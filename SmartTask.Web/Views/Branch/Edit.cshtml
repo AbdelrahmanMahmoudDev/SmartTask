@@ -1,0 +1,51 @@
+﻿@model SmartTask.Web.ViewModels.BranchVM.BranchFormViewModel
+
+@{
+    ViewData["Title"] = "Edit Branch";
+}
+
+<h1>Edit Branch</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ManagerId" class="control-label">Manager Name</label>
+                <select asp-for="ManagerId" asp-items="@ViewBag.Roles" class="form-control">
+                    <option value="">Select a Manager</option>
+                </select>
+                <span asp-validation-for="ManagerId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SelectedDepartmentIds" class="control-label">Departments</label>
+                <select asp-for="SelectedDepartmentIds" asp-items="@(new MultiSelectList(Model.AllDepartments, "Id", "Name", Model.SelectedDepartmentIds))" class="form-control" multiple>
+                </select>
+                <span asp-validation-for="SelectedDepartmentIds" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

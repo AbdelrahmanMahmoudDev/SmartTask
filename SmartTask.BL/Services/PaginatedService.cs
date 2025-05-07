@@ -19,7 +19,7 @@ namespace SmartTask.Bl.Services
             _context = context;
         }
 
-        public PaginatedList<T> GetFiltered(Expression<Func<T, bool>>? filter, int page, int pageSize)
+        public async Task<PaginatedList<T>> GetFiltered(Expression<Func<T, bool>>? filter, int page, int pageSize)
         {
             IQueryable<T> query = _context.Set<T>();
 
