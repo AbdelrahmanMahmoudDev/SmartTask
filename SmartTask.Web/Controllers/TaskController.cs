@@ -96,6 +96,63 @@ namespace SmartTask.Web.Controllers
 //</ script >
         }
 
+        public async Task<IActionResult> Loadnodes()
+        {
+            Dictionary<int, List<int>> graph = new Dictionary<int, List<int>>();
+           await _context.TaskDependencies.ForEachAsync(t =>
+            {
+                if (graph.ContainsKey(t.SuccessorId))
+                {
+                    graph[t.SuccessorId].Add(t.PredecessorId);
+                }
+                else
+                {
+                    graph[t.SuccessorId] = new List<int>();
+                    graph[t.SuccessorId].Add(t.PredecessorId);
+                }
+            });
+            var visited = new HashSet<int>();
+            DFS(22, graph, visited);
+
+            var allNodes = _context.Tasks.Select(x=>x.Id);
+            var notReachable = allNodes.Except(visited);
+            graph = new Dictionary<int, List<int>>();
+            await _context.TaskDependencies.ForEachAsync(t =>
+            {
+                if (graph.ContainsKey(t.PredecessorId))
+                {
+                    graph[t.PredecessorId].Add(t.SuccessorId);
+                }
+                else
+                {
+                    graph[t.PredecessorId] = new List<int>();
+                    graph[t.PredecessorId].Add(t.SuccessorId);
+                }
+            });
+
+            visited = new HashSet<int>();
+            DFS(22, graph, visited);
+            notReachable = notReachable.Except(visited);
+            return Ok(notReachable);
+        }
+
+
+        static void DFS(int node, Dictionary<int, List<int>> graph, HashSet<int> visited)
+        {
+            if (visited.Contains(node))
+                return;
+
+            visited.Add(node);
+
+            if (graph.ContainsKey(node))
+            {
+                foreach (var neighbor in graph[node])
+                {
+                    DFS(neighbor, graph, visited);
+                }
+            }
+        }
+
         public IActionResult Index()
         {
             return View();
