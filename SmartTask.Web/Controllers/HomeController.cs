@@ -22,6 +22,11 @@ namespace SmartTask.Web.Controllers
             
             return View();
         }
+        public async Task<IActionResult> IndexAsync1()
+        {
+
+            return View();
+        }
         [Authorize]
         public IActionResult Privacy()
         {
