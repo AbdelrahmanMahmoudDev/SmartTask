@@ -60,7 +60,7 @@
 </head>
 @RenderSection("Header", required: false)
 <body>
-<<<<<<< HEAD
+@* 
     <div id="global-loader" style="display: none;">
         <div class="page-loader"></div>
     </div>
@@ -612,7 +612,7 @@
 		</div>
 		
 
-	</div>
+	</div> *@
     @* <header> *@
     @*     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"> *@
     @*         <div class="container-fluid"> *@
@@ -646,7 +646,7 @@
     @*         </div> *@
     @*     </nav> *@
     @* </header> *@
-=======
+
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -691,13 +691,17 @@
             </div>
         </nav>
     </header>
->>>>>>> LA
-    <div class="container">
-        <main role="main" class="pb-3">
-          
-        </main>
-    </div>
+	<div class="container">
+		<main role="main" class="pb-3">
+			@RenderBody()
+		</main>
+	</div>
 
+	<footer class="border-top footer text-muted">
+		<div class="container">
+			&copy; 2025 - SmartTask.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+		</div>
+	</footer>
     @* <footer class="border-top footer text-muted"> *@
     @*     <div class="container"> *@
     @*         &copy; 2025 - SmartTask.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
