@@ -1,52 +1,73 @@
-﻿@using SmartTask.Bl.Helpers
-@using SmartTask.Core.Models
-@model PaginatedList<Branch>
+﻿@model SmartTask.Web.ViewModels.BranchVM.BranchIndexViewModel
 
 @{
     ViewData["Title"] = "Branch";
+    var prevDisabled = !Model.Branches.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.Branches.HasNextPage ? "disabled" : "";
 }
 
-@if(User.IsInRole("Admin")){ 
-    <a href="/branch/Branch" class="btn btn-primary">Add Branch</a>
-} 
+
+<secure-content asp-area="" asp-controller="Branch" asp-action="AddBranch">
+    <a href="/branch/AddBranch" class="btn btn-primary">Add Branch</a>
+
+</secure-content>
+
+
+
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" asp-for="SearchString" class="form-control" placeholder="Search by branch name..." />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
 
 <table class="table">
     <thead>
         <tr>
             <th>Branch Name</th>
             <th>Manager</th>
-            @if(User.IsInRole("Admin")){
-                <th>Delete</th>
-            }
+            <th>Details</th>
+            <secure-content asp-area="" asp-controller="Branch" asp-action="Edit">
+                <th>Edit</th>
+            </secure-content>
+
+            <secure-content asp-area="" asp-controller="Branch" asp-action="Delete">
+            
+            <th>Delete</th>
+            </secure-content>
         </tr>
     </thead>
     <tbody>
-        @foreach (var branch in Model)
+        @foreach (var branch in Model.Branches)
         {
             <tr>
                 <td>@branch.Name</td>
-                <td>@branch.Manager?.FullName</td> 
-                @if(User.IsInRole("Admin")){
-                    <td><a ="/branch/Delete/@branch.Id" onclick="return confirm('Do you want to Delete this Branch?')" class="btn btn-danger">Delete</a></td>
-                }
+                <td>@branch.Manager?.FullName</td>
+                <td><a href="/branch/details/@branch.Id" class="btn btn-primary">Details</a></td>
+            <secure-content asp-area="" asp-controller="Branch" asp-action="Edit">
+
+                <td><a href="/branch/edit/@branch.Id" class="btn btn-primary">Edit</a></td>
+                </secure-content>
+                <secure-content asp-area="" asp-controller="Branch" asp-action="Delete">
+
+                <td><a href="/branch/delete/@branch.Id" onclick="return confirm('Are you sure?')" class="btn btn-danger">Delete</a></td>
+                </secure-content>
             </tr>
         }
     </tbody>
 </table>
 
-@{
-    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
-    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
-}
+
 
 <a asp-action="Index"
-   asp-route-page="@(Model.PageIndex - 1)"
+   asp-route-page="@(Model.Branches.PageIndex - 1)"
+   asp-route-searchString="@Model.SearchString"
    class="btn btn-primary @prevDisabled">
     Previous
 </a>
-
 <a asp-action="Index"
-   asp-route-page="@(Model.PageIndex + 1)"
+   asp-route-page="@(Model.Branches.PageIndex + 1)"
+   asp-route-searchString="@Model.SearchString"
    class="btn btn-primary @nextDisabled">
     Next
 </a>

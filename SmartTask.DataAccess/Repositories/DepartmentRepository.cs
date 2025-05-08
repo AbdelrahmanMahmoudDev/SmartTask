@@ -74,9 +74,17 @@ namespace SmartTask.DataAccess.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            var department = await _context.Departments.FindAsync(id);
+          
+            var department = await _context.Departments
+                                            .Include(d => d.Users) 
+                                            .FirstOrDefaultAsync(d => d.Id == id);
+
             if (department != null)
             {
+                foreach (var user in department.Users)
+                {
+                    user.DepartmentId = null;
+                }
                 _context.Departments.Remove(department);
                 await _context.SaveChangesAsync();
             }
@@ -86,5 +94,13 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Departments.AnyAsync(d => d.Id == id);
         }
+        public IQueryable<Department> GetQueryable()
+        {
+            return _context.Departments
+                .Include(d => d.Manager)
+                .Include(d => d.Users)
+                .AsQueryable();
+        }
+
     }
 }

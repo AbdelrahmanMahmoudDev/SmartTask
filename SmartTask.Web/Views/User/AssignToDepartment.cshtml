@@ -1,0 +1,19 @@
+﻿@using SmartTask.Core.Models
+@foreach (var user in Model.Users)
+{
+    <tr>
+        <td>@user.UserName</td>
+        <td>
+            <form asp-action="AssignToDepartment" method="post" style="display:inline;">
+                <input type="hidden" name="userId" value="@user.Id" />
+                <select name="departmentId">
+                    @foreach (var dept in ViewBag.Departments as List<Department>)
+                    {
+                        <option value="@dept.Id">@dept.Name</option>
+                    }
+                </select>
+                <button type="submit">Assign</button>
+            </form>
+        </td>
+    </tr>
+}

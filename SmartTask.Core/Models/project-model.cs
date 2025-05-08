@@ -26,7 +26,7 @@ namespace SmartTask.Core.Models
         public DateTime? EndDate { get; set; }
 
         [StringLength(50)]
-        public string Status { get; set; }
+        public string Status { get; set; } = "Pending";
 
         [Required]
         public DateTime CreatedAt { get; set; }
@@ -47,6 +47,7 @@ namespace SmartTask.Core.Models
         public Project()
         {
             //ProjectRoles = new HashSet<ProjectRole>();
+            CreatedAt = DateTime.Now;
             ProjectMembers = new HashSet<ProjectMember>();
             Tasks = new HashSet<Task>();
         }

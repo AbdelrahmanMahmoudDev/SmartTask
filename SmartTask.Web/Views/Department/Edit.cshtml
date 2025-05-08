@@ -1,0 +1,41 @@
+﻿@using SmartTask.Web.ViewModels.DepartmentVM
+@model DepartmentFormViewModel
+
+<h1>Edit Department</h1>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ManagerId"></label>
+        <select asp-for="ManagerId" asp-items="@ViewBag.Managers" class="form-control">
+            <option value="">-- Select Manager --</option>
+        </select>
+        <span asp-validation-for="ManagerId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Assign Users:</label>
+        @foreach (var user in ViewBag.AllUsers)
+        {
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="checkbox"
+                       name="SelectedUserIds"
+                       value="@user.Id"
+                       id="user_@user.Id"
+                @(Model.SelectedUserIds.Contains(user.Id) ? "checked" : "")>
+                <label class="form-check-label" for="user_@user.Id">
+                    @user.FullName
+                </label>
+            </div>
+        }
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
