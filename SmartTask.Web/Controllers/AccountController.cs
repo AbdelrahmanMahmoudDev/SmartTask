@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.Models;
 using SmartTask.Core.Models.BasePermission;
-using SmartTask.Web.ViewModels;
+using SmartTask.Core.ViewModels;
 
 namespace SmartTask.Web.Controllers
 {

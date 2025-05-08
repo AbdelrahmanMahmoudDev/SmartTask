@@ -1,4 +1,4 @@
-﻿namespace SmartTask.Web.ViewModels
+﻿namespace SmartTask.Core.ViewModels
 {
     public class ErrorViewModel
     {

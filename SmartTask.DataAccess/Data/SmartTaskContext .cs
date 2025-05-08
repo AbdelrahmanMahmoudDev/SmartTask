@@ -4,6 +4,7 @@ using SmartTask.Core.Models;
 using SmartTask.Core.Models.BasePermission;
 using SmartTask.Core.Models.AuditModels;
 using TaskModel = SmartTask.Core.Models.Task;
+using SmartTask.Core.Models.Notification;
 
 namespace SmartTask.DataAccess.Data
 {
@@ -36,6 +37,10 @@ namespace SmartTask.DataAccess.Data
         public DbSet<AssignTask> AssignTasks { get; set; }
         public DbSet<Audit> Audits { get; set; }
         public DbSet<UserLoginHistory>UserLoginHistories { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
+        public virtual DbSet<UserGroups> UserGroups { get; set; }
+        public virtual DbSet<UserConnection> UserConnections { get; set; }
+        public virtual DbSet<Groups> Groups { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -124,6 +129,13 @@ namespace SmartTask.DataAccess.Data
                 .WithMany(u => u.TasksAssigned)
                 .HasForeignKey(at => at.AssignedById)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<UserGroups>()
+           .HasKey(ug => new { ug.UserID, ug.GroupID });
+
+            modelBuilder.Entity<UserConnection>()
+            .HasKey(uc => new { uc.connectionID, uc.UserID });
 
             // Map User entity to a custom table if needed
             //modelBuilder.Entity<User>()
