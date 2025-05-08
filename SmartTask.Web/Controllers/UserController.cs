@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using SmartTask.Bl.Services;
 using SmartTask.BL.IServices;
 using SmartTask.Core.Models;
@@ -15,9 +16,11 @@ namespace SmartTask.Web.Controllers
     public class UserController : Controller
     {
         private readonly IUserService _userService;
-        public UserController(IUserService userService)
+        private readonly IDepartmentService _departmentService;
+        public UserController(IUserService userService, IDepartmentService departmentService)
         {
             _userService = userService;
+            _departmentService = departmentService;
         }
         public async Task<IActionResult> GetAll(string? searchString = null, int page = 1 , int pageSize = 10)
         {
@@ -48,6 +51,9 @@ namespace SmartTask.Web.Controllers
 
             var users = await _userService.GetFilteredAsync(filter, page, pageSize);
 
+            var departments = await _departmentService.GetAllDepartmentsAsync();
+            ViewBag.Departments = departments;
+
             var viewModel = new UsersViewModel
             {
                 Users = users,
@@ -71,13 +77,30 @@ namespace SmartTask.Web.Controllers
             return View(user);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AssignToDepartment(string userId, int departmentId)
+        {
+            var success = await _userService.AssignUserToDepartmentAsync(userId, departmentId);
+
+            if (!success)
+            {
+                ModelState.AddModelError("", "Failed to assign user to department.");
+                return RedirectToAction("WithoutDepartment");
+            }
+            ViewBag.Departments = await _departmentService.GetAllDepartmentsAsync();
+
+            return RedirectToAction("WithoutDepartment");
+        }
         public async Task<IActionResult> Edit(string id)
         {
             var user = await _userService.GetByIdAsync(id);
             if (user == null) return NotFound();
 
+            var departments = await _departmentService.GetAllDepartmentsAsync();
+            ViewBag.Departments = new SelectList(departments, "Id", "Name");
             return View(user);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, ApplicationUser user)
@@ -89,9 +112,11 @@ namespace SmartTask.Web.Controllers
                 var success = await _userService.UpdateAsync(user);
                 if (!success) return NotFound();
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(GetAll));
             }
 
+            var departments = await _departmentService.GetAllDepartmentsAsync();
+            ViewBag.Departments = new SelectList(departments, "Id", "Name");
             return View(user);
         }
         public async Task<IActionResult> Delete(string id)

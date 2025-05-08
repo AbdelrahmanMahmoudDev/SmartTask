@@ -1,9 +1,12 @@
-﻿@model SmartTask.Web.ViewModels.UsersViewModel
+﻿@using SmartTask.Core.Models
+
+@model SmartTask.Web.ViewModels.UsersViewModel
 
 @{
     ViewData["Title"] = "Users Without Department";
     var prevDisabled = !Model.Users.HasPreviousPage ? "disabled" : "";
     var nextDisabled = !Model.Users.HasNextPage ? "disabled" : "";
+    var departments = ViewBag.Departments as List<Department>;
 }
 
 <h2>Users Without Department</h2>
@@ -21,7 +24,23 @@
         {
             <tr>
                 <td>@user.FullName</td>
-                <td>@user.Email</td> 
+                <td>@user.Email</td>
+                @* <td> <a class="btn btn-sm btn-warning" asp-action="AssignToDepartment"> Assign to department</a></td> *@
+                <td>
+                    <secure-content asp-area="" asp-controller="User" asp-action="Edit">
+                       <form asp-action="AssignToDepartment" method="post">
+                        <input type="hidden" name="userId" value="@user.Id" />
+                        <select name="departmentId" required>
+                            <option value="">-- Select --</option>
+                            @foreach (var depth in departments)
+                            {
+                                <option value="@depth.Id">@depth.Name</option>
+                            }
+                        </select>
+                        <button type="submit">Assign</button>
+                    </form>
+                    </secure-content>
+                </td>
             </tr>
         }
     </tbody>

@@ -21,8 +21,12 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="DepartmentId">Department ID</label>
-        <input asp-for="DepartmentId" class="form-control" />
+        <label asp-for="DepartmentId">Department</label>
+        <select asp-for="DepartmentId" class="form-control"
+                asp-items="ViewBag.Departments">
+            <option value="">-- Select Department --</option>
+        </select>
+        <span asp-validation-for="DepartmentId" class="text-danger"></span>
     </div>
 
     <button type="submit" class="btn btn-primary">Save</button>

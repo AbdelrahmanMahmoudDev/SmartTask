@@ -4,6 +4,7 @@ using SmartTask.Bl.Helpers;
 using SmartTask.Bl.IServices;
 using SmartTask.Bl.Services;
 using SmartTask.BL.IServices;
+using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
 using System;
 using System.Collections.Generic;
@@ -17,12 +18,17 @@ namespace SmartTask.BL.Services
     public class UserService : IUserService
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDepartmentRepository _departmentRepository;
         private readonly IPaginatedService<ApplicationUser> _paginatedService;
 
-        public UserService(UserManager<ApplicationUser> userManager,IPaginatedService<ApplicationUser> paginatedService)
+        public UserService(
+            UserManager<ApplicationUser> userManager,
+            IPaginatedService<ApplicationUser> paginatedService,
+            IDepartmentRepository departmentRepository)
         {
             _userManager = userManager;
             _paginatedService = paginatedService;
+            _departmentRepository = departmentRepository;
         }
 
         public async Task<IEnumerable<ApplicationUser>> GetAllAsync()
@@ -75,6 +81,20 @@ namespace SmartTask.BL.Services
             }
 
             return await System.Threading.Tasks.Task.FromResult(PaginatedList<ApplicationUser>.Create(query, page, pageSize));
+        }
+
+        public async Task<bool> AssignUserToDepartmentAsync(string userId, int departmentId)
+        {
+            var user = _userManager.Users.Include(u=>u.Department).FirstOrDefault(u => u.Id == userId);
+            if (user == null) return false;
+
+            var department = await _departmentRepository.GetByIdAsync(departmentId);
+            if (department == null) return false;
+
+            user.DepartmentId = department.Id;
+
+            var result = await _userManager.UpdateAsync(user);
+            return result.Succeeded;
         }
     }
 }

@@ -1,87 +1,4 @@
-﻿@* @model SmartTask.Bl.Helpers.PaginatedList<SmartTask.Core.Models.ApplicationUser> *@
-@* @model SmartTask.Web.ViewModels.UsersViewModel
-
-@{
-    ViewData["Title"] = "Users";
-    var prevDisabled = !Model.Users.HasPreviousPage ? "disabled" : "";
-    var nextDisabled = !Model.Users.HasNextPage ? "disabled" : "";
-}
-<h2>Users</h2> *@
-@* 
-
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Full Name</th>
-            <th>Email</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@user.FullName</td>
-                <td>@user.Email</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Update</a>
-                    <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table> *@
-
-@*<div>
-    @if (Model.HasPreviousPage)
-    {
-        <a asp-action="Index" asp-route-page="@(Model.PageIndex - 1)" class="btn btn-outline-primary">Previous</a>
-    }
-
-    <span>Page @Model.PageIndex of @Model.TotalPages</span>
-
-    @if (Model.HasNextPage)
-    {
-        <a asp-action="Index" asp-route-page="@(Model.PageIndex + 1)" class="btn btn-outline-primary">Next</a>
-    }
-</div>*@
-<!-- Pagination Controls -->
-@* <div class="d-flex justify-content-between">
-    <div>
-       
-            <a asp-action="getall" asp-route-page="@(Model.PageIndex - 1)" class="btn btn-outline-primary">Previous</a>
-        
-    </div>
-
-    <div>
-        Page @Model.PageIndex of @Model.TotalPages
-    </div>
-
-    <div>
-        @if (Model.HasNextPage)
-        {
-            <a asp-action="getall" asp-route-page="@(Model.PageIndex + 1)" class="btn btn-outline-primary">Next</a>
-        }
-    </div>
-</div>
- *@
-
-@* 
-<a asp-action="Index"
-   asp-route-page="@(Model.Branches.PageIndex - 1)"
-   asp-route-searchString="@Model.SearchString"
-   class="btn btn-primary @prevDisabled">
-    Previous
-</a>
-<a asp-action="Index"
-   asp-route-page="@(Model.Branches.PageIndex + 1)"
-   asp-route-searchString="@Model.SearchString"
-   class="btn btn-primary @nextDisabled">
-    Next
-</a> *@
-
-@model SmartTask.Web.ViewModels.UsersViewModel
+﻿@model SmartTask.Web.ViewModels.UsersViewModel
 
 @{
     ViewData["Title"] = "Users";
@@ -101,6 +18,7 @@
         <tr>
             <th>Full Name</th>
             <th>Email</th>
+            <th>Department</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -110,6 +28,7 @@
             <tr>
                 <td>@user.FullName</td>
                 <td>@user.Email</td>
+                <td>@user.Department.Name</td>
                 <td>
                      <secure-content asp-area="" asp-controller="User" asp-action="Edit">
                     <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Update</a>

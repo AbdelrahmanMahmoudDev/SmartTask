@@ -48,33 +48,6 @@ namespace SmartTask.Web.Controllers
             return View();
         }
 
-        [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> Details(int id)
-        {
-            var department = await _departmentService.GetDepartmentWithDetailsAsync(id);
-            if (department == null)
-            {
-                return View("NotFound");
-            }
-
-            var model = new DepartmentDetailsViewModel
-            {
-                Id = department.Id,
-                Name = department.Name,
-                ManagerName = department.Manager?.FullName ?? "No Manager Assigned",
-                Users = department.Users.Select(u => new UserViewModel
-                {
-                    Id = u.Id,
-                    FullName = u.FullName,
-                    UserName = u.UserName,
-                    Email = u.Email
-                }).ToList()
-            };
-
-            return View(model);
-        }
-
         [HttpPost]
         public async Task<IActionResult> Create(DepartmentFormViewModel model)
         {
@@ -108,6 +81,33 @@ namespace SmartTask.Web.Controllers
 
             await _departmentService.AddDepartmentAsync(department);
             return RedirectToAction("Index");
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var department = await _departmentService.GetDepartmentWithDetailsAsync(id);
+            if (department == null)
+            {
+                return View("NotFound");
+            }
+
+            var model = new DepartmentDetailsViewModel
+            {
+                Id = department.Id,
+                Name = department.Name,
+                ManagerName = department.Manager?.FullName ?? "No Manager Assigned",
+                Users = department.Users.Select(u => new UserViewModel
+                {
+                    Id = u.Id,
+                    FullName = u.FullName,
+                    UserName = u.UserName,
+                    Email = u.Email
+                }).ToList()
+            };
+
+            return View(model);
         }
 
         [HttpGet]
