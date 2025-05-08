@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.Models;
+using SmartTask.Core.ViewModels;
 using SmartTask.DataAccess.Data;
 using System.Linq;
 using System.Security.Claims;
@@ -80,48 +81,16 @@ namespace SmartTask.Web.Controllers
             _context.SaveChanges();
             return Ok();
 
-            //< button onclick = "deleteTask(5)" > Delete Task </ button >
-
-//< script src = "https://code.jquery.com/jquery-3.6.0.min.js" ></ script >
-//< script >
-//function deleteTask(taskId) {
-//    $.ajax({
-//                url: '/YourController/DeleteTask',
-//        type: 'POST',
-//        data: { taskid: taskId },
-//        success: function() {
-//                        alert('Task deleted successfully!');
-//                        location.reload(); // Reload or update the UI
-//                    },
-//        error: function(xhr) {
-//                        alert('Error: ' + xhr.responseText);
-//                    }
-//                });
-//            }
-//</ script >
         }
 
-        public async Task<IActionResult> Loadnodes()
+          
+        public async Task<IActionResult> Loadnodes(int id)
         {
             Dictionary<int, List<int>> graph = new Dictionary<int, List<int>>();
-           await _context.TaskDependencies.ForEachAsync(t =>
-            {
-                if (graph.ContainsKey(t.SuccessorId))
-                {
-                    graph[t.SuccessorId].Add(t.PredecessorId);
-                }
-                else
-                {
-                    graph[t.SuccessorId] = new List<int>();
-                    graph[t.SuccessorId].Add(t.PredecessorId);
-                }
-            });
-            var visited = new HashSet<int>();
-            DFS(22, graph, visited);
 
-            var allNodes = _context.Tasks.Select(x=>x.Id);
-            var notReachable = allNodes.Except(visited);
-            graph = new Dictionary<int, List<int>>();
+            var visited = new HashSet<int>();
+            var allNodes = _context.Tasks;
+
             await _context.TaskDependencies.ForEachAsync(t =>
             {
                 if (graph.ContainsKey(t.PredecessorId))
@@ -135,10 +104,22 @@ namespace SmartTask.Web.Controllers
                 }
             });
 
-            visited = new HashSet<int>();
-            DFS(22, graph, visited);
-            notReachable = notReachable.Except(visited);
-            return Ok(notReachable);
+            DFS(id, graph, visited);
+            var notReachable = allNodes.ToList().ExceptBy(visited, e => e.Id);
+            var a = _context.TaskDependencies.Where(x => x.SuccessorId == id).Select(e => e.PredecessorId).ToList();
+            List<TaskDendenciesViewModel> taskviewdep = new List<TaskDendenciesViewModel>();
+            foreach (var n in notReachable)
+            {
+                if (a.Contains(n.Id))
+                {
+                    taskviewdep.Add(new TaskDendenciesViewModel { Id = n.Id, Name = n.Title, IsSelected = true });
+                }
+                else
+                {
+                    taskviewdep.Add(new TaskDendenciesViewModel { Id = n.Id, Name = n.Title, IsSelected = false });
+                }
+            }
+            return PartialView("_TaskDend", taskviewdep);
         }
 
 
@@ -157,7 +138,38 @@ namespace SmartTask.Web.Controllers
                 }
             }
         }
+        [HttpPost]
+        public IActionResult SaveSelectedTasks(int SelectedTaskId, List<int> selectedTaskIds)
+        {
+            var taskDependencies = _context.TaskDependencies
+                                   .Where(td => td.SuccessorId == SelectedTaskId) 
+                                   .ToList();
+            foreach (var selectedTaskId in selectedTaskIds)
+            {
+                var existingDependency = taskDependencies
+                    .FirstOrDefault(td => td.PredecessorId == selectedTaskId);
 
+                if (existingDependency == null)
+                {
+                    _context.TaskDependencies.Add(new TaskDependency
+                    {
+                        SuccessorId = SelectedTaskId, 
+                        PredecessorId = selectedTaskId 
+                    });
+                }
+            }
+
+            foreach (var taskDependency in taskDependencies)
+            {
+                if (!selectedTaskIds.Contains(taskDependency.PredecessorId))
+                {
+                    _context.TaskDependencies.Remove(taskDependency); 
+                }
+            }
+
+            _context.SaveChanges();
+            return Json(new { success = true, selected = selectedTaskIds.ToString() });
+        }
         public IActionResult Index()
         {
             return View();
