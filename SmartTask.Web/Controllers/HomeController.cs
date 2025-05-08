@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartTask.BL.IServices;
-using SmartTask.Web.ViewModels;
+using SmartTask.Core.ViewModels;
 
 namespace SmartTask.Web.Controllers
 {

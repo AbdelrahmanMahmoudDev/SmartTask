@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SmartTask.Web.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class TaskController : Controller
     {
         private readonly SmartTaskContext _context;
@@ -49,6 +49,11 @@ namespace SmartTask.Web.Controllers
                 .ToListAsync();
 
             return View("Tasks", tasks);
+        }
+        public IActionResult Details(int id)
+        {
+            var task = _context.Tasks.FirstOrDefault(t => t.Id == id);
+            return PartialView("_DetailsPartial",task);
         }
         [HttpGet]
         public  int Depend(int taskid)

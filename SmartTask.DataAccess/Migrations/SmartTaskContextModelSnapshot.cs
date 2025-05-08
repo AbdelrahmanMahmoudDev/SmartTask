@@ -559,6 +559,76 @@ namespace SmartTask.DataAccess.Migrations
                     b.ToTable("Events");
                 });
 
+            modelBuilder.Entity("SmartTask.Core.Models.Notification.Groups", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("SmartTask.Core.Models.Notification.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Sender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Sender");
+
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("SmartTask.Core.Models.Notification.UserConnection", b =>
+                {
+                    b.Property<string>("connectionID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("connectionID", "UserID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("UserConnections");
+                });
+
+            modelBuilder.Entity("SmartTask.Core.Models.Notification.UserGroups", b =>
+                {
+                    b.Property<string>("UserID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("GroupID")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserID", "GroupID");
+
+                    b.HasIndex("GroupID");
+
+                    b.ToTable("UserGroups");
+                });
+
             modelBuilder.Entity("SmartTask.Core.Models.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -912,6 +982,47 @@ namespace SmartTask.DataAccess.Migrations
                     b.Navigation("ImportedBy");
 
                     b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("SmartTask.Core.Models.Notification.Notification", b =>
+                {
+                    b.HasOne("SmartTask.Core.Models.ApplicationUser", "applicationUser")
+                        .WithMany()
+                        .HasForeignKey("Sender")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("applicationUser");
+                });
+
+            modelBuilder.Entity("SmartTask.Core.Models.Notification.UserConnection", b =>
+                {
+                    b.HasOne("SmartTask.Core.Models.ApplicationUser", "applicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("applicationUser");
+                });
+
+            modelBuilder.Entity("SmartTask.Core.Models.Notification.UserGroups", b =>
+                {
+                    b.HasOne("SmartTask.Core.Models.Notification.Groups", "groups")
+                        .WithMany()
+                        .HasForeignKey("GroupID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SmartTask.Core.Models.ApplicationUser", "applicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("applicationUser");
+
+                    b.Navigation("groups");
                 });
 
             modelBuilder.Entity("SmartTask.Core.Models.Project", b =>
