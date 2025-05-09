@@ -1,16 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.Models;
 using SmartTask.Core.ViewModels;
 using SmartTask.DataAccess.Data;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace SmartTask.Web.Controllers
 {
-    //[Authorize]
     public class TaskController : Controller
     {
         private readonly SmartTaskContext _context;
@@ -20,156 +16,191 @@ namespace SmartTask.Web.Controllers
             _context = context;
         }
 
-        // الأكشن الأول: هيجيب التاسكات الخاصة بيوزر معين في مشروع محدد
+        public IActionResult Details(int id)
+        {
+            var task = _context.Tasks.Include(t => t.Comments).ThenInclude(c => c.Author).Include(t => t.Attachments).FirstOrDefault(t => t.Id == id);
+            if (task == null)
+            {
+                return NotFound();
+            }
+            return PartialView("_DetailsPartial", task);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddComment(int taskId, string authorId, string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return BadRequest("Comment content is required");
+            }
+
+            var comment = new Comment
+            {
+                TaskId = taskId,
+                AuthorId = authorId,
+                Content = content.Trim(),
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = taskId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddAttachment(int taskId, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file selected");
+            }
+
+            var uploadsFolder = Path.Combine("wwwroot", "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var attachment = new Attachment
+            {
+                TaskId = taskId,
+                FileName = file.FileName,
+                FilePath = $"/uploads/{uniqueFileName}",
+                UploadedById = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Attachments.Add(attachment);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = taskId });
+        }
+
         public async Task<IActionResult> TasksForUserInProject(int projectId)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var tasks = await _context.Tasks
-                .Where(t => t.ProjectId == projectId && t.AssignedToId == userId)
-                .ToListAsync();
-            return View("Tasks",tasks);
+            var tasks = await _context.Tasks.Where(t => t.ProjectId == projectId && t.AssignedToId == userId).ToListAsync();
+            return View("Tasks", tasks);
         }
 
-        // الأكشن الثاني: هيجيب كل التاسكات الخاصة بمشروع معين
         public async Task<IActionResult> TasksForProject(int projectId)
         {
-            var tasks = await _context.Tasks
-                //.Where(t => t.ProjectId == projectId)
-                .ToListAsync();
-
+            var tasks = await _context.Tasks.ToListAsync();
             return View("Tasks", tasks);
         }
 
-        // الأكشن الثاني: هيجيب كل التاسكات الخاصة بيوزر معين
         public async Task<IActionResult> TasksForUser()
         {
-
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var tasks = await _context.Tasks
-                .Where(t => t.AssignedToId == userId)
-                .ToListAsync();
-
+            var tasks = await _context.Tasks.Where(t => t.AssignedToId == userId).ToListAsync();
             return View("Tasks", tasks);
         }
-        public IActionResult Details(int id)
-        {
-            var task = _context.Tasks.FirstOrDefault(t => t.Id == id);
-            return PartialView("_DetailsPartial",task);
-        }
-        [HttpGet]
-        public  int Depend(int taskid)
-        {
-            var num =  _context.TaskDependencies
-                .Where(t => t.PredecessorId == taskid)
-                .ToList().Count();
 
-            return num;
+        [HttpGet]
+        public int Depend(int taskid)
+        {
+            return _context.TaskDependencies
+                .Count(t => t.PredecessorId == taskid);
         }
+
         [HttpDelete]
         public async Task<IActionResult> DeleteTask(int taskid)
         {
             var task = _context.Tasks.FirstOrDefault(x => x.Id == taskid);
-            if (task.Description=="")
+            if (task.Description == "")
             {
-                return BadRequest("task cann't deleted it is started");
+                return BadRequest("Task can't be deleted because it has started.");
             }
-            var TaskDependencies = await _context.TaskDependencies
-                .Where(t => t.PredecessorId == taskid|| t.SuccessorId==taskid)
-                .ToListAsync();
-            _context.TaskDependencies.RemoveRange(TaskDependencies);
-            _context.Tasks.Remove(task);
-            _context.SaveChanges();
-            return Ok();
 
+            var dependencies = await _context.TaskDependencies.Where(t => t.PredecessorId == taskid || t.SuccessorId == taskid).ToListAsync();
+
+            _context.TaskDependencies.RemoveRange(dependencies);
+            _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
-          
         public async Task<IActionResult> Loadnodes(int id)
         {
-            Dictionary<int, List<int>> graph = new Dictionary<int, List<int>>();
-
+            var graph = new Dictionary<int, List<int>>();
             var visited = new HashSet<int>();
-            var allNodes = _context.Tasks;
+            var allTasks = _context.Tasks;
 
             await _context.TaskDependencies.ForEachAsync(t =>
             {
-                if (graph.ContainsKey(t.PredecessorId))
-                {
-                    graph[t.PredecessorId].Add(t.SuccessorId);
-                }
-                else
+                if (!graph.ContainsKey(t.PredecessorId))
                 {
                     graph[t.PredecessorId] = new List<int>();
-                    graph[t.PredecessorId].Add(t.SuccessorId);
                 }
+                graph[t.PredecessorId].Add(t.SuccessorId);
             });
 
             DFS(id, graph, visited);
-            var notReachable = allNodes.ToList().ExceptBy(visited, e => e.Id);
-            var a = _context.TaskDependencies.Where(x => x.SuccessorId == id).Select(e => e.PredecessorId).ToList();
-            List<TaskDendenciesViewModel> taskviewdep = new List<TaskDendenciesViewModel>();
-            foreach (var n in notReachable)
+
+            var notReachable = allTasks.ToList().ExceptBy(visited, e => e.Id);
+            var existingDeps = _context.TaskDependencies.Where(x => x.SuccessorId == id).Select(e => e.PredecessorId).ToList();
+
+            var taskViewDeps = notReachable.Select(n => new TaskDendenciesViewModel
             {
-                if (a.Contains(n.Id))
-                {
-                    taskviewdep.Add(new TaskDendenciesViewModel { Id = n.Id, Name = n.Title, IsSelected = true });
-                }
-                else
-                {
-                    taskviewdep.Add(new TaskDendenciesViewModel { Id = n.Id, Name = n.Title, IsSelected = false });
-                }
-            }
-            return PartialView("_TaskDend", taskviewdep);
+                Id = n.Id,
+                Name = n.Title,
+                IsSelected = existingDeps.Contains(n.Id)
+            }).ToList();
+
+            return PartialView("_TaskDend", taskViewDeps);
         }
 
-
-        static void DFS(int node, Dictionary<int, List<int>> graph, HashSet<int> visited)
+        private static void DFS(int node, Dictionary<int, List<int>> graph, HashSet<int> visited)
         {
-            if (visited.Contains(node))
-                return;
+            if (!visited.Add(node)) return;
 
-            visited.Add(node);
-
-            if (graph.ContainsKey(node))
+            if (graph.TryGetValue(node, out var neighbors))
             {
-                foreach (var neighbor in graph[node])
+                foreach (var neighbor in neighbors)
                 {
                     DFS(neighbor, graph, visited);
                 }
             }
         }
+
         [HttpPost]
         public IActionResult SaveSelectedTasks(int SelectedTaskId, List<int> selectedTaskIds)
         {
-            var taskDependencies = _context.TaskDependencies
-                                   .Where(td => td.SuccessorId == SelectedTaskId) 
-                                   .ToList();
-            foreach (var selectedTaskId in selectedTaskIds)
-            {
-                var existingDependency = taskDependencies
-                    .FirstOrDefault(td => td.PredecessorId == selectedTaskId);
+            var existingDependencies = _context.TaskDependencies.Where(td => td.SuccessorId == SelectedTaskId).ToList();
 
-                if (existingDependency == null)
+            foreach (var selectedId in selectedTaskIds)
+            {
+                if (!existingDependencies.Any(td => td.PredecessorId == selectedId))
                 {
                     _context.TaskDependencies.Add(new TaskDependency
                     {
-                        SuccessorId = SelectedTaskId, 
-                        PredecessorId = selectedTaskId 
+                        SuccessorId = SelectedTaskId,
+                        PredecessorId = selectedId
                     });
                 }
             }
 
-            foreach (var taskDependency in taskDependencies)
+            foreach (var dependency in existingDependencies)
             {
-                if (!selectedTaskIds.Contains(taskDependency.PredecessorId))
+                if (!selectedTaskIds.Contains(dependency.PredecessorId))
                 {
-                    _context.TaskDependencies.Remove(taskDependency); 
+                    _context.TaskDependencies.Remove(dependency);
                 }
             }
 
             _context.SaveChanges();
-            return Json(new { success = true, selected = selectedTaskIds.ToString() });
+            return Json(new { success = true, selected = selectedTaskIds });
         }
+
         public IActionResult Index()
         {
             return View();
