@@ -1,4 +1,5 @@
-﻿@model SmartTask.Core.Models.Task
+﻿@using System.Security.Claims
+@model SmartTask.Core.Models.Task
 
 @{
     string status = Model.Status?.ToLower();
@@ -102,7 +103,7 @@
                     <label for="commentContent" class="form-label">Add Comment</label>
                     <textarea id="commentContent" name="content" class="form-control" rows="3" required></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Add Comment</button>
+                <button type="submit" class="btn btn-secondary">Add Comment</button>
             </form>
         </div>
     </div>
@@ -125,7 +126,7 @@
                     <label for="attachmentFile" class="form-label">Add Attachment</label>
                     <input type="file" id="attachmentFile" name="file" class="form-control" required />
                 </div>
-                <button type="submit" class="btn btn-primary">Add Attachment</button>
+                <button type="submit" class="btn btn-secondary">Add Attachment</button>
             </form>
         </div>
     </div>
