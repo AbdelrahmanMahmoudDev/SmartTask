@@ -43,8 +43,13 @@ namespace SmartTask.Web
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection"),
                     sqlOptions => sqlOptions.EnableRetryOnFailure()));
-            builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<SmartTaskContext>();
+            builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(option =>
+            {
+                option.Password.RequiredLength = 4;
+                option.Password.RequireDigit = false;
+                option.Password.RequireUppercase = false;
+                option.Password.RequireNonAlphanumeric = false;
+            }).AddEntityFrameworkStores<SmartTaskContext>();
 
             // Dependency Injection
             RegisterRepositories(builder.Services);

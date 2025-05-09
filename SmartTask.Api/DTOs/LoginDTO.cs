@@ -1,13 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SmartTask.Web.ViewModels
+namespace SmartTask.Api.DTOs
 {
-    public class LoginViewModel
+    public class LoginDTO
     {
         [Required]
         [MinLength(3, ErrorMessage = "User Name Must be Between 3 to 10 Character")]
         [MaxLength(10, ErrorMessage = "The Name Must be Between 3 to 10 Character")]
-        [Display(Name = "User Name")]
         public string UserName { get; set; }
         [Required]
         [DataType(DataType.Password)]
