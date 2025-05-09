@@ -36,6 +36,18 @@ namespace SmartTask.Web.Controllers
 
             return View(viewModel);
         }
+        public async Task< IActionResult >FilterIndex(string searchString, int page = 1, int pageSize = 10)
+        {
+            var projects = await _projectService.GetFilteredProjectsAsync(searchString, page, pageSize);
+
+            var viewModel = new ProjectIndexViewModel
+            {
+                Projects = projects,
+                SearchString = searchString
+            };
+
+            return View(viewModel);
+        }
 
         [HttpGet]
         public async Task<IActionResult> Create()
