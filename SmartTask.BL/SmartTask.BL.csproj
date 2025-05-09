@@ -21,5 +21,9 @@
     <ProjectReference Include="..\SmartTask.DataAccess\SmartTask.DataAccess.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
 
 </Project>
