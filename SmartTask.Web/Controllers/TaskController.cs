@@ -188,9 +188,7 @@ namespace SmartTask.Web.Controllers
                         PredecessorId = selectedId
                     });
                 }
-            ViewBag.Users = await _userManager.Users.ToListAsync();
-            ViewBag.Projects = await _projectRepository.GetAllAsyncWithoutInclude();
-            return View(taskVM);
+            
             }
 
             foreach (var dependency in existingDependencies)
