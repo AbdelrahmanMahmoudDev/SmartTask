@@ -54,6 +54,8 @@ namespace SmartTask.Web
 
             // IUser service
             builder.Services.AddScoped<IUserService, UserService>();
+            // extendProjectDeadline Based ON Task Service
+            builder.Services.AddScoped<IProjectDeadlineExtendService, ProjectDeadlineExtendService>();
 
             var app = builder.Build();
             using var scope = app.Services.CreateScope();
