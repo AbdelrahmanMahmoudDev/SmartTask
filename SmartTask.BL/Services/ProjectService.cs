@@ -76,18 +76,19 @@ namespace SmartTask.BL.Services
 
             }
 
-            if (departmentId>0)
+            if (departmentId > 0)
             {
                 query = query.Where(p => p.DepartmentId == departmentId);
             }
 
-            if (branchId>0)
+            if (branchId > 0)
             {
                 query = query.Where(p => p.BranchId == branchId);
             }
 
 
             return PaginatedList<Project>.Create(query, page, pageSize);
+        }
         public async Task<bool> AddMemberAsync(int projectId, string userId)
         {
             var project = await _projectRepository.GetByIdAsync(projectId);
