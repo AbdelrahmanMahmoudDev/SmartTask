@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SmartTask.Core.Models
@@ -7,13 +9,20 @@ namespace SmartTask.Core.Models
     {
         public string FullName { get; set; }
 
+        public string? ImageUrl { get; set; }
         public DateTime createdAt { get; set; }
 
         public DateTime updatedAt { get; set; }
+
         public int? DepartmentId { get; set; }
 
+        public int? BranchId { get; set; }
+
         [ForeignKey("DepartmentId")]
-        public virtual Department? Department { get; set; }
+        public virtual Department Department { get; set; }
+
+        [ForeignKey("BranchId")]
+        public virtual Branch Branch { get; set; }
 
         public virtual ICollection<Branch> ManagedBranches { get; set; } = new List<Branch>();
         public virtual ICollection<Department> ManagedDepartments { get; set; } = new List<Department>();
@@ -28,7 +37,5 @@ namespace SmartTask.Core.Models
         public virtual ICollection<Event> ImportedEvents { get; set; } = new List<Event>();
         public virtual ICollection<AssignTask> TaskAssignments { get; set; } = new List<AssignTask>();
         public virtual ICollection<AssignTask> TasksAssigned { get; set; } = new List<AssignTask>();
-
-
     }
 }
