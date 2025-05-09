@@ -11,6 +11,7 @@ namespace SmartTask.Core.Models
         public int Id { get; set; }
 
         public string OwnerId { get; set; }
+
         public string CreatedById { get; set; }
 
         [Required]
@@ -33,6 +34,10 @@ namespace SmartTask.Core.Models
 
         public DateTime? UpdatedAt { get; set; }
 
+        public int? DepartmentId { get; set; }
+
+        public int? BranchId { get; set; }
+
         // Navigation properties
         [ForeignKey("OwnerId")]
         public virtual ApplicationUser Owner { get; set; }
@@ -40,13 +45,18 @@ namespace SmartTask.Core.Models
         [ForeignKey("CreatedById")]
         public virtual ApplicationUser CreatedBy { get; set; }
 
-        //public virtual ICollection<ProjectRole> ProjectRoles { get; set; }
+        [ForeignKey("DepartmentId")]
+        public virtual Department Department { get; set; }
+
+        [ForeignKey("BranchId")]
+        public virtual Branch Branch { get; set; }
+
         public virtual ICollection<ProjectMember> ProjectMembers { get; set; }
+
         public virtual ICollection<Task> Tasks { get; set; }
 
         public Project()
         {
-            //ProjectRoles = new HashSet<ProjectRole>();
             CreatedAt = DateTime.Now;
             ProjectMembers = new HashSet<ProjectMember>();
             Tasks = new HashSet<Task>();
