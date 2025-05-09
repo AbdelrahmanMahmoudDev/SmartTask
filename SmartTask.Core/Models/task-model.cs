@@ -13,7 +13,6 @@ namespace SmartTask.Core.Models
         public int Id { get; set; }
 
         public int ProjectId { get; set; }
-        public string? AssignedToId { get; set; }
         public int? ParentTaskId { get; set; }
 
         [Required]
@@ -46,8 +45,6 @@ namespace SmartTask.Core.Models
         [ForeignKey("ProjectId")]
         public virtual Project Project { get; set; }
 
-        [ForeignKey("AssignedToId")]
-        public virtual ApplicationUser AssignedTo { get; set; }
 
         [ForeignKey("ParentTaskId")]
         public virtual Task ParentTask { get; set; }

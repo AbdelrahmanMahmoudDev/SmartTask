@@ -11,7 +11,6 @@ namespace SmartTask.Web.ViewModels
         public int Id { get; set; }
 
         public int ProjectId { get; set; }
-        public string? AssignedToId { get; set; }
         public int? ParentTaskId { get; set; }
 
         [Required]
@@ -46,9 +45,6 @@ namespace SmartTask.Web.ViewModels
         public virtual string? ProjectName { get; set; }
 
 
-        [Display(Name ="Assign To")]
-        public virtual ApplicationUser? AssignedTo { get; set; }
-
         [Display(Name ="Parent Task")]
         public virtual TaskModel? ParentTask { get; set; }
 
@@ -64,7 +60,7 @@ namespace SmartTask.Web.ViewModels
         //public virtual ICollection<Attachment> Attachments { get; set; }
         //public virtual ICollection<Event> Events { get; set; }
         //public virtual ICollection<AISuggestion> AISuggestions { get; set; }
-        //public virtual ICollection<AssignTask> Assignments { get; set; }
+        public virtual ICollection<AssignTask> Assignments { get; set; }
 
     }
 }
