@@ -15,20 +15,15 @@ namespace SmartTask.Core.Models
 
         public string? ManagerId { get; set; }
 
+        // Navigation properties
         [ForeignKey("ManagerId")]
         public virtual ApplicationUser Manager { get; set; }
 
         public virtual ICollection<BranchDepartment> BranchDepartments { get; set; }
 
-        public virtual ICollection<ApplicationUser> Users { get; set; }
-
-        public virtual ICollection<Project> Projects { get; set; }
-
         public Branch()
         {
             BranchDepartments = new HashSet<BranchDepartment>();
-            Users = new HashSet<ApplicationUser>();
-            Projects = new HashSet<Project>();
         }
     }
 }
