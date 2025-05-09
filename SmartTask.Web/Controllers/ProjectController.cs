@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Operations;
+using SmartTask.Bl.IServices;
 using SmartTask.BL.IServices;
 using SmartTask.BL.Services;
 using SmartTask.Core.Models;
@@ -15,16 +17,22 @@ namespace SmartTask.Web.Controllers
     {
         private readonly IProjectService _projectService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDepartmentService _departmentService;
+        private readonly IBranchService _branchService;
 
         public ProjectController(
             IProjectService projectService,
+             IDepartmentService departmentService,
+               IBranchService branchService,
             UserManager<ApplicationUser> userManager)
         {
             _projectService = projectService;
+            _departmentService = departmentService;
+            _branchService = branchService;
             _userManager = userManager;
         }
 
-        public async Task< IActionResult >Index(string searchString, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string searchString, int page = 1, int pageSize = 10)
         {
             var projects = await _projectService.GetFilteredProjectsAsync(searchString, page, pageSize);
 
@@ -36,17 +44,33 @@ namespace SmartTask.Web.Controllers
 
             return View(viewModel);
         }
-        public async Task< IActionResult >FilterIndex(string searchString, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> FilterIndex(string searchString, int? departmentId, int? branchId, int page = 1, int pageSize = 10)
         {
-            var projects = await _projectService.GetFilteredProjectsAsync(searchString, page, pageSize);
+            var departments = await _departmentService.GetAllAsync();
+            var branches = await _branchService.GetAllAsync();
+
+            var projects = await _projectService.GetFilteredProjectsAsync(searchString, departmentId, branchId, page);
 
             var viewModel = new ProjectIndexViewModel
             {
                 Projects = projects,
-                SearchString = searchString
+                SearchString = searchString,
+                SelectedDepartmentId = departmentId,
+                SelectedBranchId = branchId,
+                Departments = departments.ToList(),
+                Branches = branches.ToList()
             };
 
             return View(viewModel);
+            //var projects = await _projectService.GetFilteredProjectsAsync(searchString, page, pageSize);
+
+            //var viewModel = new ProjectIndexViewModel
+            //{
+            //    Projects = projects,
+            //    SearchString = searchString
+            //};
+
+            //return View(viewModel);
         }
 
         [HttpGet]
@@ -81,8 +105,8 @@ namespace SmartTask.Web.Controllers
                 Description = model.Description,
                 StartDate = model.StartDate,
                 EndDate = model.EndDate,
-                OwnerId = model.OwnerId, 
-                CreatedById = currentUser.Id 
+                OwnerId = model.OwnerId,
+                CreatedById = currentUser.Id
             };
 
             await _projectService.AddProjectAsync(project);
@@ -153,7 +177,7 @@ namespace SmartTask.Web.Controllers
             if (!ModelState.IsValid)
             {
                 var admins = await _userManager.GetUsersInRoleAsync("Admin");
-                ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName"); 
+                ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
                 return View(model);
             }
 

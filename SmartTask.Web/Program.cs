@@ -127,6 +127,8 @@ namespace SmartTask.Web
             services.AddScoped<IAuditRepository, AuditRepository>();
             services.AddScoped<IDepartmentService, DepartmentService>();
             services.AddScoped<IProjectService, ProjectService>();
+           
+
 
         }
     }
