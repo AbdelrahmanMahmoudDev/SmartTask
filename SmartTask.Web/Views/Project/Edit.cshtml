@@ -1,4 +1,4 @@
-﻿@using SmartTask.Web.Views.Project
+﻿@using SmartTask.Web.ViewModels.ProjectVM
 @model ProjectEditViewModel;
 
 @{
@@ -13,24 +13,29 @@
         <div class="card-body">
             <form asp-action="Edit">
                 <input type="hidden" asp-for="Id" />
+
                 <div class="form-group">
                     <label asp-for="Name"></label>
                     <input asp-for="Name" class="form-control" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
+
                 <div class="form-group">
                     <label asp-for="Description"></label>
                     <textarea asp-for="Description" class="form-control"></textarea>
                 </div>
+
                 <div class="form-group">
                     <label asp-for="StartDate"></label>
                     <input asp-for="StartDate" class="form-control" type="date" />
                 </div>
+
                 <div class="form-group">
                     <label asp-for="EndDate"></label>
                     <input asp-for="EndDate" class="form-control" type="date" />
                     <span asp-validation-for="EndDate" class="text-danger"></span>
                 </div>
+
                 <div class="form-group">
                     <label asp-for="OwnerId"></label>
                     <select asp-for="OwnerId" asp-items="@ViewBag.AdminUsers" class="form-control">
@@ -38,6 +43,7 @@
                     </select>
                     <span asp-validation-for="OwnerId" class="text-danger"></span>
                 </div>
+
                 <div class="form-group">
                     <label asp-for="Status"></label>
                     <select asp-for="Status" class="form-control">
@@ -47,9 +53,78 @@
                     </select>
                     <span asp-validation-for="Status" class="text-danger"></span>
                 </div>
+
+                <h4>Assigned Users</h4>
+                <div class="form-group">
+                    <div id="assignedUsersContainer">
+                        @if (Model.AssignedUsers != null && Model.AssignedUsers.Any())
+                        {
+                            @foreach (var user in Model.AssignedUsers)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="AssignedUserIds"
+                                           value="@user.UserId"
+                                           checked="@user.IsChecked" />
+                                    <label class="form-check-label">@user.FullName</label>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>No assigned users.</p>
+                        }
+                    </div>
+                </div>
+
+                <h4>Add Users</h4>
+                <div class="form-group">
+                    <label for="userDropdown">Add User</label>
+                    <select id="userDropdown" class="form-select">
+                        <option selected disabled>Choose a user...</option>
+                        @foreach (var user in ViewBag.NonAssignedUsers as SelectList)
+                        {
+                            <option value="@user.Value">@user.Text</option>
+                        }
+                    </select>
+                </div>
+
                 <button type="submit" class="btn btn-primary">Save</button>
                 <a asp-action="Index" class="btn btn-secondary">Cancel</a>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    const userDropdown = document.getElementById("userDropdown");
+    const assignedUsersContainer = document.getElementById("assignedUsersContainer");
+
+    userDropdown.addEventListener("change", function () {
+        const selectedValue = this.value;
+        const selectedText = this.options[this.selectedIndex].text;
+
+        if (!document.getElementById(`checkbox-${selectedValue}`)) {
+            const div = document.createElement("div");
+            div.classList.add("form-check");
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "form-check-input";
+            checkbox.id = `checkbox-${selectedValue}`;
+            checkbox.name = "AssignedUserIds";
+            checkbox.value = selectedValue;
+            checkbox.checked = true;
+
+            const label = document.createElement("label");
+            label.className = "form-check-label";
+            label.htmlFor = `checkbox-${selectedValue}`;
+            label.textContent = selectedText;
+
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            assignedUsersContainer.appendChild(div);
+        }
+    });
+</script>

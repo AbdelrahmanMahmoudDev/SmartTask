@@ -9,6 +9,8 @@ using SmartTask.Bl.IServices;
 using SmartTask.BL.IServices;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace SmartTask.BL.Services
 {
@@ -16,13 +18,15 @@ namespace SmartTask.BL.Services
     {
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IPaginatedService<Department> _paginatedService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public DepartmentService(
             IDepartmentRepository departmentRepository,
-            IPaginatedService<Department> paginatedService)
+            IPaginatedService<Department> paginatedService,UserManager<ApplicationUser> _userManager)
         {
             _departmentRepository = departmentRepository;
             _paginatedService = paginatedService;
+            _userManager = _userManager;
         }
 
         public async Task<PaginatedList<Department> >GetFilteredDepartments(string searchString, int page, int pageSize)
@@ -44,7 +48,44 @@ namespace SmartTask.BL.Services
 
         public async Task UpdateDepartmentAsync(Department department)
         {
-            await _departmentRepository.UpdateAsync(department);
+       
+            var existingDepartment = await _departmentRepository.GetQueryable()
+                .Include(d => d.Users)
+                .FirstOrDefaultAsync(d => d.Id == department.Id);
+
+            if (existingDepartment == null)
+            {
+                throw new InvalidOperationException("Department not found");
+            }
+
+            existingDepartment.Name = department.Name;
+            existingDepartment.ManagerId = department.ManagerId;
+
+            var currentUserIds = existingDepartment.Users.Select(u => u.Id).ToList();
+            var newUserIds = department.Users.Select(u => u.Id).ToList();
+
+            var usersToAddIds = newUserIds.Except(currentUserIds).ToList();
+            var usersToRemoveIds = currentUserIds.Except(newUserIds).ToList();
+
+            foreach (var userId in usersToAddIds)
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user != null)
+                {
+                    existingDepartment.Users.Add(user);
+                }
+            }
+
+            foreach (var userId in usersToRemoveIds)
+            {
+                var user = existingDepartment.Users.FirstOrDefault(u => u.Id == userId);
+                if (user != null)
+                {
+                    existingDepartment.Users.Remove(user);
+                }
+            }
+
+            await _departmentRepository.UpdateAsync(existingDepartment);
         }
 
         public async Task DeleteDepartmentAsync(int id)
@@ -54,7 +95,10 @@ namespace SmartTask.BL.Services
 
         public async Task<Department> GetDepartmentByIdAsync(int id)
         {
-            return await _departmentRepository.GetByIdAsync(id);
+            //return await _departmentRepository.GetByIdAsync(id);
+            return await _departmentRepository.GetQueryable()
+                                                .Include(d => d.Users)
+                                                .FirstOrDefaultAsync(d => d.Id == id);
         }
 
         public async Task<IEnumerable<Department>> GetAllDepartmentsAsync()

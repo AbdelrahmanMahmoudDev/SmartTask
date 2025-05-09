@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
-namespace SmartTask.Web.Views.Project
+namespace SmartTask.Web.ViewModels.ProjectVM
 {
     public class ProjectEditViewModel
     {
@@ -28,5 +28,14 @@ namespace SmartTask.Web.Views.Project
         [Required(ErrorMessage = "Status is required")]
         [Display(Name = "Status")]
         public string Status { get; set; }
+
+        public List<UserCheckboxModel> AssignedUsers { get; set; } = new List<UserCheckboxModel>();
+    }
+
+    public class UserCheckboxModel
+    {
+        public string UserId { get; set; }
+        public string FullName { get; set; }
+        public bool IsChecked { get; set; }
     }
 }

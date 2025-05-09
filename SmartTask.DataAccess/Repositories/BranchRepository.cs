@@ -78,10 +78,10 @@ namespace SmartTask.DataAccess.Repositories
 
         public IQueryable<Branch> GetQueryable()
         {
-            return _context.Branches
-            .Include(b => b.Manager)
-            .Include(b => b.BranchDepartments)
-            .ThenInclude(bd => bd.Department);
+            return _context.Branches.Include(b => b.Manager)
+                                   .Include(b => b.BranchDepartments)
+                                   .ThenInclude(bd => bd.Department)
+                                   .AsQueryable();
         }
 
         public async Task<Branch> GetBranchWithDepartmentsAsync(int id)

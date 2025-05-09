@@ -40,7 +40,7 @@ namespace SmartTask.DataAccess.Repositories
                 .Include(p => p.Owner)
                 .Include(p => p.CreatedBy)
                 .Include(p => p.ProjectMembers)
-                    .ThenInclude(pm => pm.User)
+                    .ThenInclude(pm => pm.User) 
                 .Include(p => p.Tasks)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }

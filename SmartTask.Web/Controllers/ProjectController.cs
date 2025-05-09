@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SmartTask.Bl.IServices;
+using Microsoft.EntityFrameworkCore;
 using SmartTask.BL.IServices;
 using SmartTask.BL.Services;
 using SmartTask.Core.Models;
 using SmartTask.Web.ViewModels.ProjectVM;
-using SmartTask.Web.Views.Project;
 
 namespace SmartTask.Web.Controllers
 {
@@ -137,19 +137,25 @@ namespace SmartTask.Web.Controllers
         }
 
 
-
-
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var project = await _projectService.GetProjectByIdAsync(id);
+
+            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
+
             if (project == null)
             {
                 return NotFound();
             }
 
-            var admins = await _userManager.GetUsersInRoleAsync("Admin");
-            ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName"); // Using ViewBag
+            var currentUserIds = project.ProjectMembers.Select(pm => pm.UserId).ToList();
+
+            var allUsers = await _userManager.Users.ToListAsync();
+            var nonAssignedUsers = allUsers.Where(u => !currentUserIds.Contains(u.Id)).ToList();
+
+            ViewBag.NonAssignedUsers = new SelectList(nonAssignedUsers, "Id", "FullName");
 
             var model = new ProjectEditViewModel
             {
@@ -159,14 +165,20 @@ namespace SmartTask.Web.Controllers
                 StartDate = project.StartDate,
                 EndDate = project.EndDate,
                 OwnerId = project.OwnerId,
-                Status = project.Status // Mapping Status
+                Status = project.Status,
+                AssignedUsers = project.ProjectMembers.Select(pm => new UserCheckboxModel
+                {
+                    UserId = pm.UserId,
+                    FullName = pm.User.FullName,
+                    IsChecked = true
+                }).ToList()
             };
 
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(ProjectEditViewModel model)
+        public async Task<IActionResult> Edit(ProjectEditViewModel model, List<string> AssignedUserIds)
         {
             if (model.StartDate.HasValue && model.EndDate.HasValue && model.EndDate < model.StartDate)
             {
@@ -191,9 +203,50 @@ namespace SmartTask.Web.Controllers
             project.StartDate = model.StartDate;
             project.EndDate = model.EndDate;
             project.OwnerId = model.OwnerId;
-            project.Status = model.Status; // تعيين الـ Status
+            project.Status = model.Status;
+
+            var updatedMembers = AssignedUserIds.Select(userId => new ProjectMember
+            {
+                ProjectId = project.Id,
+                UserId = userId
+            }).ToList();
+
+            project.ProjectMembers.Clear();
+            foreach (var member in updatedMembers)
+            {
+                project.ProjectMembers.Add(member);
+            }
 
             await _projectService.UpdateProjectAsync(project);
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AssignUser(int projectId)
+        {
+            var project = await _projectService.GetProjectByIdAsync(projectId);
+            if (project == null) return NotFound();
+
+            var projectMemberIds = project.ProjectMembers.Select(pm => pm.UserId).ToList();
+
+            var users = await _userManager.Users
+                .Where(u => !projectMemberIds.Contains(u.Id))
+                .ToListAsync();
+
+            ViewBag.ProjectId = projectId;
+            ViewBag.Users = new SelectList(users, "Id", "FullName");
+
+            return View(projectId);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignUser(int projectId, List<string> selectedUserIds)
+        {
+            foreach (var userId in selectedUserIds)
+            {
+                await _projectService.AddMemberAsync(projectId, userId);
+            }
+
             return RedirectToAction("Index");
         }
     }

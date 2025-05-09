@@ -16,7 +16,6 @@ namespace SmartTask.Web.Controllers
     public class BranchController : Controller
     {
         private readonly IBranchService branchService;
-        private readonly RoleManager<ApplicationRole> roleManager;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IDepartmentService departmentService;
 
@@ -26,7 +25,6 @@ namespace SmartTask.Web.Controllers
             )
         {
             this.branchService = branchService;
-            this.roleManager = roleManager;
             this.userManager = userManager;
             this.departmentService = departmentService;
         }
