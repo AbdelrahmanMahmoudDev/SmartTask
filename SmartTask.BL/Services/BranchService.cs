@@ -74,10 +74,16 @@ namespace SmartTask.Bl.Services
         }
 
 
-        public async Task< PaginatedList<Branch>> GetFiltered(string searchString, string? managerId, int page, int pageSize)
+        public async Task<PaginatedList<Branch>> GetFiltered(string searchString, string? managerId, int page, int pageSize)
         {
+            var query = branchRepository.GetQueryable()
+                .Include(b => b.Manager) 
+                .Include(b => b.BranchDepartments) 
+                .ThenInclude(bd => bd.Department);
+
             Expression<Func<Branch, bool>> filter = b =>
-                (string.IsNullOrEmpty(searchString) || b.Name.Contains(searchString));
+                (string.IsNullOrEmpty(searchString) || b.Name.Contains(searchString)) &&
+                (string.IsNullOrEmpty(managerId) || b.ManagerId == managerId);
 
             return await paginatedService.GetFiltered(filter, page, pageSize);
         }

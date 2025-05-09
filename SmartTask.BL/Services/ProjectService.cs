@@ -7,16 +7,19 @@ using SmartTask.BL.IServices;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
 using SmartTask.Bl.Helpers;
+using Microsoft.AspNetCore.Identity;
 
 namespace SmartTask.BL.Services
 {
     public class ProjectService : IProjectService
     {
         private readonly IProjectRepository _projectRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ProjectService(IProjectRepository projectRepository)
+        public ProjectService(IProjectRepository projectRepository, UserManager<ApplicationUser> userManager)
         {
             _projectRepository = projectRepository;
+            _userManager = userManager;
         }
 
         public async Task< PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int page, int pageSize)
@@ -42,7 +45,7 @@ namespace SmartTask.BL.Services
 
         public async Task<Project> GetProjectByIdAsync(int id)
         {
-            return await _projectRepository.GetByIdAsync(id);
+            return await _projectRepository.GetWithDetailsAsync(id);
         }
 
         public async Task<IEnumerable<Project>> GetAllProjectsAsync()
@@ -58,6 +61,25 @@ namespace SmartTask.BL.Services
         public async Task DeleteProjectAsync(int id)
         {
             await _projectRepository.DeleteAsync(id);
+        }
+
+        public async Task<bool> AddMemberAsync(int projectId, string userId)
+        {
+            var project = await _projectRepository.GetByIdAsync(projectId);
+            if (project == null || await _userManager.FindByIdAsync(userId) == null)
+                return false;
+
+            var existingMember = project.ProjectMembers.FirstOrDefault(pm => pm.UserId == userId);
+            if (existingMember != null) return true; 
+
+            project.ProjectMembers.Add(new ProjectMember
+            {
+                ProjectId = projectId,
+                UserId = userId
+            });
+
+            await _projectRepository.UpdateAsync(project);
+            return true;
         }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartTask.BL.IServices;
 using SmartTask.Core.Models;
 using SmartTask.Web.ViewModels.DepartmentVM;
+using Task = System.Threading.Tasks.Task;
 
 namespace SmartTask.Web.Controllers
 {
@@ -39,12 +40,7 @@ namespace SmartTask.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var managers = await _userManager.GetUsersInRoleAsync("DepartmentManager");
-            var allUsers = await _userManager.Users.ToListAsync();
-
-            ViewBag.Managers = new SelectList(managers, "Id", "FullName");
-            ViewBag.AllUsers = allUsers;
-
+            await PopulateViewBagsForDepartment();
             return View();
         }
 
@@ -53,11 +49,7 @@ namespace SmartTask.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var managers = await _userManager.GetUsersInRoleAsync("DepartmentManager");
-                var allUsers = await _userManager.Users.ToListAsync();
-
-                ViewBag.Managers = new SelectList(managers, "Id", "FullName");
-                ViewBag.AllUsers = allUsers;
+                await PopulateViewBagsForDepartment(model.ManagerId);
                 return View(model);
             }
 
@@ -67,16 +59,11 @@ namespace SmartTask.Web.Controllers
                 ManagerId = model.ManagerId
             };
 
-            if (model.SelectedUserIds != null)
+            if (model.SelectedUserIds != null && model.SelectedUserIds.Any())
             {
-                foreach (var userId in model.SelectedUserIds)
-                {
-                    var user = await _userManager.FindByIdAsync(userId);
-                    if (user != null)
-                    {
-                        department.Users.Add(user);
-                    }
-                }
+                department.Users = await _userManager.Users
+                    .Where(u => model.SelectedUserIds.Contains(u.Id))
+                    .ToListAsync();
             }
 
             await _departmentService.AddDepartmentAsync(department);
@@ -119,11 +106,7 @@ namespace SmartTask.Web.Controllers
                 return View("NotFound");
             }
 
-            var managers = await _userManager.GetUsersInRoleAsync("DepartmentManager");
-            var allUsers = await _userManager.Users.ToListAsync();
-
-            ViewBag.Managers = new SelectList(managers, "Id", "FullName", department.ManagerId);
-            ViewBag.AllUsers = allUsers;
+            await PopulateViewBagsForDepartment(department.ManagerId);
 
             var model = new DepartmentFormViewModel
             {
@@ -141,45 +124,26 @@ namespace SmartTask.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var managers = await _userManager.GetUsersInRoleAsync("DepartmentManager");
-                var allUsers = await _userManager.Users.ToListAsync();
-
-                ViewBag.Managers = new SelectList(managers, "Id", "FullName", model.ManagerId);
-                ViewBag.AllUsers = allUsers;
+                await PopulateViewBagsForDepartment(model.ManagerId);
                 return View(model);
             }
 
-            var department = await _departmentService.GetDepartmentByIdAsync(model.Id);
-            if (department == null)
+            var existingDepartment = await _departmentService.GetDepartmentByIdAsync(model.Id);
+            if (existingDepartment == null)
             {
                 return View("NotFound");
             }
 
-            department.Name = model.Name;
-            department.ManagerId = model.ManagerId;
+            existingDepartment.Name = model.Name;
+            existingDepartment.ManagerId = model.ManagerId;
 
             var selectedUserIds = model.SelectedUserIds ?? new List<string>();
-            var currentUserIds = department.Users.Select(u => u.Id).ToList();
 
-            foreach (var userId in selectedUserIds.Except(currentUserIds))
-            {
-                var user = await _userManager.FindByIdAsync(userId);
-                if (user != null)
-                {
-                    department.Users.Add(user);
-                }
-            }
+            existingDepartment.Users = await _userManager.Users
+                .Where(u => selectedUserIds.Contains(u.Id))
+                .ToListAsync();
 
-            foreach (var userId in currentUserIds.Except(selectedUserIds))
-            {
-                var user = department.Users.FirstOrDefault(u => u.Id == userId);
-                if (user != null)
-                {
-                    department.Users.Remove(user);
-                }
-            }
-
-            await _departmentService.UpdateDepartmentAsync(department);
+            await _departmentService.UpdateDepartmentAsync(existingDepartment);
             return RedirectToAction("Index");
         }
 
@@ -196,5 +160,13 @@ namespace SmartTask.Web.Controllers
             return RedirectToAction("Index");
         }
 
+        private async Task PopulateViewBagsForDepartment(string selectedManagerId = null)
+        {
+            var managers = await _userManager.GetUsersInRoleAsync("DepartmentManager");
+            var allUsers = await _userManager.Users.ToListAsync();
+
+            ViewBag.Managers = new SelectList(managers, "Id", "FullName", selectedManagerId);
+            ViewBag.AllUsers = allUsers;
+        }
     }
 }

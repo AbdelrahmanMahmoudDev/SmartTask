@@ -1,8 +1,10 @@
-﻿@using SmartTask.Web.ViewModels.DepartmentVM
+﻿@using SmartTask.Core.Models
+@using SmartTask.Web.ViewModels.DepartmentVM
 @model DepartmentFormViewModel
 
 <h1>Edit Department</h1>
 
+<div asp-validation-summary="All"></div>
 <form asp-action="Edit">
     <input type="hidden" asp-for="Id" />
 
@@ -22,7 +24,7 @@
 
     <div class="form-group">
         <label>Assign Users:</label>
-        @foreach (var user in ViewBag.AllUsers)
+        @foreach (var user in ViewBag.AllUsers as IEnumerable<ApplicationUser>)
         {
             <div class="form-check">
                 <input class="form-check-input"
@@ -30,7 +32,7 @@
                        name="SelectedUserIds"
                        value="@user.Id"
                        id="user_@user.Id"
-                @(Model.SelectedUserIds.Contains(user.Id) ? "checked" : "")>
+                @(Model.SelectedUserIds?.Contains(user.Id) == true ? "checked" : "")>
                 <label class="form-check-label" for="user_@user.Id">
                     @user.FullName
                 </label>

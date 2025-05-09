@@ -16,5 +16,7 @@ namespace SmartTask.BL.IServices
        
         Task UpdateProjectAsync(Project project);
         Task DeleteProjectAsync(int id);
+
+        Task<bool> AddMemberAsync(int projectId, string userId);
     }
 }

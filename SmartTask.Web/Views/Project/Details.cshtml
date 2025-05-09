@@ -30,6 +30,16 @@
                     </span>
                 </dd>
             </dl>
+
+            <h4 class="mt-4">Assigned Users</h4>
+            <ul class="list-group">
+                @foreach (var member in Model.ProjectMembers)
+                {
+                    <li class="list-group-item">
+                        @member.User.FullName (@member.User.Email)
+                    </li>
+                }
+            </ul>
         </div>
         <div class="card-footer">
             <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>

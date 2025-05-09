@@ -79,6 +79,13 @@
                                         <i class="fas fa-trash-alt"></i> Delete
                                     </a>
                                 </secure-content>
+
+                                <secure-content asp-area="" asp-controller="Project" asp-action="AssignUser">
+                                    <a asp-action="AssignUser" asp-route-projectId="@project.Id"
+                                       class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-user-plus"></i> Assign User
+                                    </a>
+                                </secure-content>
                             </td>
                         </tr>
                     }
