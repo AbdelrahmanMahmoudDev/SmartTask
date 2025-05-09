@@ -1,4 +1,4 @@
-﻿@model SmartTask.Web.ViewModels.ProjectVM.ProjectIndexViewModel
+@model SmartTask.Web.ViewModels.ProjectVM.ProjectIndexViewModel
 
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
@@ -6,12 +6,11 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     :root {
-        --primary-color: #e74c3c; /* تغيير اللون الأساسي إلى أحمر */
+        --primary-color: #e74c3c; 
         --primary-hover: #c0392b;
         --secondary-color: #ecf0f1;
     }
 
-    /* تنسيق عام للجدول */
     #projectsTable {
         width: 100%;
         border-collapse: separate;
@@ -22,7 +21,6 @@
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
-        /* تنسيق رأس الجدول */
         #projectsTable thead th {
             background-color: #edf2f4;
             color: black;
@@ -48,7 +46,6 @@
                 background-color: #fef2f1;
             }
 
-    /* تنسيق أزرار الباجينيشين */
     .dataTables_wrapper .dataTables_paginate .paginate_button {
         padding: 0.5em 1em;
         margin: 0 3px;
@@ -69,14 +66,12 @@
             border: 1px solid var(--primary-hover);
         }
 
-    /* تنسيق معلومات العرض */
     .dataTables_info {
         color: #7f8c8d;
         padding: 12px 0;
         font-size: 0.9em;
     }
 
-    /* تنسيق شريط البحث */
     .dataTables_filter {
         float: none !important;
         text-align: center;
@@ -99,17 +94,11 @@
         }
 
 
-        .dataTables_filter input:focus {
-            border-radius: 20px;
-            border: 1px solid red;
-            padding: 8px 15px;
-            width: 400px;
-            margin-left: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
+            .dataTables_filter input:focus {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+            }
 
-
-    /* تنسيق أزرار الإكشن */
     .btn-action {
         padding: 0.4rem 0.6rem;
         font-size: 0.85rem;
@@ -122,7 +111,6 @@
         justify-content: center;
     }
 
-    /* تنسيق أزرار التصدير */
     .dt-buttons .btn {
         background-color: var(--primary-color);
         border-color: var(--primary-color);
@@ -134,7 +122,6 @@
             border-color: var(--primary-hover);
         }
 
-    /* تنسيق اختيار عدد الصفوف */
     .dataTables_length {
         margin-bottom: 20px;
     }
@@ -152,14 +139,12 @@
             width: 70px;
         }
 
-    /* تنسيق البطاقة */
     .card {
         border: none;
         border-radius: 10px;
         box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
     }
 
-    /* تنسيق رأس الصفحة */
     .page-header {
         display: flex;
         justify-content: space-between;
@@ -169,7 +154,6 @@
         border-bottom: 1px solid #eee;
     }
 
-    /* تنسيق البادجات */
     .badge {
         padding: 6px 12px;
         border-radius: 20px;
@@ -195,12 +179,10 @@
         background-color: #95a5a6 !important;
     }
 
-    /* تنسيق التواريخ */
     .date-cell {
         white-space: nowrap;
     }
 
-    /* تنسيق زر الإنشاء */
     .btn-create {
         background-color: var(--primary-color);
         border-color: var(--primary-color);
@@ -210,18 +192,16 @@
     }
 
         .btn-create:hover {
-            color: white !important;
             background-color: var(--primary-hover);
+            color: white;
             border-color: var(--primary-hover);
         }
 
-    /* تنسيق الأيقونات */
     .action-icons {
         display: flex;
         gap: 5px;
     }
 
-    /* تنسيق للجوال */
     @@media (max-width: 768px) {
         .dataTables_filter input {
             width: 100%;
@@ -349,7 +329,7 @@
     }
 }
 
-        @section Scripts {
+@section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -397,22 +377,6 @@
                     $('.dt-buttons').addClass('mb-3');
                     $('.dataTables_filter input').addClass('form-control');
                     $('.dataTables_length select').addClass('form-select form-select-sm');
-
-                    // إضافة تأثير focus عند النقر على حقل البحث
-                    $('.dataTables_filter input')
-                        .focus(function() {
-                            $(this).css({
-                                'border-color': '#e74c3c',
-                                'box-shadow': '0 0 0 0.2rem rgba(231, 76, 60, 0.25)',
-                                'outline': 'none'
-                            });
-                        })
-                        .blur(function() {
-                            $(this).css({
-                                'border-color': '#d1d3e2',
-                                'box-shadow': 'none'
-                            });
-                        });
                 }
             });
         });

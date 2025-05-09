@@ -40,7 +40,7 @@ namespace SmartTask.DataAccess.Repositories
                 .Include(p => p.Owner)
                 .Include(p => p.CreatedBy)
                 .Include(p => p.ProjectMembers)
-                    .ThenInclude(pm => pm.User)
+                    .ThenInclude(pm => pm.User) 
                 .Include(p => p.Tasks)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
@@ -94,6 +94,14 @@ namespace SmartTask.DataAccess.Repositories
         public async Task<bool> ExistsAsync(int id)
         {
             return await _context.Projects.AnyAsync(p => p.Id == id);
+        }
+
+        public IQueryable<Project> GetQueryable()
+        {
+            return _context.Projects
+                .Include(p => p.Owner)
+                .Include(p => p.CreatedBy)
+                .AsQueryable();
         }
     }
 }

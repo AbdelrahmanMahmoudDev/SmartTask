@@ -1,0 +1,62 @@
+﻿@model SmartTask.Core.Models.Project
+
+@{
+    ViewData["Title"] = "Project Details";
+}
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header">
+            <h3 class="mb-0">@Model.Name</h3>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Description:</dt>
+                <dd class="col-sm-9">@Model.Description</dd>
+
+                <dt class="col-sm-3">Start Date:</dt>
+                <dd class="col-sm-9">@Model.StartDate?.ToString("dd MMM yyyy")</dd>
+
+                <dt class="col-sm-3">End Date:</dt>
+                <dd class="col-sm-9">@Model.EndDate?.ToString("dd MMM yyyy")</dd>
+
+                <dt class="col-sm-3">Owner:</dt>
+                <dd class="col-sm-9">@Model.Owner?.FullName</dd>
+
+                <dt class="col-sm-3">Status:</dt>
+                <dd class="col-sm-9">
+                    <span class="badge @GetStatusBadge(Model.Status)">
+                        @Model.Status
+                    </span>
+                </dd>
+            </dl>
+
+            <h4 class="mt-4">Assigned Users</h4>
+            <ul class="list-group">
+                @foreach (var member in Model.ProjectMembers)
+                {
+                    <li class="list-group-item">
+                        @member.User.FullName (@member.User.Email)
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="card-footer">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadge(string status)
+    {
+        return status switch
+        {
+            "Active" => "bg-success",
+            "Pending" => "bg-warning",
+            "Completed" => "bg-primary",
+            _ => "bg-secondary"
+        };
+    }
+}
