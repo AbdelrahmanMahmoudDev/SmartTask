@@ -15,7 +15,7 @@
         </secure-content>
     </div>
     @* ------ *@
-    <form asp-action="Index" method="get" class="mb-4">
+    <form asp-action="FilterIndex" method="get" class="mb-4">
     <div class="row g-2">
         <div class="col-md-4">
             <input type="text"
@@ -25,29 +25,18 @@
                    placeholder="Search by name or description..." />
         </div>
 
-        <div class="col-md-3">
-            <select class="form-select" name="departmentId">
-                <option value="">-- Select Department --</option>
-                @foreach (var dept in Model.Projects)
-                {
-                    <option value="@dept.Id" @(dept.Id == Model.SelectedDepartmentId ? "selected" : "")>
-                        @dept.Name
-                    </option>
-                }
-            </select>
-        </div>
 
-        <div class="col-md-3">
-            <select class="form-select" name="branchId">
-                <option value="">-- Select Branch --</option>
-                @foreach (var branch in Model.Branches)
-                {
-                    <option value="@branch.Id" @(branch.Id == Model.SelectedBranchId ? "selected" : "")>
-                        @branch.Name
-                    </option>
-                }
-            </select>
-        </div>
+            <div class="col-md-3">
+                <select class="form-select" asp-for="SelectedDepartmentId" asp-items="@(new SelectList(Model.Projects, "Id", "Name"))">
+                    <option value="">-- Select Department --</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select class="form-select" asp-for="SelectedBranchId" asp-items="@(new SelectList(Model.Branches, "Id", "Name"))">
+                    <option value="">-- Select Branch --</option>
+                </select>
+            </div>
 
         <div class="col-md-2">
             <button type="submit" class="btn btn-outline-secondary w-100">
@@ -59,18 +48,18 @@
 
     @* ------ *@
 
-    <form asp-action="Index" method="get" class="mb-4">
-        <div class="input-group">
-            <input type="text"
-                   name="searchString"
-                   value="@Model.SearchString"
-                   class="form-control"
-                   placeholder="Search by name or description..." />
-            <button type="submit" class="btn btn-outline-secondary">
-                <i class="fas fa-search"></i>
-            </button>
-        </div>
-    </form>
+    @* <form asp-action="Index" method="get" class="mb-4"> *@
+    @*     <div class="input-group"> *@
+    @*         <input type="text" *@
+    @*                name="searchString" *@
+    @*                value="@Model.SearchString" *@
+    @*                class="form-control" *@
+    @*                placeholder="Search by name or description..." /> *@
+    @*         <button type="submit" class="btn btn-outline-secondary"> *@
+    @*             <i class="fas fa-search"></i> *@
+    @*         </button> *@
+    @*     </div> *@
+    @* </form> *@
 
     @if (!string.IsNullOrWhiteSpace(Model.SearchString))
     {

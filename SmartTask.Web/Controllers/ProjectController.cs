@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.Operations;
 using SmartTask.Bl.IServices;
 using SmartTask.BL.IServices;
 using SmartTask.BL.Services;
@@ -44,19 +43,19 @@ namespace SmartTask.Web.Controllers
 
             return View(viewModel);
         }
-        public async Task<IActionResult> FilterIndex(string searchString, int? departmentId, int? branchId, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> FilterIndex(string searchString, int? selectedDepartmentId, int? selectedBranchId, int page = 1, int pageSize = 10)
         {
-            var departments = await _departmentService.GetAllAsync();
+            var departments = await _departmentService.GetAllDepartmentsAsync();
             var branches = await _branchService.GetAllAsync();
 
-            var projects = await _projectService.GetFilteredProjectsAsync(searchString, departmentId, branchId, page);
+            var projects = await _projectService.GetFilteredByDepartmentProjectsAsync(searchString, selectedDepartmentId, selectedBranchId, page,pageSize);
 
             var viewModel = new ProjectIndexViewModel
             {
                 Projects = projects,
                 SearchString = searchString,
-                SelectedDepartmentId = departmentId,
-                SelectedBranchId = branchId,
+                SelectedDepartmentId = selectedDepartmentId,
+                SelectedBranchId = selectedBranchId,
                 Departments = departments.ToList(),
                 Branches = branches.ToList()
             };
