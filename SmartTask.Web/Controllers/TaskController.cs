@@ -18,14 +18,16 @@ namespace SmartTask.Web.Controllers
         private readonly ITaskRepository _taskRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IAssignTaskRepository _assignTaskRepository;
 
         public TaskController(ITaskRepository taskRepository, IProjectRepository projectRepository,
-            UserManager<ApplicationUser> usermanager, SmartTaskContext context)
+            UserManager<ApplicationUser> usermanager, SmartTaskContext context,IAssignTaskRepository assignTaskRepository)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
             _userManager = usermanager;
             _context = context;
+            _assignTaskRepository = assignTaskRepository;
         }
 
         public IActionResult Details(int id)
@@ -101,7 +103,7 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> TasksForUserInProject(int projectId)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var tasks = await _context.Tasks.Where(t => t.ProjectId == projectId && t.AssignedToId == userId).ToListAsync();
+            var tasks = await _context.Tasks.Include(t => t.Assignments).Where(t => t.ProjectId == projectId && t.Assignments.Select(u => u.UserId == userId).FirstOrDefault()).ToListAsync();
             return View("Tasks", tasks);
         }
 
@@ -114,7 +116,7 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> TasksForUser()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var tasks = await _context.Tasks.Where(t => t.AssignedToId == userId).ToListAsync();
+            var tasks = await _context.Tasks.Include(T => T.Assignments).Where(t => t.Assignments.Select(a => a.UserId == userId).FirstOrDefault()).ToListAsync();
             return View("Tasks", tasks);
         }
 
@@ -221,24 +223,27 @@ namespace SmartTask.Web.Controllers
             var tasks = await _taskRepository.GetAllAsync();
             foreach (var task in tasks)
             {
-                TaskViewModel taskVM = new TaskViewModel
+                TaskViewModel taskVM = new TaskViewModel();
+
+                taskVM.Id = task.Id;
+                taskVM.Title = task.Title;
+                taskVM.Description = task.Description;
+                taskVM.StartDate = task.StartDate;
+                taskVM.EndDate = task.EndDate;
+                taskVM.Status = task.Status;
+                taskVM.Priority = task.Priority;
+                taskVM.CreatedById = task.CreatedById;
+                taskVM.CreatedAt = task.CreatedAt;
+                taskVM.UpdatedAt = task.UpdatedAt;
+                taskVM.ProjectId = task.ProjectId;
+                foreach (var assignment in task.Assignments)
                 {
-                    Id = task.Id,
-                    Title = task.Title,
-                    Description = task.Description,
-                    StartDate = task.StartDate,
-                    EndDate = task.EndDate,
-                    Status = task.Status,
-                    Priority = task.Priority,
-                    CreatedById = task.CreatedById,
-                    CreatedAt = task.CreatedAt,
-                    UpdatedAt = task.UpdatedAt,
-                    ProjectId = task.ProjectId,
-                    AssignedToId = task.AssignedToId,
-                    ParentTaskId = task.ParentTaskId,
-                    UpdatedById = task.UpdatedById,
-                    ProjectName = task.Project.Name
-                };
+                    taskVM.AssignedToId.Add(assignment.UserId);
+                }
+                taskVM.ParentTaskId = task.ParentTaskId;
+                taskVM.UpdatedById = task.UpdatedById;
+                taskVM.ProjectName = task.Project.Name;
+
                 taskViewModels.Add(taskVM);
             }
             return View(taskViewModels);
@@ -277,7 +282,7 @@ namespace SmartTask.Web.Controllers
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 ProjectId = taskVM.ProjectId,
-                AssignedToId = taskVM.AssignedToId,
+                Assignments =_assignTaskRepository.FindTasksAssignedToUserByIds(taskVM.AssignedToId),
                 ParentTaskId = taskVM.ParentTaskId,
                 UpdatedById = userId,
             };
@@ -290,23 +295,28 @@ namespace SmartTask.Web.Controllers
             var task = await _taskRepository.GetByIdAsync(id);
             if (task == null) return NotFound();
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var taskVM = new TaskViewModel()
+            TaskViewModel taskVM = new TaskViewModel();
+
+            taskVM.Id = task.Id;
+            taskVM.Title = task.Title;
+            taskVM.Description = task.Description;
+            taskVM.StartDate = task.StartDate;
+            taskVM.EndDate = task.EndDate;
+            taskVM.Status = task.Status;
+            taskVM.Priority = task.Priority;
+            taskVM.CreatedById = task.CreatedById;
+            taskVM.CreatedAt = task.CreatedAt;
+            taskVM.UpdatedAt = task.UpdatedAt;
+            taskVM.ProjectId = task.ProjectId;
+            foreach (var assignment in task.Assignments)
             {
-                Id = task.Id,
-                Title = task.Title,
-                Description = task.Description,
-                StartDate = task.StartDate,
-                EndDate = task.EndDate,
-                Status = task.Status,
-                Priority = task.Priority,
-                CreatedById = userId,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
-                ProjectId = task.ProjectId,
-                AssignedToId = task.AssignedToId,
-                ParentTaskId = task.ParentTaskId,
-                UpdatedById = userId,
-            };
+                taskVM.AssignedToId.Add(assignment.UserId);
+            }
+            taskVM.ParentTaskId = task.ParentTaskId;
+            taskVM.UpdatedById = task.UpdatedById;
+            taskVM.ProjectName = task.Project.Name;
+
+            
             var tasks = await GetTaskByProject(task.ProjectId);
             ViewBag.Tasks = JsonSerializer.Deserialize<List<TaskViewModel>>(JsonSerializer.Serialize(tasks.Value));
             ViewBag.Users = await _userManager.Users.ToListAsync();
@@ -332,7 +342,7 @@ namespace SmartTask.Web.Controllers
                     _task.CreatedById = userId;
                     _task.CreatedAt = DateTime.Now;
                     _task.UpdatedAt = DateTime.Now;
-                    _task.AssignedToId = taskVM.AssignedToId;
+                    _task.Assignments = _assignTaskRepository.FindTasksAssignedToUserByIds(taskVM.AssignedToId),
                     _task.ParentTaskId = taskVM.ParentTaskId;
                     await _taskRepository.UpdateAsync(_task);
                     return RedirectToAction(nameof(Index));

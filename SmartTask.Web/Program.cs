@@ -121,7 +121,7 @@ namespace SmartTask.Web
             //services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
             //services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<ITaskDependencyRepository, TaskDependencyRepository>();
-            services.AddScoped<ITaskRepository, TaskRepository>();
+            //services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserLoginHistoryRepository, UserLoginHistoryRepository>();
             services.AddScoped<IAuditRepository, AuditRepository>();

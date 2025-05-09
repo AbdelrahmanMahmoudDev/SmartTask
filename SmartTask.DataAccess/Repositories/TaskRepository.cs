@@ -23,7 +23,7 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Tasks
                 .Include(t => t.Project)
-                .Include(t => t.AssignedTo)
+                .Include(t => t.Assignments)
                 .Include(t => t.CreatedBy)
                 .ToListAsync();
         }
@@ -32,7 +32,7 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Tasks
                 .Include(t => t.Project)
-                .Include(t => t.AssignedTo)
+                .Include(t => t.Assignments)
                 .Include(t => t.ParentTask)
                 .Include(t => t.CreatedBy)
                 .Include(t => t.UpdatedBy)
@@ -43,7 +43,7 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Tasks
                 .Include(t => t.Project)
-                .Include(t => t.AssignedTo)
+                .Include(t => t.Assignments)
                 .Include(t => t.ParentTask)
                 .Include(t => t.CreatedBy)
                 .Include(t => t.UpdatedBy)
@@ -67,7 +67,7 @@ namespace SmartTask.DataAccess.Repositories
         public async Task<IEnumerable<ModelTask>> GetByProjectIdAsync(int projectId)
         {
             return await _context.Tasks
-                .Include(t => t.AssignedTo)
+                .Include(t => t.Assignments)
                 .Where(t => t.ProjectId == projectId)
                 .ToListAsync();
         }
@@ -76,8 +76,9 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Tasks
                 .Include(t => t.Project)
-                .Where(t => t.AssignedToId == userId)
-                .ToListAsync();
+               .Where(t => t.Assignments.Any(a => a.UserId == userId))
+        .ToListAsync();
+
         }
 
         public async Task<IEnumerable<ModelTask>> GetByParentTaskIdAsync(int parentTaskId)

@@ -118,11 +118,7 @@ namespace SmartTask.DataAccess.Data
                 .HasForeignKey(t => t.UpdatedById)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<TaskModel>()
-                .HasOne(t => t.AssignedTo)
-                .WithMany(u => u.AssignedTasks)
-                .HasForeignKey(t => t.AssignedToId)
-                .OnDelete(DeleteBehavior.Restrict);
+       
 
             // Assignment History
             modelBuilder.Entity<AssignTask>()

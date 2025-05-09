@@ -14,5 +14,6 @@ namespace SmartTask.Core.IRepositories
         Task UpdateAsync(AssignTask assignTask);
         Task DeleteAsync(int taskId, string userId);
         Task<bool> ExistsAsync(int taskId, string userId);
+        List<AssignTask> FindTasksAssignedToUserByIds(List<string> names);
     }
 }

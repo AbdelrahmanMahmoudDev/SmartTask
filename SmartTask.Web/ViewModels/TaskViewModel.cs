@@ -53,14 +53,14 @@ namespace SmartTask.Web.ViewModels
         [Display(Name ="Updated By")]
         public virtual ApplicationUser? UpdatedBy { get; set; }
 
-        public virtual ICollection<TaskModel>? SubTasks { get; set; }
+        public virtual ICollection<TaskModel>? SubTasks { get; set; }= new List<TaskModel>();
         //public virtual ICollection<TaskDependency> PredecessorDependencies { get; set; }
         //public virtual ICollection<TaskDependency> SuccessorDependencies { get; set; }
         //public virtual ICollection<Comment> Comments { get; set; }
         //public virtual ICollection<Attachment> Attachments { get; set; }
         //public virtual ICollection<Event> Events { get; set; }
         //public virtual ICollection<AISuggestion> AISuggestions { get; set; }
-        public virtual ICollection<AssignTask> Assignments { get; set; }
+        public virtual List<string> AssignedToId { get; set; }=new List<string>();
 
     }
 }

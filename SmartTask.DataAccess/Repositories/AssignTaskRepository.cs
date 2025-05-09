@@ -86,6 +86,13 @@ namespace SmartTask.DataAccess.Repositories
             return await _context.AssignTasks
                 .AnyAsync(a => a.TaskId == taskId && a.UserId == userId);
         }
+        public List<AssignTask>FindTasksAssignedToUserByIds(List<string>ids)
+        {
+            return _context.AssignTasks
+                
+                .Where(a => ids.Contains(a.UserId))
+                .ToList();
+        }
 
     }
 }
