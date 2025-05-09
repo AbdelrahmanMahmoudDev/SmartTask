@@ -14,6 +14,50 @@
             </a>
         </secure-content>
     </div>
+    @* ------ *@
+    <form asp-action="Index" method="get" class="mb-4">
+    <div class="row g-2">
+        <div class="col-md-4">
+            <input type="text"
+                   name="searchString"
+                   value="@Model.SearchString"
+                   class="form-control"
+                   placeholder="Search by name or description..." />
+        </div>
+
+        <div class="col-md-3">
+            <select class="form-select" name="departmentId">
+                <option value="">-- Select Department --</option>
+                @foreach (var dept in Model.Projects)
+                {
+                    <option value="@dept.Id" @(dept.Id == Model.SelectedDepartmentId ? "selected" : "")>
+                        @dept.Name
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select class="form-select" name="branchId">
+                <option value="">-- Select Branch --</option>
+                @foreach (var branch in Model.Branches)
+                {
+                    <option value="@branch.Id" @(branch.Id == Model.SelectedBranchId ? "selected" : "")>
+                        @branch.Name
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-secondary w-100">
+                <i class="fas fa-search me-1"></i> Search
+            </button>
+        </div>
+    </div>
+</form>
+
+    @* ------ *@
 
     <form asp-action="Index" method="get" class="mb-4">
         <div class="input-group">
