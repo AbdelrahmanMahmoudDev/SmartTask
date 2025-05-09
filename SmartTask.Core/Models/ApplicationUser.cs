@@ -9,7 +9,7 @@ namespace SmartTask.Core.Models
     {
         public string FullName { get; set; }
 
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
         public DateTime createdAt { get; set; }
 
         public DateTime updatedAt { get; set; }
