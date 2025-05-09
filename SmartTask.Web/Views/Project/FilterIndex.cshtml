@@ -27,7 +27,7 @@
 
 
             <div class="col-md-3">
-                <select class="form-select" asp-for="SelectedDepartmentId" asp-items="@(new SelectList(Model.Projects, "Id", "Name"))">
+                <select class="form-select" asp-for="SelectedDepartmentId" asp-items="@(new SelectList(Model.Departments, "Id", "Name"))">
                     <option value="">-- Select Department --</option>
                 </select>
             </div>
