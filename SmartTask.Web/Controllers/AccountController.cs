@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.Models;
 using SmartTask.Core.Models.BasePermission;
 using SmartTask.Core.ViewModels;
+using System.Data.SqlTypes;
 
 namespace SmartTask.Web.Controllers
 {
@@ -29,9 +30,19 @@ namespace SmartTask.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel account)
         {
+            ApplicationUser user = new ApplicationUser();   
+            Console.WriteLine($"{account.UserName}");
             if (ModelState.IsValid)
             {
-                ApplicationUser user = await userManager.FindByNameAsync(account.UserName);
+                try
+                {
+                     user = await userManager.FindByNameAsync(account.UserName);
+                    // ApplicationUser user = await userManager.FindByNameAsync("mohamedali");
+                }
+                catch (SqlNullValueException ex)
+                {
+                    Console.WriteLine("Caught null field: " + ex.Message);
+                }
                 if (user != null)
                 {
                     bool result = await userManager.CheckPasswordAsync(user, account.Password);

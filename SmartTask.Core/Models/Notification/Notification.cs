@@ -8,6 +8,8 @@ namespace SmartTask.Core.Models.Notification
 
         public string Message { get; set; }
 
+        public string Type { get; set; }
+
         [ForeignKey("applicationUser")]
         public string Sender { get; set; }
         public ApplicationUser? applicationUser { get; set; }
