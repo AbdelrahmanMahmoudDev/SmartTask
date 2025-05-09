@@ -154,14 +154,14 @@ namespace SmartTask.DataAccess.Data
         public override int SaveChanges()
         {
             ValidateUserDepartmentBranchRelationship();
-            ValidateProjectDepartmentBranchRelationship();
+            //ValidateProjectDepartmentBranchRelationship();
             return base.SaveChanges();
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             ValidateUserDepartmentBranchRelationship();
-            ValidateProjectDepartmentBranchRelationship();
+            //ValidateProjectDepartmentBranchRelationship();
             return base.SaveChangesAsync(cancellationToken);
         }
 
@@ -169,7 +169,7 @@ namespace SmartTask.DataAccess.Data
         {
             BeforeSaveChanges(userId, userName);
             ValidateUserDepartmentBranchRelationship();
-            ValidateProjectDepartmentBranchRelationship();
+            //ValidateProjectDepartmentBranchRelationship();
             return await base.SaveChangesAsync();
         }
 
@@ -198,30 +198,30 @@ namespace SmartTask.DataAccess.Data
             }
         }
 
-        private void ValidateProjectDepartmentBranchRelationship()
-        {
-            var projects = ChangeTracker.Entries<Project>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
-                .Select(e => e.Entity)
-                .ToList();
+        //private void ValidateProjectDepartmentBranchRelationship()
+        //{
+        //    var projects = ChangeTracker.Entries<Project>()
+        //        .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+        //        .Select(e => e.Entity)
+        //        .ToList();
 
-            foreach (var project in projects)
-            {
-                if (project.BranchId != null && project.DepartmentId != null)
-                {
-                    bool relationExists = BranchDepartments.Any(bd =>
-                        bd.BranchId == project.BranchId &&
-                        bd.DepartmentId == project.DepartmentId);
+        //    foreach (var project in projects)
+        //    {
+        //        if (project.BranchId != null && project.DepartmentId != null)
+        //        {
+        //            bool relationExists = BranchDepartments.Any(bd =>
+        //                bd.BranchId == project.BranchId &&
+        //                bd.DepartmentId == project.DepartmentId);
 
-                    if (!relationExists)
-                    {
-                        throw new InvalidOperationException(
-                            $"Department with Id {project.DepartmentId} is not associated with Branch Id {project.BranchId}. " +
-                            "The department must be linked to the branch before assigning the project.");
-                    }
-                }
-            }
-        }
+        //            if (!relationExists)
+        //            {
+        //                throw new InvalidOperationException(
+        //                    $"Department with Id {project.DepartmentId} is not associated with Branch Id {project.BranchId}. " +
+        //                    "The department must be linked to the branch before assigning the project.");
+        //            }
+        //        }
+        //    }
+        //}
 
         private void BeforeSaveChanges(string userId, string userName)
         {

@@ -31,14 +31,30 @@ namespace SmartTask.Web.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(string searchString, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string searchString, int? selectedDepartmentId, int? selectedBranchId, int page = 1, int pageSize = 10)
         {
-            var projects = await _projectService.GetFilteredProjectsAsync(searchString, page, pageSize);
+            //var projects = await _projectService.GetFilteredProjectsAsync(searchString, page, pageSize);
+
+            //var viewModel = new ProjectIndexViewModel
+            //{
+            //    Projects = projects,
+            //    SearchString = searchString
+            //};
+
+            //return View(viewModel);
+            var departments = await _departmentService.GetAllDepartmentsAsync();
+            var branches = await _branchService.GetAllAsync();
+
+            var projects = await _projectService.GetFilteredByDepartmentProjectsAsync(searchString, selectedDepartmentId, selectedBranchId, page, pageSize);
 
             var viewModel = new ProjectIndexViewModel
             {
                 Projects = projects,
-                SearchString = searchString
+                SearchString = searchString,
+                SelectedDepartmentId = selectedDepartmentId,
+                SelectedBranchId = selectedBranchId,
+                Departments = departments.ToList(),
+                Branches = branches.ToList()
             };
 
             return View(viewModel);
@@ -61,15 +77,7 @@ namespace SmartTask.Web.Controllers
             };
 
             return View(viewModel);
-            //var projects = await _projectService.GetFilteredProjectsAsync(searchString, page, pageSize);
-
-            //var viewModel = new ProjectIndexViewModel
-            //{
-            //    Projects = projects,
-            //    SearchString = searchString
-            //};
-
-            //return View(viewModel);
+          
         }
 
         [HttpGet]
@@ -77,6 +85,10 @@ namespace SmartTask.Web.Controllers
         {
             var admins = await _userManager.GetUsersInRoleAsync("Admin");
             ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
+            ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
+            ViewBag.branches = await _branchService.GetAllAsync();
+         
+
             return View();
         }
 
@@ -85,6 +97,8 @@ namespace SmartTask.Web.Controllers
         {
             var admins = await _userManager.GetUsersInRoleAsync("Admin");
             ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
+            ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
+            ViewBag.branches = await _branchService.GetAllAsync();
 
             if (model.StartDate.HasValue && model.EndDate.HasValue && model.EndDate < model.StartDate)
             {
@@ -105,7 +119,9 @@ namespace SmartTask.Web.Controllers
                 StartDate = model.StartDate,
                 EndDate = model.EndDate,
                 OwnerId = model.OwnerId,
-                CreatedById = currentUser.Id
+                CreatedById = currentUser.Id,
+                DepartmentId = model.SelectedDepartmentId,
+                BranchId = model.SelectedBranchId
             };
 
             await _projectService.AddProjectAsync(project);
@@ -141,7 +157,8 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var project = await _projectService.GetProjectByIdAsync(id);
-
+            ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
+            ViewBag.branches = await _branchService.GetAllAsync();
             var admins = await _userManager.GetUsersInRoleAsync("Admin");
             ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
 
@@ -154,7 +171,7 @@ namespace SmartTask.Web.Controllers
 
             var allUsers = await _userManager.Users.ToListAsync();
             var nonAssignedUsers = allUsers.Where(u => !currentUserIds.Contains(u.Id)).ToList();
-
+           
             ViewBag.NonAssignedUsers = new SelectList(nonAssignedUsers, "Id", "FullName");
 
             var model = new ProjectEditViewModel
@@ -166,6 +183,8 @@ namespace SmartTask.Web.Controllers
                 EndDate = project.EndDate,
                 OwnerId = project.OwnerId,
                 Status = project.Status,
+                SelectedDepartmentId = project.DepartmentId,
+                SelectedBranchId = project.BranchId,
                 AssignedUsers = project.ProjectMembers.Select(pm => new UserCheckboxModel
                 {
                     UserId = pm.UserId,
@@ -180,6 +199,8 @@ namespace SmartTask.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(ProjectEditViewModel model, List<string> AssignedUserIds)
         {
+            ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
+            ViewBag.branches = await _branchService.GetAllAsync();
             if (model.StartDate.HasValue && model.EndDate.HasValue && model.EndDate < model.StartDate)
             {
                 ModelState.AddModelError("EndDate", "End date must be after start date.");
@@ -204,6 +225,8 @@ namespace SmartTask.Web.Controllers
             project.EndDate = model.EndDate;
             project.OwnerId = model.OwnerId;
             project.Status = model.Status;
+            project.DepartmentId = model.SelectedDepartmentId;
+            project.BranchId = model.SelectedBranchId;
 
             var updatedMembers = AssignedUserIds.Select(userId => new ProjectMember
             {

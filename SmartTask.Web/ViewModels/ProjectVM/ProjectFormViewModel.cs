@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using SmartTask.Core.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace SmartTask.Web.ViewModels.ProjectVM
@@ -22,8 +23,13 @@ namespace SmartTask.Web.ViewModels.ProjectVM
         [Required(ErrorMessage = "Please select owner")]
         [Display(Name = "Project owner")]
         public string OwnerId { get; set; }
-
+        public int? SelectedDepartmentId { get; set; }
        
+        public int? SelectedBranchId { get; set; }
+        
+       
+
+
 
     }
 }
