@@ -344,6 +344,7 @@ namespace SmartTask.Web.Controllers
                     _task.Priority = taskVM.Priority;
                     _task.ParentTaskId = taskVM.ParentTaskId;
                     await _assignTaskRepository.ModifyTasksToUserByIds(userId, _task, taskVM.AssignedToId);
+                    await _taskRepository.UpdateAsync(_task);
                     return RedirectToAction(nameof(Index));
                 }
             }
