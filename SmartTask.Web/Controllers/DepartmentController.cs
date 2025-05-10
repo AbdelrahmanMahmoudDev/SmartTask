@@ -170,7 +170,19 @@ namespace SmartTask.Web.Controllers
         }
 
         //GetDepartments method is returning the IEnumerable Departments from database
+        [HttpGet]
+        private IEnumerable<Department> GetDepartments()
+        {
+            return new List<Department>
+            {
+                new Department
+        {
+            Name = "Department1",
+
+        },
         
+            };
+        }
         [HttpGet]
         public ActionResult GetData()
         {

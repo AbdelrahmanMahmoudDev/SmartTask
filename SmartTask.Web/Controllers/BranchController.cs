@@ -181,84 +181,9 @@ namespace SmartTask.Web.Controllers
             {
                 new Branch
         {
-            Name = "Ahmed Ali",
+            Name = "Branch1",
 
         },
-        new Branch
-        {
-            Name = "Mona Hassan",
-
-        },
-        new Branch
-        {
-            Name = "Mohamed Fathy",
-
-        },
-        new Branch
-        {
-            Name = "Fatima Ibrahim",
-
-        },
-        new Branch
-        {
-            Name = "Youssef Tarek",
-
-        },
-        new Branch
-        {
-            Name = "Sara Khaled",
-
-        },
-        new Branch
-        {
-            Name = "Omar Mostafa",
-
-        },
-        new Branch
-        {
-            Name = "Nourhan Adel",
-
-        },
-        new Branch
-        {
-            Name = "Khaled Samir",
-
-        },
-        new Branch
-        {
-            Name = "Salma Ramadan",
-
-        },
-        new Branch
-        {
-            Name = "Ali Mahmoud",
-
-        },
-        new Branch
-        {
-            Name = "Laila ElKady",
-
-        },
-        new Branch
-        {
-            Name = "Amr Tamer",
-
-        },
-        new Branch
-        {
-            Name = "Hala Nasser",
-
-        }, new Branch
-        {
-            Name = "Marwa sayed",
-
-        },
-        new Branch
-        {
-            Name = "Fady Khalil",
-
-        }
-
             };
         }
 
