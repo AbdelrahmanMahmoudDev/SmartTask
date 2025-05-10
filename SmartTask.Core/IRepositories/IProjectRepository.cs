@@ -17,5 +17,11 @@ namespace SmartTask.Core.IRepositories
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
         IQueryable<Project> GetQueryable();
+
+        // To Display list of projects for a specific user
+        Task<List<Project>> GetUserProjectsAsync(string userId);
+
+        //To Diplay Details of a specific project for a specific user
+        Task<Project> GetProjectByIdAsync(int id, string userId);
     }
 }

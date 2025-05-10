@@ -103,5 +103,25 @@ namespace SmartTask.DataAccess.Repositories
                 .Include(p => p.CreatedBy)
                 .AsQueryable();
         }
+
+        public async Task<List<Project>> GetUserProjectsAsync(string userId)
+        {
+            return await _context.Projects
+                .Include(p => p.ProjectMembers)
+                .Include(p => p.Tasks)
+                .Where(p => p.ProjectMembers.Any(pm => pm.UserId == userId))
+                .ToListAsync();
+        }
+
+        public async Task<Project> GetProjectByIdAsync(int id, string userId)
+        {
+            return await _context.Projects
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(pm => pm.User)
+                .Include(p => p.Owner)
+                .Include(p => p.Tasks)
+                .FirstOrDefaultAsync(p => p.Id == id &&
+                    (p.ProjectMembers.Any(pm => pm.UserId == userId)));
+        }
     }
 }

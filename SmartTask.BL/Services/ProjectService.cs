@@ -107,5 +107,15 @@ namespace SmartTask.BL.Services
             await _projectRepository.UpdateAsync(project);
             return true;
         }
+
+        public Task<List<Project>> GetUserProjectsAsync(string userId)
+        {
+            return _projectRepository.GetUserProjectsAsync(userId);
+        }
+
+        public Task<Project> GetProjectDetailsAsync(int projectId, string userId)
+        {
+            return _projectRepository.GetProjectByIdAsync(projectId, userId);
+        }
     }
 }
