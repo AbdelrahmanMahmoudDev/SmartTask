@@ -1,116 +1,106 @@
 ﻿@using SmartTask.Web.ViewModels
-
 @model IEnumerable<TaskViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Tasks Overview";
 }
 
-<h1>Index</h1>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Tasks Overview</h2>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Create New Task
+        </a>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProjectName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AssignedToId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ParentTaskId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Priority)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedById)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedById)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProjectName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AssignedToId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ParentTaskId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StartDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EndDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Status)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Priority)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreatedById)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UpdatedById)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreatedAt)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UpdatedAt)
-                </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <strong>Filter Tasks</strong>
+        </div>
+        <div class="card-body">
+            <form id="filterForm" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="Status" class="form-select">
+                        <option value="">-- Select Status --</option>
+                        <!-- Add status options here -->
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" name="StartDate" class="form-control" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" name="EndDate" class="form-control" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Assigned To</label>
+                    <select name="AssignedToUserId" class="form-select">
+                        <option value="@null">-- Select User --</option>
+                        @foreach (var user in ViewBag.Users)
+                        {
+                            <option value="@user.Id">@user.FullName</option>
+                        }
+                    </select>
+                </div>
+
+                @* Optional Filters: Uncomment if needed *@
+                @* 
+                <div class="col-md-3">
+                    <label class="form-label">Department</label>
+                    <select name="DepartmentId" class="form-select">...</select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Branch</label>
+                    <select name="BranchId" class="form-select">...</select>
+                </div>
+                *@
+
+                <div class="col-12 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary mt-2">
+                        <i class="bi bi-funnel-fill"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="taskTable">
+        <partial name="PartialViews/_TaskTable" model="Model" />
+    </div>
+</div>
+
+
+
+
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#filterForm').on('submit', function (e) {
+                e.preventDefault();
+
+                $('#taskTable').slideUp(200, function () {
+                    $.ajax({
+                        url: '@Url.Action("Filter", "Task")',
+                        method: 'GET',
+                        data: $('#filterForm').serialize(),
+                        success: function (partialView) {
+                            $('#taskTable').html(partialView).slideDown(200);
+                        },
+                        error: function () {
+                            alert("Failed to load tasks.");
+                            $('#taskTable').slideDown(200); // restore if error
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}
+

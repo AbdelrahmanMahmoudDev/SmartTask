@@ -1,4 +1,5 @@
-﻿@model List<SmartTask.Core.Models.Task>
+﻿@using SmartTask.Core.Models.Enums
+@model List<SmartTask.Core.Models.Task>
 
 @{
     ViewData["Title"] = "Tasks";
@@ -84,21 +85,21 @@
                             @*     </div> *@
                             @* </div> *@
                             @{
-                                string status = task.Status?.ToLower();
-                                bool isCancelled = status == "cancel";
+                                Status status = task.Status;
+                                bool isCancelled = status == Status.Cancelled;
                                 int filledSegments = status switch
                                 {
-                                    "to do" => 1,
-                                    "in progress" or "cancel" => 2,
-                                    "done" => 3,
+                                    Status.Todo => 1,
+                                    Status.Cancelled or Status.InProgress => 2,
+                                    Status.Done => 3,
                                     _ => 0
                                 };
                                 string barColor = status switch
                                 {
-                                    "to do" => "bg-primary",
-                                    "in progress" => "bg-warning",
-                                    "cancel" => "bg-danger",
-                                    "done" => "bg-success",
+                                    Status.Todo => "bg-primary",
+                                    Status.InProgress => "bg-warning",
+                                    Status.Cancelled => "bg-danger",
+                                    Status.Done=> "bg-success",
                                     _ => "bg-secondary"
                                 };
                                 string textClass = isCancelled ? "text-decoration-line-through text-muted" : "";
@@ -261,13 +262,13 @@
 </script>
 @functions {
 
-    string GetPriorityColor(string priority)
+    string GetPriorityColor(Priority priority)
     {
         return priority switch
         {
-            "High" => "danger",
-            "Medium" => "warning",
-            "Low" => "success",
+            Priority.High => "danger",
+            Priority.Medium => "warning",
+            Priority.Low=> "success",
             _ => "secondary"
         };
     }
