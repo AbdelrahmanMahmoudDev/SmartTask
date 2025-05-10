@@ -169,6 +169,11 @@ namespace SmartTask.Web.Controllers
             ViewBag.AllUsers = allUsers;
         }
 
+
+            
+
+
+
         //GetDepartments method is returning the IEnumerable Departments from database
         [HttpGet]
         private IEnumerable<Department> GetDepartments()
@@ -201,22 +206,30 @@ namespace SmartTask.Web.Controllers
 
 
             // Advanced filter parameters
-            var location = Request.Query["location"].FirstOrDefault();
-            var position = Request.Query["position"].FirstOrDefault();
-            var startDateStr = Request.Query["startDate"].FirstOrDefault();
-            var endDateStr = Request.Query["endDate"].FirstOrDefault();
-            var minSalaryStr = Request.Query["minSalary"].FirstOrDefault();
-            var maxSalaryStr = Request.Query["maxSalary"].FirstOrDefault();
-            var minAgeStr = Request.Query["minAge"].FirstOrDefault();
-            var maxAgeStr = Request.Query["maxAge"].FirstOrDefault();
+            var name = Request.Query["name"].FirstOrDefault();
+            var manager = Request.Query["manager"].FirstOrDefault();
+            //var startDateStr = Request.Query["startDate"].FirstOrDefault();
+            //var endDateStr = Request.Query["endDate"].FirstOrDefault();
+            //var minSalaryStr = Request.Query["minSalary"].FirstOrDefault();
+            //var maxSalaryStr = Request.Query["maxSalary"].FirstOrDefault();
+            //var minAgeStr = Request.Query["minAge"].FirstOrDefault();
+            //var maxAgeStr = Request.Query["maxAge"].FirstOrDefault();
 
             var branches = GetDepartments();
             int totalRecords = branches.Count();
 
-            
+            if (!string.IsNullOrEmpty(name))
+            {
+                branches = branches.Where(x => x.Name == name).ToList();
+            }
 
-            //Filter(Search)
-            if (!string.IsNullOrEmpty(searchValue))
+            if (!string.IsNullOrEmpty(manager))
+            {
+                branches = branches.Where(x => x.ManagerId == manager).ToList();
+            }
+
+                //Filter(Search)
+                if (!string.IsNullOrEmpty(searchValue))
             {
                 branches = branches.Where(x => x.Name.ToLower().Contains(searchValue.ToLower())).ToList();
             }
@@ -266,5 +279,9 @@ namespace SmartTask.Web.Controllers
             });
 
         }
+
     }
 }
+
+
+  
