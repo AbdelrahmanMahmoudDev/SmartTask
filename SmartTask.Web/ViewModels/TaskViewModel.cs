@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using TaskModel = SmartTask.Core.Models.Task;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc;
+using SmartTask.Core.Models.Enums;
 
 namespace SmartTask.Web.ViewModels
 {
@@ -20,16 +22,20 @@ namespace SmartTask.Web.ViewModels
         public string Description { get; set; }
 
         [Display(Name = "Start Date")]
+        [Remote("ValidateStartDate", "Task", AdditionalFields = "ProjectId", 
+        ErrorMessage = "Start date must be within the project timeline.")]
         public DateTime? StartDate { get; set; }
 
         [Display(Name = "End Date")]
+        [Remote("ValidateEndDate", "Task", AdditionalFields = "ProjectId,StartDate", 
+        ErrorMessage = "End date must be within the project timeline and after the start date.")]
         public DateTime? EndDate { get; set; }
 
     
-        public string Status { get; set; }
+        public Status Status { get; set; }
 
-        [StringLength(50)]
-        public string Priority { get; set; }
+        
+        public Priority Priority { get; set; }
 
         public string? CreatedById { get; set; }
         public string? UpdatedById { get; set; }

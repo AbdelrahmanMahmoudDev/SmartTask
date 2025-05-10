@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.IRepositories;
+using SmartTask.Core.Models.Enums;
 using SmartTask.DataAccess.Data;
 using ModelTask = SmartTask.Core.Models.Task;
 
@@ -95,7 +96,7 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ModelTask>> GetTasksByStatusAsync(string status)
+        public async Task<IEnumerable<ModelTask>> GetTasksByStatusAsync(Status status)
         {
             return await _context.Tasks
                 .Include(t => t.Project)
@@ -104,7 +105,7 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ModelTask>> GetTasksByPriorityAsync(string priority)
+        public async Task<IEnumerable<ModelTask>> GetTasksByPriorityAsync(Priority priority)
         {
             return await _context.Tasks
                 .Include(t => t.Project)

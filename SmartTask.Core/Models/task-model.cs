@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using SmartTask.Core.Models.Enums;
 using TaskModel = SmartTask.Core.Models.Task;
 
 
@@ -27,11 +28,11 @@ namespace SmartTask.Core.Models
         [Column(TypeName = "Date")]
         public DateTime? EndDate { get; set; }
 
-        [StringLength(50)]
-        public string Status { get; set; }
+    
+        public Status Status { get; set; }
 
-        [StringLength(50)]
-        public string Priority { get; set; }
+       
+        public Priority Priority { get; set; }
 
         public string CreatedById { get; set; }
         public string? UpdatedById { get; set; }

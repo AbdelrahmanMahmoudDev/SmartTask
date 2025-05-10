@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
@@ -247,6 +248,7 @@ namespace SmartTask.Web.Controllers
 
                 taskViewModels.Add(taskVM);
             }
+            ViewBag.Users = await _userManager.Users.ToListAsync();
             return View(taskViewModels);
         }
         [HttpGet]
@@ -367,6 +369,84 @@ namespace SmartTask.Web.Controllers
                 taskViewModels.Add(taskVM);
             }
             return Json(taskViewModels);
+        }
+        public async Task<JsonResult> ValidateStartDate(DateTime StartDate, int ProjectId)
+        {
+            var project = await _projectRepository.GetByIdAsync(ProjectId);
+
+            if (StartDate < project.StartDate || StartDate > project.EndDate)
+            {
+                return Json(false);
+            }
+
+            return Json(true);
+        }
+
+        public async Task<JsonResult> ValidateEndDate(DateTime EndDate, DateTime StartDate, int ProjectId)
+        {
+            var project = await _projectRepository.GetByIdAsync(ProjectId);
+
+            if (EndDate < project.StartDate || EndDate > project.EndDate || EndDate < StartDate)
+            {
+                return Json(false);
+            }
+
+            return Json(true);
+        }
+        public async Task<IActionResult> Filter(TaskFilterViewModel filter)
+        {
+            var query = _context.Tasks
+                .Include(t => t.Assignments).Include(t=>t.Project)
+                //.ThenInclude(a=>a.Branch).ThenInclude(a => a.Department)
+                .AsQueryable();
+
+           
+                query = query.Where(t => t.Status == filter.Status);
+
+            if (filter.StartDate.HasValue)
+                query = query.Where(t => t.StartDate == filter.StartDate);
+
+            if (filter.EndDate.HasValue)
+                query = query.Where(t => t.EndDate == filter.EndDate);
+
+            if (!string.IsNullOrEmpty(filter.AssignedToUserId))
+                query = query.Where(t => t.Assignments.Any(a => a.UserId == filter.AssignedToUserId));
+
+            //if (filter.DepartmentId.HasValue)
+            //    query = query.Where(t => t.Assignments.Any(a=>a.Department.Id == filter.DepartmentId);
+
+            //if (filter.BranchId.HasValue)
+            //    query = query.Where(t => t.Assignments.Any(a=>a.Branch.Id== filter.BranchId);
+
+            var result = await query.ToListAsync();
+            var taskViewModels = new List<TaskViewModel>();
+            foreach (var task in result)
+            {
+                TaskViewModel taskVM = new TaskViewModel();
+
+                taskVM.Id = task.Id;
+                taskVM.Title = task.Title;
+                taskVM.Description = task.Description;
+                taskVM.StartDate = task.StartDate;
+                taskVM.EndDate = task.EndDate;
+                taskVM.Status = task.Status;
+                taskVM.Priority = task.Priority;
+                taskVM.CreatedById = task.CreatedById;
+                taskVM.CreatedAt = task.CreatedAt;
+                taskVM.UpdatedAt = task.UpdatedAt;
+                taskVM.ProjectId = task.ProjectId;
+                foreach (var assignment in task.Assignments)
+                {
+                    taskVM.AssignedToId.Add(assignment.UserId);
+                }
+                taskVM.ParentTaskId = task.ParentTaskId;
+                taskVM.UpdatedById = task.UpdatedById;
+                taskVM.ProjectName = task.Project.Name;
+
+                taskViewModels.Add(taskVM);
+            }
+
+            return PartialView("PartialViews/_TaskTable", taskViewModels);
         }
     }
 }

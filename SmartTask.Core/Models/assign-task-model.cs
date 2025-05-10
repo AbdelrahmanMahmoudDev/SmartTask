@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using SmartTask.Core.Models.Enums;
 
 namespace SmartTask.Core.Models
 {
@@ -17,10 +18,10 @@ namespace SmartTask.Core.Models
         [Required]
         public DateTime AssignedAt { get; set; }
 
-        [StringLength(50)]
-        public string Status { get; set; }
+    
+        public Status Status { get; set; }//Should be deleted !!!!!!!!!!!!!!!
 
-        public string Comments { get; set; }
+        public string Comments { get; set; }//Should be a Navigation property to a comment model
 
         // Navigation properties
         [ForeignKey("TaskId")]
