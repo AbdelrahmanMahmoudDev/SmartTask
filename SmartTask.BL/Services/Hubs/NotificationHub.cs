@@ -6,7 +6,7 @@ using SmartTask.DataAccess.Data;
 //using SignalRProject.ViewModels;
 using System.Security.Claims;
 
-namespace SignalRProject.Service.Hubs
+namespace SmartTask.BL.Service.Hubs
 {
     
     public class NotificationHub : Hub

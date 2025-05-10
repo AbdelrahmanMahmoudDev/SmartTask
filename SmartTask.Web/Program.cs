@@ -10,13 +10,14 @@ using SmartTask.Web.CustomFilter;
 using SmartTask.DataAccess.Data;
 using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
-using SmartTask.Bl.Hubs;
+
 using SmartTask.Core.IExternalServices;
 using SmartTask.Bl.IServices;
 using SmartTask.Bl.Services;
 
 using System;
 using task=System.Threading.Tasks.Task;
+using SmartTask.BL.Service.Hubs;
 namespace SmartTask.Web
 {
     public class Program
