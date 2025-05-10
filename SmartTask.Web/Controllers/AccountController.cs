@@ -65,6 +65,44 @@ namespace SmartTask.Web.Controllers
                 applicationUser.createdAt = DateTime.Now;
                 applicationUser.updatedAt = DateTime.Now;
 
+                if (register.UserImage != null && register.UserImage.Length > 0)
+                {
+                    // Check if file size exceeds 1MB (1,048,576 bytes)
+                    if (register.UserImage.Length > 1048576)
+                    {
+                        ModelState.AddModelError("UserImage", "Image size cannot exceed 1MB.");
+                        return View("Register", register);
+                    }
+
+                    try
+                    {
+                        // Process the image file
+                        var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(register.UserImage.FileName);
+                        var imagesFolder = Path.Combine("wwwroot", "assets", "img", "user-img");
+                        var imagePath = Path.Combine(Directory.GetCurrentDirectory(), imagesFolder, uniqueFileName);
+
+                        // Ensure the directory exists
+                        Directory.CreateDirectory(Path.GetDirectoryName(imagePath));
+
+                        // Save the file
+                        using (var stream = new FileStream(imagePath, FileMode.Create))
+                        {
+                            await register.UserImage.CopyToAsync(stream);
+                        }
+
+                        // Set the image path to be saved in the database
+                        string savedPath = "/assets/img/user-img/" + uniqueFileName;
+                        register.ImagePath = savedPath;
+                        applicationUser.ImagePath = savedPath;
+                    }
+                    catch (Exception ex)
+                    {
+                        ModelState.AddModelError("", $"Error saving image: {ex.Message}");
+                        return View("Register", register);
+                    }
+                }
+
+
                 IdentityResult identityResult = await userManager.CreateAsync(applicationUser, register.Password);
 
                 if (identityResult.Succeeded)
@@ -77,6 +115,45 @@ namespace SmartTask.Web.Controllers
                 }
             }
             return View("Register", register);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Add([FromForm] ApplicationUser user, [FromForm] string password)
+        {
+            // Validate file size
+            if (user.UserImage != null && user.UserImage.Length > 0)
+            {
+                // Check if file size exceeds 1MB
+                if (user.UserImage.Length > 1048576)
+                {
+                    return BadRequest(new { error = "Image size cannot exceed 1MB." });
+                }
+
+                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(user.UserImage.FileName);
+                var imagesFolder = Path.Combine("wwwroot", "assets", "img", "user-img");
+                var imagePath = Path.Combine(Directory.GetCurrentDirectory(), imagesFolder, uniqueFileName);
+                Directory.CreateDirectory(Path.GetDirectoryName(imagePath));
+                using (var stream = new FileStream(imagePath, FileMode.Create))
+                {
+                    await user.UserImage.CopyToAsync(stream);
+                }
+                user.ImagePath = "/assets/img/user-img" + uniqueFileName;
+            }
+
+            // Set creation and update timestamps
+            user.createdAt = DateTime.Now;
+            user.updatedAt = DateTime.Now;
+
+            // Since we're using UserManager for user creation, we can use it directly
+            IdentityResult result = await userManager.CreateAsync(user, password);
+
+            if (result.Succeeded)
+            {
+                // Return success response, avoid referencing GetByIdAsync if it doesn't exist
+                return CreatedAtAction("Get", "Users", new { id = user.Id }, user);
+            }
+
+            return BadRequest(result.Errors);
         }
 
         [HttpGet]

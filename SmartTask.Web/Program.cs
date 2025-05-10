@@ -11,12 +11,13 @@ using SmartTask.DataAccess.Data;
 using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
 using SmartTask.Bl.Hubs;
-using SmartTask.Core.IExternalServices;
 using SmartTask.Bl.IServices;
-using SmartTask.Bl.Services;
-
 using System;
 using task=System.Threading.Tasks.Task;
+using Microsoft.AspNetCore.Authorization;
+using SmartTask.Web.Authorization.Handlers;
+using SmartTask.Web.Authorization.Requirements;
+
 namespace SmartTask.Web
 {
     public class Program
@@ -37,6 +38,19 @@ namespace SmartTask.Web
 
             // Database & Identity
             builder.Services.AddDbContext<SmartTaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            // Authorizing User Update
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CanEditUser", policy =>
+                    policy.Requirements.Add(new EditUserRequirement()));
+            });
+
+            // HttpContextAccessor (required for the authorization handler)
+            builder.Services.AddHttpContextAccessor();
+
+            // Register the authorization handler
+            builder.Services.AddScoped<IAuthorizationHandler, EditUserAuthorizationHandler>();
 
             // Database context configuration
             builder.Services.AddDbContext<SmartTaskContext>(options =>
@@ -69,12 +83,22 @@ namespace SmartTask.Web
                 var logger = loggerFactory.CreateLogger<Program>();
                 logger.LogError(ex, "An error occurred while migrating the database.");
             }
+
             // Error Handling
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
+            // Handling UnAuthorized Access
+            app.UseStatusCodePages(async context =>
+            {
+                if (context.HttpContext.Response.StatusCode == 403)
+                {
+                    context.HttpContext.Response.Redirect("/Error/AccessDenied");
+                }
+            });
 
             // Middleware Pipeline
             app.UseHttpsRedirection();

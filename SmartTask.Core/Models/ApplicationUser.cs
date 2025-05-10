@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace SmartTask.Core.Models
 {
@@ -23,6 +24,10 @@ namespace SmartTask.Core.Models
 
         [ForeignKey("BranchId")]
         public virtual Branch Branch { get; set; }
+
+        public string? ImagePath { get; set; }
+        [NotMapped]
+        public IFormFile? UserImage { get; set; }
 
         public virtual ICollection<Branch> ManagedBranches { get; set; } = new List<Branch>();
         public virtual ICollection<Department> ManagedDepartments { get; set; } = new List<Department>();

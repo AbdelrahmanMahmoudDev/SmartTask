@@ -73,10 +73,10 @@ namespace SmartTask.DataAccess.Repositories
         //    return user;
         //}
 
-        //public async Task UpdateAsync(User user)
+        //public async Task UpdateAsync(ApplicationUser user)
         //{
-        //    _context.Entry(user).State = EntityState.Modified;
-        //    await _context.SaveChangesAsync();
+           // _context.Entry(user).State = EntityState.Modified;
+           // await _context.SaveChangesAsync();
         //}
 
         //public async Task DeleteAsync(int id)
