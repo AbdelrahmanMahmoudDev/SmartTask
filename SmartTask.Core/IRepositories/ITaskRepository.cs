@@ -18,9 +18,10 @@ namespace SmartTask.Core.IRepositories
         Task<IEnumerable<ModelTask>> GetByCreatedByIdAsync(string userId);
         Task<IEnumerable<ModelTask>> GetTasksByStatusAsync(string status);
         Task<IEnumerable<ModelTask>> GetTasksByPriorityAsync(string priority);
-        Task<ModelTask> AddAsync(ModelTask task);
+        Task AddAsync(ModelTask task);
         Task UpdateAsync(ModelTask task);
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
+        Task<IEnumerable<ModelTask>> GetAllTasksPerProject(int projectId);
     }
 }

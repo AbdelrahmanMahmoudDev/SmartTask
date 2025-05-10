@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.Models.Notification;
 using SmartTask.DataAccess.Data;
-using SmartTask.Core.ViewModels;
 //using SignalRProject.Models;
 //using SignalRProject.ViewModels;
 using System.Security.Claims;
@@ -26,7 +25,7 @@ namespace SignalRProject.Service.Hubs
             Clients.All.SendAsync("newnotifcation", notification);
         }
 
-        public void sendToGroup(NotificationVM notification,string groupName)
+        public void sendToGroup(Notification notification,string groupName)
         {
             Clients.Group(groupName).SendAsync("groupTask", notification);
         }

@@ -17,12 +17,6 @@ namespace SmartTask.Core.Models
         [Required]
         public DateTime AssignedAt { get; set; }
 
-        [Column(TypeName = "Date")]
-        public DateTime? StartDate { get; set; }
-
-        [Column(TypeName = "Date")]
-        public DateTime? EndDate { get; set; }
-
         [StringLength(50)]
         public string Status { get; set; }
 
