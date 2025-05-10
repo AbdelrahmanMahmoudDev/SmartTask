@@ -1,0 +1,340 @@
+﻿@model SmartTask.Web.ViewModels.ProjectVM.ProjectsProgressViewModel
+
+@{
+    ViewData["Title"] = "Projects";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Section with Enhanced Styling -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-1 fw-bold text-primary">Projects Dashboard</h1>
+            <p class="text-muted">Track and manage your project portfolio</p>
+        </div>
+        <a href="@Url.Action(action:"Create",controller:"Project")" class="btn btn-primary btn-lg shadow-sm">
+            <i class="fas fa-plus me-2"></i> New Project
+        </a>
+    </div>
+
+    <!-- Enhanced Search Bar -->
+    <div class="mb-4">
+        <div class="input-group input-group-lg shadow-sm rounded">
+            <span class="input-group-text bg-white border-end-0">
+                <i class="fas fa-search text-primary"></i>
+            </span>
+            <input type="text" id="projectSearch" class="form-control border-start-0" placeholder="Search projects by name, status or team member...">
+        </div>
+    </div>
+
+    <!-- Attractive Project Cards Grid -->
+    <div class="row">
+        @foreach (var project in Model.Projects)
+        {
+            <div class="col-lg-4 col-md-6 mb-4 project-card">
+                <div class="card h-100 shadow-sm hover-card">
+                    <!-- Status Indicator Strip -->
+                    <div class="status-strip @GetStatusClass(project.DaysLeft)"></div>
+
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title fw-bold mb-0 text-primary">@project.Name</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light rounded-circle p-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v text-primary"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("Edit", "Project", new { id = project.Id })">
+                                            <i class="fas fa-pencil-alt me-2 text-primary"></i> Edit
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("Details", "Project", new { id = project.Id })">
+                                            <i class="fas fa-eye me-2 text-info"></i> View
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="javascript:void(0)">
+                                            <i class="fas fa-trash-alt me-2"></i> Delete
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <p class="card-text text-muted mb-3">@project.Description</p>
+
+                        <!-- Enhanced Progress Bar -->
+                        <div class="mb-4">
+                            <label class="form-label d-flex justify-content-between">
+                                <span class="fw-medium">Project Completion</span>
+                                <span class="badge rounded-pill progress-badge @GetProgressBadgeClass(project.ProgressPercentage)">@project.ProgressPercentage%</span>
+                            </label>
+                            <div class="progress progress-enhanced" style="height: 10px;">
+                                <div class="progress-bar @GetProgressBarClass(project.ProgressPercentage)"
+                                     role="progressbar"
+                                     style="width: @project.ProgressPercentage%;"
+                                     aria-valuenow="@project.ProgressPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+
+                        <!-- Project Details with Enhanced Icons -->
+                        <div class="d-flex align-items-center mb-2 detail-row">
+                            <div class="icon-circle bg-light-blue">
+                                <i class="far fa-calendar-alt text-primary"></i>
+                            </div>
+                            @if (project.StartDate.HasValue && project.EndDate.HasValue)
+                            {
+                                <span>@project.StartDate.Value.ToString("MMM d, yyyy") - @project.EndDate.Value.ToString("MMM d, yyyy")</span>
+                            }
+                            else
+                            {
+                                <span class="fst-italic">No dates specified</span>
+                            }
+                        </div>
+
+                        <div class="d-flex align-items-center mb-4 detail-row">
+                            <div class="icon-circle bg-light-blue">
+                                <i class="far fa-user text-primary"></i>
+                            </div>
+                            <span>@project.MembersCount team members</span>
+                        </div>
+
+                        <!-- Card Footer with Enhanced Elements -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge rounded-pill @GetTimelineBadgeClass(project.DaysLeft) py-2 px-3">
+                                @if (project.DaysLeft == 0)
+                                {
+                                    <i class="far fa-clock me-1"></i>
+                                    <span>Due today</span>
+                                }
+                                else if (project.DaysLeft < 0)
+                                {
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    <span>@Math.Abs(project.DaysLeft) days overdue</span>
+                                }
+                                else
+                                {
+                                    <i class="far fa-clock me-1"></i>
+                                    <span>@project.DaysLeft days left</span>
+                                }
+                            </span>
+                            <a href="@Url.Action("Details", "ProjectProgress", new { id = project.Id })" class="btn btn-primary btn-sm shadow-sm">
+                                <i class="fas fa-chart-line me-1"></i> Project Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    string GetStatusClass(int daysLeft)
+    {
+        if (daysLeft < 0) return "status-overdue";
+        if (daysLeft <= 3) return "status-urgent";
+        if (daysLeft <= 7) return "status-soon";
+        return "status-good";
+    }
+
+    string GetProgressBarClass(int percentage)
+    {
+        if (percentage < 25) return "bg-danger";
+        if (percentage < 50) return "bg-warning";
+        if (percentage < 75) return "bg-info";
+        return "bg-success";
+    }
+
+    string GetProgressBadgeClass(int percentage)
+    {
+        if (percentage < 25) return "bg-danger";
+        if (percentage < 50) return "bg-warning";
+        if (percentage < 75) return "bg-info";
+        return "bg-success";
+    }
+
+    string GetTimelineBadgeClass(int daysLeft)
+    {
+        if (daysLeft < 0) return "bg-danger text-white";
+        if (daysLeft == 0) return "bg-warning text-dark";
+        if (daysLeft <= 3) return "bg-warning-subtle text-warning-emphasis";
+        return "bg-light text-dark";
+    }
+}
+
+<!-- Enhanced CSS with modern design elements -->
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-light: #eef2ff;
+        --success: #38b000;
+        --success-light: #e3f8e8;
+        --warning: #ff9e00;
+        --warning-light: #fff8e6;
+        --danger: #e63946;
+        --danger-light: #ffe8ea;
+        --info: #4cc9f0;
+        --info-light: #e5f9fe;
+        --dark: #2b2d42;
+        --light-blue: #eef2ff;
+    }
+
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .text-primary {
+        color: var(--primary) !important;
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+
+        .btn-primary:hover {
+            background-color: #364fc7;
+            border-color: #364fc7;
+        }
+
+    .bg-primary-subtle {
+        background-color: var(--primary-light) !important;
+    }
+
+    .bg-success-subtle {
+        background-color: var(--success-light) !important;
+    }
+
+    .bg-warning-subtle {
+        background-color: var(--warning-light) !important;
+    }
+
+    .bg-danger-subtle {
+        background-color: var(--danger-light) !important;
+    }
+
+    .text-success {
+        color: var(--success) !important;
+    }
+
+    .text-warning {
+        color: var(--warning) !important;
+    }
+
+    .text-danger {
+        color: var(--danger) !important;
+    }
+
+    .text-info {
+        color: var(--info) !important;
+    }
+
+    .text-warning-emphasis {
+        color: #975e00 !important;
+    }
+
+    /* Card Styling */
+    .hover-card {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+    }
+
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+
+    /* Status Strip */
+    .status-strip {
+        height: 4px;
+        width: 100%;
+    }
+
+    .status-overdue {
+        background-color: var(--danger);
+    }
+
+    .status-urgent {
+        background-color: var(--warning);
+    }
+
+    .status-soon {
+        background-color: var(--info);
+    }
+
+    .status-good {
+        background-color: var(--success);
+    }
+
+    /* Progress Bar */
+    .progress-enhanced {
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        transition: width 1s ease;
+    }
+
+    .progress-badge {
+        font-weight: 600;
+    }
+
+    /* Detail rows */
+    .detail-row {
+        margin-bottom: 10px;
+    }
+
+    .icon-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+    }
+
+    .bg-light-blue {
+        background-color: var(--light-blue);
+    }
+
+    /* Task Stat Boxes */
+    .task-stat-box {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+    }
+
+        .task-stat-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+        }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Search functionality
+            $("#projectSearch").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $(".project-card").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+
+            // Animate progress bars on page load
+            $(".progress-bar").each(function() {
+                var width = $(this).css('width');
+                $(this).css('width', '0');
+                $(this).animate({width: width}, 1000);
+            });
+        });
+    </script>
+}

@@ -168,13 +168,24 @@ namespace SmartTask.Web.Controllers
             ViewBag.Managers = new SelectList(managers, "Id", "FullName", selectedManagerId);
             ViewBag.AllUsers = allUsers;
         }
-<<<<<<< HEAD
-    }
-}
-=======
+
+
+            private IEnumerable<Department> GetDepartments()
+            {
+                return new List<Department>
+        {
+            new Department { Id = 1, Name = "IT Department" },
+            new Department { Id = 2, Name = "HR Department" },
+            new Department { Id = 3, Name = "Finance Department" },
+            new Department { Id = 4, Name = "Marketing Department" },
+            new Department { Id = 5, Name = "Sales Department" }
+        };
+            }
+
+
 
         //GetDepartments method is returning the IEnumerable Departments from database
-        
+
         [HttpGet]
         public ActionResult GetData()
         {
@@ -205,7 +216,7 @@ namespace SmartTask.Web.Controllers
             var branches = GetDepartments();
             int totalRecords = branches.Count();
 
-            
+
 
             //Filter(Search)
             if (!string.IsNullOrEmpty(searchValue))
@@ -258,6 +269,9 @@ namespace SmartTask.Web.Controllers
             });
 
         }
+
     }
 }
->>>>>>> 77eda7548881e2db2c4ca34507fa7e377af00f87
+
+
+  
