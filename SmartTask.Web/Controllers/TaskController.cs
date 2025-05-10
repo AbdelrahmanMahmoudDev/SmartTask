@@ -94,7 +94,7 @@ namespace SmartTask.Web.Controllers
 
         public async Task<IActionResult> TasksForProject(int projectId)
         {
-            var tasks = await _context.Tasks.ToListAsync();
+            var tasks = await _context.Tasks.Where(x=>x.ProjectId == projectId).ToListAsync();
             return View("Tasks", tasks);
         }
 
