@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using TaskModel = SmartTask.Core.Models.Task;
 
 namespace SmartTask.Web.Controllers
 {
+    [Authorize]
     public class TaskController : Controller
     {
         private readonly SmartTaskContext _context;
@@ -41,7 +43,6 @@ namespace SmartTask.Web.Controllers
             }
             return PartialView("_DetailsPartial", task);
         }
-        [HttpGet]
 
         [HttpPost]
         public async Task<IActionResult> AddComment(int taskId, string authorId, string content)
@@ -133,7 +134,7 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> DeleteTask(int taskid)
         {
             var task = _context.Tasks.FirstOrDefault(x => x.Id == taskid);
-            if (task.Description == "")
+            if (task.Status != Core.Models.Enums.Status.Todo)
             {
                 return BadRequest("Task can't be deleted because it has started.");
             }
