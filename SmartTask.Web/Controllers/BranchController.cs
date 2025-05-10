@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -205,19 +206,102 @@ namespace SmartTask.Web.Controllers
 
 
             // Advanced filter parameters
-            var location = Request.Query["location"].FirstOrDefault();
-            var position = Request.Query["position"].FirstOrDefault();
-            var startDateStr = Request.Query["startDate"].FirstOrDefault();
-            var endDateStr = Request.Query["endDate"].FirstOrDefault();
-            var minSalaryStr = Request.Query["minSalary"].FirstOrDefault();
-            var maxSalaryStr = Request.Query["maxSalary"].FirstOrDefault();
-            var minAgeStr = Request.Query["minAge"].FirstOrDefault();
-            var maxAgeStr = Request.Query["maxAge"].FirstOrDefault();
+            var name = Request.Query["name"].FirstOrDefault();
+            var manager = Request.Query["manager"].FirstOrDefault();
+            //var startDateStr = Request.Query["startDate"].FirstOrDefault();
+            //var endDateStr = Request.Query["endDate"].FirstOrDefault();
+            //var minSalaryStr = Request.Query["minSalary"].FirstOrDefault();
+            //var maxSalaryStr = Request.Query["maxSalary"].FirstOrDefault();
+            //var minAgeStr = Request.Query["minAge"].FirstOrDefault();
+            //var maxAgeStr = Request.Query["maxAge"].FirstOrDefault();
+
+            //DateTime? startDate = null;
+            //DateTime? endDate = null;
+            //int? minSalary = null;
+            //int? maxSalary = null;
+            //int? minAge = null;
+            //int? maxAge = null;
+
+            //if (!string.IsNullOrEmpty(startDateStr))
+            //{
+            //    if (DateTime.TryParseExact(startDateStr, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedStartDate))
+            //    {
+            //        startDate = parsedStartDate;
+            //    }
+            //}
+
+            //if (!string.IsNullOrEmpty(endDateStr))
+            //{
+            //    if (DateTime.TryParseExact(endDateStr, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedEndDate))
+            //    {
+            //        endDate = parsedEndDate.AddDays(1).AddSeconds(-1); // End of day
+            //    }
+            //}
+
+            //if (!string.IsNullOrEmpty(minSalaryStr) && int.TryParse(minSalaryStr, out int parsedMinSalary))
+            //{
+            //    minSalary = parsedMinSalary;
+            //}
+
+            //if (!string.IsNullOrEmpty(maxSalaryStr) && int.TryParse(maxSalaryStr, out int parsedMaxSalary))
+            //{
+            //    maxSalary = parsedMaxSalary;
+            //}
+
+            //if (!string.IsNullOrEmpty(minAgeStr) && int.TryParse(minAgeStr, out int parsedMinAge))
+            //{
+            //    minAge = parsedMinAge;
+            //}
+
+            //if (!string.IsNullOrEmpty(maxAgeStr) && int.TryParse(maxAgeStr, out int parsedMaxAge))
+            //{
+            //    maxAge = parsedMaxAge;
+            //}
 
             var branches = GetBranchs();
             int totalRecords = branches.Count();
 
-            
+            if (!string.IsNullOrEmpty(name))
+            {
+                branches = branches.Where(x => x.Name == name).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(manager))
+            {
+                branches = branches.Where(x => x.ManagerId == manager).ToList();
+            }
+
+            //if (startDate.HasValue)
+            //{
+            //    employees = employees.Where(x => x.StartDate >= startDate.Value).ToList();
+            //}
+
+            //if (endDate.HasValue)
+            //{
+            //    employees = employees.Where(x => x.StartDate <= endDate.Value).ToList();
+            //}
+
+            //if (minSalary.HasValue)
+            //{
+            //    employees = employees.Where(x => x.Salary >= minSalary.Value).ToList();
+            //}
+
+            //if (maxSalary.HasValue)
+            //{
+            //    employees = employees.Where(x => x.Salary <= maxSalary.Value).ToList();
+            //}
+
+            //if (minAge.HasValue)
+            //{
+            //    employees = employees.Where(x => x.Age >= minAge.Value).ToList();
+            //}
+
+            //if (maxAge.HasValue)
+            //{
+            //    employees = employees.Where(x => x.Age <= maxAge.Value).ToList();
+            //}
+
+
 
             //Filter(Search)
             if (!string.IsNullOrEmpty(searchValue))

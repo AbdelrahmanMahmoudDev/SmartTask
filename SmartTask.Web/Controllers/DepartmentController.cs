@@ -169,6 +169,11 @@ namespace SmartTask.Web.Controllers
             ViewBag.AllUsers = allUsers;
         }
 
+
+            
+
+
+
         //GetDepartments method is returning the IEnumerable Departments from database
         [HttpGet]
         private IEnumerable<Department> GetDepartments()
@@ -213,7 +218,7 @@ namespace SmartTask.Web.Controllers
             var branches = GetDepartments();
             int totalRecords = branches.Count();
 
-            
+
 
             //Filter(Search)
             if (!string.IsNullOrEmpty(searchValue))
@@ -266,5 +271,9 @@ namespace SmartTask.Web.Controllers
             });
 
         }
+
     }
 }
+
+
+  
