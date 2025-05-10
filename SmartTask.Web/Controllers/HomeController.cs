@@ -22,6 +22,7 @@ namespace SmartTask.Web.Controllers
             
             return View();
         }
+      
         [Authorize]
         public IActionResult Privacy()
         {
