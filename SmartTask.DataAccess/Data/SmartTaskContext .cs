@@ -4,7 +4,10 @@ using SmartTask.Core.Models;
 using SmartTask.Core.Models.BasePermission;
 using SmartTask.Core.Models.AuditModels;
 using TaskModel = SmartTask.Core.Models.Task;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using SmartTask.Core.Models.Notification;
+
 
 namespace SmartTask.DataAccess.Data
 {
@@ -14,8 +17,12 @@ namespace SmartTask.DataAccess.Data
     /// </summary>
     public class SmartTaskContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
-        public SmartTaskContext(DbContextOptions<SmartTaskContext> options) : base(options)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public SmartTaskContext(DbContextOptions<SmartTaskContext> options,
+            IHttpContextAccessor httpContextAccessor) : base(options)
         {
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public DbSet<TaskModel> Tasks { get; set; }
@@ -111,11 +118,7 @@ namespace SmartTask.DataAccess.Data
                 .HasForeignKey(t => t.UpdatedById)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<TaskModel>()
-                .HasOne(t => t.AssignedTo)
-                .WithMany(u => u.AssignedTasks)
-                .HasForeignKey(t => t.AssignedToId)
-                .OnDelete(DeleteBehavior.Restrict);
+       
 
             // Assignment History
             modelBuilder.Entity<AssignTask>()
@@ -141,12 +144,21 @@ namespace SmartTask.DataAccess.Data
             //modelBuilder.Entity<User>()
             //    .ToTable("Users");
         }
-        public async Task<int> SaveChangesAsync(string UserId, string UserName)
-        {
-            BeforeSaveChanges(UserId, UserName);
-            var result = await base.SaveChangesAsync();
 
-            return result;
+        //Auditing 
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var UserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "System";
+            var UserName = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "System";
+            BeforeSaveChanges(UserId, UserName);
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+        public override int SaveChanges()
+        {
+            var UserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "System";
+            var UserName = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "System";
+            BeforeSaveChanges(UserId, UserName);
+            return base.SaveChanges();
         }
         private void BeforeSaveChanges(string UserId, string UserName)
         {

@@ -55,6 +55,7 @@ namespace SmartTask.Web
             RegisterRepositories(builder.Services);
 
             builder.Services.AddScoped(typeof(IPaginatedService<>), typeof(PaginatedService<>));
+            builder.Services.AddHttpContextAccessor();
 
             var app = builder.Build();
             using var scope = app.Services.CreateScope();
@@ -99,7 +100,7 @@ namespace SmartTask.Web
         private static void RegisterRepositories(IServiceCollection services)
         {
             services.AddSingleton<IMvcControllerDiscovery, MvcControllerDiscovery>();
-            services.AddSingleton(new DynamicAuthorizationOptions { DefaultAdminUser = "aelashry@outlook.com" });
+            services.AddSingleton(new DynamicAuthorizationOptions { DefaultAdminUser = "ahmedramadan.l403@gmail.com" });
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<INotificationService, NotificationService>();
 
@@ -124,6 +125,7 @@ namespace SmartTask.Web
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserLoginHistoryRepository, UserLoginHistoryRepository>();
             services.AddScoped<IAuditRepository, AuditRepository>();
+            
         }
     }
 }

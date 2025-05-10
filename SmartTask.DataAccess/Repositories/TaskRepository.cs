@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.IRepositories;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using SmartTask.Core.Models.Enums;
 using SmartTask.DataAccess.Data;
 using ModelTask = SmartTask.Core.Models.Task;
 
@@ -23,7 +21,7 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Tasks
                 .Include(t => t.Project)
-                .Include(t => t.AssignedTo)
+                .Include(t => t.Assignments)
                 .Include(t => t.CreatedBy)
                 .ToListAsync();
         }
@@ -32,7 +30,7 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Tasks
                 .Include(t => t.Project)
-                .Include(t => t.AssignedTo)
+                .Include(t => t.Assignments)
                 .Include(t => t.ParentTask)
                 .Include(t => t.CreatedBy)
                 .Include(t => t.UpdatedBy)
@@ -43,7 +41,7 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Tasks
                 .Include(t => t.Project)
-                .Include(t => t.AssignedTo)
+                .Include(t => t.Assignments)
                 .Include(t => t.ParentTask)
                 .Include(t => t.CreatedBy)
                 .Include(t => t.UpdatedBy)
@@ -67,7 +65,7 @@ namespace SmartTask.DataAccess.Repositories
         public async Task<IEnumerable<ModelTask>> GetByProjectIdAsync(int projectId)
         {
             return await _context.Tasks
-                .Include(t => t.AssignedTo)
+                .Include(t => t.Assignments)
                 .Where(t => t.ProjectId == projectId)
                 .ToListAsync();
         }
@@ -76,14 +74,15 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Tasks
                 .Include(t => t.Project)
-                .Where(t => t.AssignedToId == userId)
-                .ToListAsync();
+               .Where(t => t.Assignments.Any(a => a.UserId == userId))
+        .ToListAsync();
+
         }
 
         public async Task<IEnumerable<ModelTask>> GetByParentTaskIdAsync(int parentTaskId)
         {
             return await _context.Tasks
-                .Include(t => t.AssignedTo)
+                .Include(t => t.Assignments)
                 .Where(t => t.ParentTaskId == parentTaskId)
                 .ToListAsync();
         }
@@ -92,34 +91,34 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Tasks
                 .Include(t => t.Project)
-                .Include(t => t.AssignedTo)
+                .Include(t => t.Assignments)
                 .Where(t => t.CreatedById == userId)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ModelTask>> GetTasksByStatusAsync(string status)
+        public async Task<IEnumerable<ModelTask>> GetTasksByStatusAsync(Status status)
         {
             return await _context.Tasks
                 .Include(t => t.Project)
-                .Include(t => t.AssignedTo)
+                .Include(t => t.Assignments)
                 .Where(t => t.Status == status)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ModelTask>> GetTasksByPriorityAsync(string priority)
+        public async Task<IEnumerable<ModelTask>> GetTasksByPriorityAsync(Priority priority)
         {
             return await _context.Tasks
                 .Include(t => t.Project)
-                .Include(t => t.AssignedTo)
+                .Include(t => t.Assignments)
                 .Where(t => t.Priority == priority)
                 .ToListAsync();
         }
 
-        public async Task<ModelTask> AddAsync(ModelTask task)
+        public async Task AddAsync(ModelTask task)
         {
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
-            return task;
+
         }
 
         public async Task UpdateAsync(ModelTask task)
@@ -141,6 +140,12 @@ namespace SmartTask.DataAccess.Repositories
         public async Task<bool> ExistsAsync(int id)
         {
             return await _context.Tasks.AnyAsync(t => t.Id == id);
+        }
+
+        public async Task<IEnumerable<ModelTask>> GetAllTasksPerProject(int projectId)
+        {
+
+            return await _context.Tasks.Where(t => t.ProjectId == projectId).Include(t => t.Project).ToListAsync();
         }
     }
 }

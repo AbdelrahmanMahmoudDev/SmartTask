@@ -22,5 +22,11 @@ namespace SmartTask.DataAccess.Repositories
         {
            return _smartTaskContext.UserLoginHistories.ToList();
         }
+        public void AddUserLoginHistory(UserLoginHistory userLoginHistory)
+        {
+            _smartTaskContext.UserLoginHistories.Add(userLoginHistory);
+            _smartTaskContext.SaveChanges();
+        }
+
     }
 }

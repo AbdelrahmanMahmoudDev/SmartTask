@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.Models.Notification;
 using SmartTask.DataAccess.Data;
-//using SmartTask.Core.ViewModels;
 //using SignalRProject.Models;
 //using SignalRProject.ViewModels;
 using System.Security.Claims;

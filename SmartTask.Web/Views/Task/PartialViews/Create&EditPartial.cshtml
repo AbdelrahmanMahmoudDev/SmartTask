@@ -1,0 +1,100 @@
+﻿@using SmartTask.Core.Models
+@using SmartTask.Core.Models.Enums
+@model SmartTask.Web.ViewModels.TaskViewModel
+
+@{
+    var projects = new SelectList(ViewBag.Projects, nameof(Project.Id), nameof(Project.Name));
+    var users = new SelectList(ViewBag.Users, nameof(ApplicationUser.Id), nameof(ApplicationUser.FullName));
+    var disable = ViewBag.title == "Create" ? null : "disabled";
+    var tasks = ViewBag.title == "Create" ? null : new SelectList(ViewBag.Tasks, nameof(SmartTask.Core.Models.Task.Id), nameof(SmartTask.Core.Models.Task.Title));
+
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<div class="form-group mb-3">
+    <label asp-for="ProjectName" class="control-label"></label>
+    <select asp-items="@projects" disabled="@(disable)" asp-for="ProjectId" id="ProjectId" onchange="getTasks()" class="form-select">
+        <option value="@null">--Select Project --</option>
+    </select>
+</div>
+
+<div class="form-group mb-3">
+    <label asp-for="AssignedToId" class="control-label"></label> 
+    <select asp-items="@users" asp-for="AssignedToId" class="select2" multiple="multiple">
+    </select>
+</div>
+
+<div class="form-group mb-3">
+    <label asp-for="ParentTask" class="control-label"></label>
+    <select asp-items="tasks" asp-for="ParentTaskId" id="Task" class="form-select">
+        <option value="">--Select Task --</option>
+    </select>
+</div>
+<div class="form-group mb-3">
+    <label asp-for="Title" class="control-label"></label>
+    <input asp-for="Title" class="form-control" />
+    <span asp-validation-for="Title" class="text-danger"></span>
+</div>
+<div class="form-group mb-3">
+    <label asp-for="Description" class="control-label"></label>
+    <input asp-for="Description" class="form-control" />
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>
+<div class="form-group mb-3">
+    <label asp-for="StartDate" class="control-label"></label>
+    <input asp-for="StartDate" class="form-control" />
+    <span asp-validation-for="StartDate" class="text-danger"></span>
+</div>
+<div class="form-group mb-3">
+    <label asp-for="EndDate" class="control-label"></label>
+    <input asp-for="EndDate" class="form-control" />
+    <span asp-validation-for="EndDate" class="text-danger"></span>
+</div>
+<div class="form-group mb-3">
+    <label asp-for="Status" class="control-label"></label>
+    <select  asp-for="Status"   class="form-select">
+		<option  value="@Status.Todo">ToDo</option>
+        <option value="@Status.InProgress">InProgress</option>
+        <option value="@Status.Done">Done</option>
+        <option value="@Status.Cancelled">Cancelled</option>
+    </select>
+</div>
+<div class="form-group mb-3">
+    <label asp-for="Priority" class="control-label"></label>
+    <select asp-for="Priority" class="form-select">
+        <option value="@Priority.High">High</option>
+        <option value="@Priority.Medium">Medium</option>
+        <option value="@Priority.Low">Low</option>
+     
+    </select>
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    function getTasks()
+    {
+       var selectedValue= document.getElementById('ProjectId').value;
+       var tasks = document.getElementById('Task');
+       tasks.innerHTML = `<option value="">--Select Task --</option>`;
+       $.ajax({
+           url:"/Task/GetTaskByProject?id="+selectedValue
+           ,success:function(result)
+           {
+
+               for(let task of result)
+               {
+                   tasks.innerHTML+=`<option value="${task.id}">${task.title}</option>`
+               }
+           }
+       })
+    }
+
+
+</script>
+<partial name="_ValidationScriptsPartial" />
+
+
+
+

@@ -1,22 +1,23 @@
 ﻿@using System.Security.Claims
+@using SmartTask.Core.Models.Enums
 @model SmartTask.Core.Models.Task
 
 @{
-    string status = Model.Status?.ToLower();
-    bool isCancelled = status == "cancel";
+    Status status = Model.Status;
+    bool isCancelled = status == Status.Cancelled;
     int filledSegments = status switch
     {
-        "to do" => 1,
-        "in progress" or "cancel" => 2,
-        "done" => 3,
+        Status.Todo => 1,
+        Status.Cancelled or Status.InProgress => 2,
+        Status.Done => 3,
         _ => 0
     };
     string barColor = status switch
     {
-        "to do" => "bg-primary",
-        "in progress" => "bg-warning",
-        "cancel" => "bg-danger",
-        "done" => "bg-success",
+        Status.Todo => "bg-primary",
+        Status.InProgress => "bg-warning",
+        Status.Cancelled => "bg-danger",
+        Status.Done => "bg-success",
         _ => "bg-secondary"
     };
     string textClass = isCancelled ? "text-decoration-line-through text-muted" : "";
@@ -38,7 +39,7 @@
             <p class="@textClass"><strong>Title:</strong> @Model.Title</p>
             <p>
                 <strong>Priority:</strong>
-                <span class="badge @(Model.Priority == "High" ? "bg-danger" : Model.Priority == "Medium" ? "bg-warning text-dark" : "bg-success")">
+                <span class="badge @(Model.Priority == Priority.High ? "bg-danger" : Model.Priority == Priority.Medium ? "bg-warning text-dark" : "bg-success")">
                     @Model.Priority
                 </span>
             </p>
@@ -103,7 +104,7 @@
                     <label for="commentContent" class="form-label">Add Comment</label>
                     <textarea id="commentContent" name="content" class="form-control" rows="3" required></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Add Comment</button>
+                <button type="submit" class="btn btn-secondary">Add Comment</button>
             </form>
         </div>
     </div>
@@ -126,7 +127,7 @@
                     <label for="attachmentFile" class="form-label">Add Attachment</label>
                     <input type="file" id="attachmentFile" name="file" class="form-control" required />
                 </div>
-                <button type="submit" class="btn btn-primary">Add Attachment</button>
+                <button type="submit" class="btn btn-secondary">Add Attachment</button>
             </form>
         </div>
     </div>

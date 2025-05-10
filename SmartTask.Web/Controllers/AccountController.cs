@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
+using SmartTask.Core.Models.AuditModels;
 using SmartTask.Core.Models.BasePermission;
 using SmartTask.Core.ViewModels;
 using System.Data.SqlTypes;
@@ -13,12 +15,14 @@ namespace SmartTask.Web.Controllers
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly RoleManager<ApplicationRole> roleManager;
+        private readonly IUserLoginHistoryRepository _userLoginHistory;
 
-        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, RoleManager<ApplicationRole> _roleManager)
+        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, RoleManager<ApplicationRole> _roleManager, IUserLoginHistoryRepository userLoginHistory)
         {
             userManager = _userManager;
             signInManager = _signInManager;
             roleManager = _roleManager;
+            _userLoginHistory = userLoginHistory;
         }
 
         [HttpGet]
@@ -49,6 +53,14 @@ namespace SmartTask.Web.Controllers
                     if (result)
                     {
                         await signInManager.SignInAsync(user, isPersistent: account.RememberMe);
+                        _userLoginHistory.AddUserLoginHistory(new UserLoginHistory
+                        {
+                            UserId = user.Id,
+                            LoginTime = DateTime.Now,
+                            IPAddress = HttpContext.Connection.RemoteIpAddress.ToString(),
+                            UserAgent = HttpContext.Request.Headers["User-Agent"].ToString(),
+                            UserName = user.UserName
+                        });
                         return RedirectToAction("Index", "Home");
                     }
                 }

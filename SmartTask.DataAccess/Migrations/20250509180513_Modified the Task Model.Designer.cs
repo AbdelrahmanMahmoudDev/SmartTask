@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartTask.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
-    partial class SmartTaskContextModelSnapshot : ModelSnapshot
+    [Migration("20250509180513_Modified the Task Model")]
+    partial class ModifiedtheTaskModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -259,8 +262,10 @@ namespace SmartTask.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("TaskId", "UserId");
 
@@ -721,8 +726,10 @@ namespace SmartTask.DataAccess.Migrations
                     b.Property<int?>("ParentTaskId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
@@ -730,8 +737,10 @@ namespace SmartTask.DataAccess.Migrations
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("Date");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Title")
                         .IsRequired()

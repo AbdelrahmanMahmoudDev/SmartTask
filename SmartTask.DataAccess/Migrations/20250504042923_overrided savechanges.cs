@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmartTask.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class SmartContext : Migration
+    public partial class overridedsavechanges : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

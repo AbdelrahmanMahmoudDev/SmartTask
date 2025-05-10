@@ -10,6 +10,7 @@ namespace SmartTask.Core.IRepositories
     public interface IUserLoginHistoryRepository
     {
         public List<UserLoginHistory> GetAllUserLoginHistories();
+        public void AddUserLoginHistory(UserLoginHistory userLoginHistory);
 
     }
 }
