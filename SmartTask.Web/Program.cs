@@ -128,6 +128,8 @@ namespace SmartTask.Web
             services.AddScoped<IAuditRepository, AuditRepository>();
             services.AddScoped<TaskService>();
 
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            
         }
     }
 }

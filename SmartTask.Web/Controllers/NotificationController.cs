@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using SmartTask.Web.Models;
+//using SmartTask.Web.Models;
 //using SignalRNotifications.Hubs;
 using SmartTask.Web.Controllers;
 
