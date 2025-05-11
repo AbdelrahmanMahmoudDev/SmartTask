@@ -34,10 +34,16 @@ function initializeNotifications()
 
     });
 
-    connection.on("newassignedtask", function (notification) {
+    connection.on("assignedtask", function (notification) {
         console.log('new assign task');
-
-        toastr.info(notification.message, "Success");
+        if (notification.type == "NewTask")
+        {
+            toastr.info(notification.message, "Success");
+        }
+        else if (notification.type == "UpdateTask")
+        {
+            toastr.warning(notification.message, "Warning");
+        }
 
     });
 
