@@ -35,8 +35,7 @@ namespace SmartTask.Web.Controllers
         public TaskController(ITaskRepository taskRepository, IProjectRepository projectRepository,
             UserManager<ApplicationUser> usermanager, SmartTaskContext context, 
             IAssignTaskRepository assignTaskRepository,INotificationRepository notificationRepository,
-            IHubContext<NotificationHub> hub)
-            IAssignTaskRepository assignTaskRepository, IHubContext<NotificationHub> hub, TaskService taskService
+            IHubContext<NotificationHub> hub, TaskService taskService
             , IWebHostEnvironment environment)
         {
             _taskRepository = taskRepository;
@@ -138,9 +137,9 @@ namespace SmartTask.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult SaveSelectedTasks(int SelectedTaskId, List<int> selectedTaskIds)
+        public async Task<IActionResult> SaveSelectedTasks(int SelectedTaskId, List<int> selectedTaskIds)
         {
-           _taskService.SaveSelectedTasks(SelectedTaskId,selectedTaskIds);
+           await _taskService.SaveSelectedTasks(SelectedTaskId,selectedTaskIds);
             return Ok();
         }
 

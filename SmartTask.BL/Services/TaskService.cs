@@ -118,7 +118,7 @@ namespace SmartTask.BL.Services
             var task =await _taskRepository.GetByIdAsync(id);
             var allTasks =await _taskRepository.GetByProjectIdAsync(task.ProjectId);
 
-            var taskdepn=(await _taskDependencyRepository.GetAllAsync())
+            var taskdepn=(await _taskDependencyRepository.GetAllAsync()).ToList()
                 .Where(x => x.Predecessor.ProjectId == task.ProjectId).ToList();
 
             taskdepn.ForEach(t =>
