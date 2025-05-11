@@ -126,7 +126,8 @@ namespace SmartTask.Web
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserLoginHistoryRepository, UserLoginHistoryRepository>();
             services.AddScoped<IAuditRepository, AuditRepository>();
-            
+            services.AddScoped<TaskService>();
+
         }
     }
 }

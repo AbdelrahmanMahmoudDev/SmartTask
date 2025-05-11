@@ -39,7 +39,7 @@ namespace SmartTask.DataAccess.Repositories
 
         public async Task<ModelTask> GetWithDetailsAsync(int id)
         {
-            return await _context.Tasks
+            var task= await _context.Tasks.Where(t => t.Id == id)
                 .Include(t => t.Project)
                 .Include(t => t.Assignments)
                 .Include(t => t.ParentTask)
@@ -47,9 +47,7 @@ namespace SmartTask.DataAccess.Repositories
                 .Include(t => t.UpdatedBy)
                 .Include(t => t.SubTasks)
                 .Include(t => t.PredecessorDependencies)
-                    .ThenInclude(td => td.Predecessor)
                 .Include(t => t.SuccessorDependencies)
-                    .ThenInclude(td => td.Successor)
                 .Include(t => t.Comments)
                     .ThenInclude(c => c.Author)
                 .Include(t => t.Attachments)
@@ -59,7 +57,17 @@ namespace SmartTask.DataAccess.Repositories
                 .Include(t => t.AISuggestions)
                 .Include(t => t.Assignments)
                     .ThenInclude(a => a.User)
-                .FirstOrDefaultAsync(t => t.Id == id);
+                .FirstOrDefaultAsync();
+            foreach (var dep in task.PredecessorDependencies)
+            {
+                _context.Entry(dep).Reference(d => d.Successor).Load();
+            }
+
+            foreach (var dep in task.SuccessorDependencies)
+            {
+                _context.Entry(dep).Reference(d => d.Predecessor).Load();
+            }
+            return task;
         }
 
         public async Task<IEnumerable<ModelTask>> GetByProjectIdAsync(int projectId)
@@ -74,6 +82,7 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Tasks
                 .Include(t => t.Project)
+                .Include(t => t.Assignments)
                .Where(t => t.Assignments.Any(a => a.UserId == userId))
         .ToListAsync();
 
