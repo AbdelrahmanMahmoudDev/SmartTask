@@ -10,13 +10,14 @@ using SmartTask.Web.CustomFilter;
 using SmartTask.DataAccess.Data;
 using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
-using SmartTask.Bl.Hubs;
+
 using SmartTask.Core.IExternalServices;
 using SmartTask.Bl.IServices;
 using SmartTask.Bl.Services;
 
 using System;
 using task=System.Threading.Tasks.Task;
+using SmartTask.BL.Service.Hubs;
 namespace SmartTask.Web
 {
     public class Program
@@ -43,14 +44,19 @@ namespace SmartTask.Web
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection"),
                     sqlOptions => sqlOptions.EnableRetryOnFailure()));
-
-            builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<SmartTaskContext>();
+            builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(option =>
+            {
+                option.Password.RequiredLength = 4;
+                option.Password.RequireDigit = false;
+                option.Password.RequireUppercase = false;
+                option.Password.RequireNonAlphanumeric = false;
+            }).AddEntityFrameworkStores<SmartTaskContext>();
 
             // Dependency Injection
             RegisterRepositories(builder.Services);
 
             builder.Services.AddScoped(typeof(IPaginatedService<>), typeof(PaginatedService<>));
+            builder.Services.AddHttpContextAccessor();
 
             // IUser service
             builder.Services.AddScoped<IUserService, UserService>();
@@ -100,7 +106,7 @@ namespace SmartTask.Web
         private static void RegisterRepositories(IServiceCollection services)
         {
             services.AddSingleton<IMvcControllerDiscovery, MvcControllerDiscovery>();
-            services.AddSingleton(new DynamicAuthorizationOptions { DefaultAdminUser = "aelashry@outlook.com" });
+            services.AddSingleton(new DynamicAuthorizationOptions { DefaultAdminUser = "ahmedramadan.l403@gmail.com" });
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<INotificationService, NotificationService>();
 
@@ -132,6 +138,10 @@ namespace SmartTask.Web
            
 
 
+            services.AddScoped<TaskService>();
+
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            
         }
     }
 }

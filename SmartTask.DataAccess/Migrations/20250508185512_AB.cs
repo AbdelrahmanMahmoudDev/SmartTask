@@ -6,7 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmartTask.DataAccess.Migrations
 {
     /// <inheritdoc />
+<<<<<<<< HEAD:SmartTask.DataAccess/Migrations/20250508185512_AB.cs
     public partial class AB : Migration
+========
+    public partial class overridedsavechanges : Migration
+>>>>>>>> origin/MK:SmartTask.DataAccess/Migrations/20250504042923_overrided savechanges.cs
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

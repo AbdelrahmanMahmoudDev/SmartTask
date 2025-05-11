@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
+using SmartTask.Core.Models.AuditModels;
 using SmartTask.Core.Models.BasePermission;
-using SmartTask.Web.ViewModels;
+using SmartTask.Core.ViewModels;
+using System.Data.SqlTypes;
 
 namespace SmartTask.Web.Controllers
 {
@@ -12,12 +15,14 @@ namespace SmartTask.Web.Controllers
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly RoleManager<ApplicationRole> roleManager;
+        private readonly IUserLoginHistoryRepository _userLoginHistory;
 
-        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, RoleManager<ApplicationRole> _roleManager)
+        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, RoleManager<ApplicationRole> _roleManager, IUserLoginHistoryRepository userLoginHistory)
         {
             userManager = _userManager;
             signInManager = _signInManager;
             roleManager = _roleManager;
+            _userLoginHistory = userLoginHistory;
         }
 
         [HttpGet]
@@ -29,15 +34,33 @@ namespace SmartTask.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel account)
         {
+            ApplicationUser user = new ApplicationUser();   
+            Console.WriteLine($"{account.UserName}");
             if (ModelState.IsValid)
             {
-                ApplicationUser user = await userManager.FindByNameAsync(account.UserName);
+                try
+                {
+                     user = await userManager.FindByNameAsync(account.UserName);
+                    // ApplicationUser user = await userManager.FindByNameAsync("mohamedali");
+                }
+                catch (SqlNullValueException ex)
+                {
+                    Console.WriteLine("Caught null field: " + ex.Message);
+                }
                 if (user != null)
                 {
                     bool result = await userManager.CheckPasswordAsync(user, account.Password);
                     if (result)
                     {
                         await signInManager.SignInAsync(user, isPersistent: account.RememberMe);
+                        _userLoginHistory.AddUserLoginHistory(new UserLoginHistory
+                        {
+                            UserId = user.Id,
+                            LoginTime = DateTime.Now,
+                            IPAddress = HttpContext.Connection.RemoteIpAddress.ToString(),
+                            UserAgent = HttpContext.Request.Headers["User-Agent"].ToString(),
+                            UserName = user.UserName
+                        });
                         return RedirectToAction("Index", "Home");
                     }
                 }

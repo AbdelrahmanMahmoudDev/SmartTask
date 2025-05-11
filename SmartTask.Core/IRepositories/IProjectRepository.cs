@@ -7,6 +7,7 @@ namespace SmartTask.Core.IRepositories
     public interface IProjectRepository
     {
         Task<IEnumerable<Project>> GetAllAsync();
+        Task<IEnumerable<Project>> GetAllAsyncWithoutInclude();
         Task<Project> GetByIdAsync(int id);
         Task<Project> GetWithDetailsAsync(int id);
         Task<IEnumerable<Project>> GetByOwnerIdAsync(string ownerId);

@@ -12,8 +12,13 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
+<<<<<<<< HEAD:SmartTask.DataAccess/Migrations/20250508185512_AB.Designer.cs
     [Migration("20250508185512_AB")]
     partial class AB
+========
+    [Migration("20250504042923_overrided savechanges")]
+    partial class overridedsavechanges
+>>>>>>>> origin/MK:SmartTask.DataAccess/Migrations/20250504042923_overrided savechanges.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

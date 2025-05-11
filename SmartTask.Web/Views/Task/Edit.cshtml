@@ -1,0 +1,33 @@
+﻿@model SmartTask.Web.ViewModels.TaskViewModel
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .form-title {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+</style>
+<div class="row">
+    <div class="container">
+        <div class="form-container">
+            <form asp-action="Edit" asp-route-id="@Model.Id">
+                <h2 class="form-title bg-success">Edit Task</h2>
+                <partial name="PartialViews/Create&EditPartial" model="Model" />
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-success" />
+                    <a asp-action="Index" class="btn btn-info">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

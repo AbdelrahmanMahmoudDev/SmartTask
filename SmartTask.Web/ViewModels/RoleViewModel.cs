@@ -1,7 +1,7 @@
 ﻿using SmartTask.Core.Models.BasePermission;
 using System.ComponentModel.DataAnnotations;
 
-namespace SmartTask.Web.ViewModels
+namespace SmartTask.Core.ViewModels
 {
     public class RoleViewModel
     {

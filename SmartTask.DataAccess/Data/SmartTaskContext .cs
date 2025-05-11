@@ -9,13 +9,21 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskModel = SmartTask.Core.Models.Task;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using SmartTask.Core.Models.Notification;
+
 
 namespace SmartTask.DataAccess.Data
 {
     public class SmartTaskContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
-        public SmartTaskContext(DbContextOptions<SmartTaskContext> options) : base(options)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public SmartTaskContext(DbContextOptions<SmartTaskContext> options,
+            IHttpContextAccessor httpContextAccessor) : base(options)
         {
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public DbSet<TaskModel> Tasks { get; set; }
@@ -31,7 +39,11 @@ namespace SmartTask.DataAccess.Data
         public DbSet<AISuggestion> AISuggestions { get; set; }
         public DbSet<AssignTask> AssignTasks { get; set; }
         public DbSet<Audit> Audits { get; set; }
-        public DbSet<UserLoginHistory> UserLoginHistories { get; set; }
+        public DbSet<UserLoginHistory>UserLoginHistories { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
+        public virtual DbSet<UserGroups> UserGroups { get; set; }
+        public virtual DbSet<UserConnection> UserConnections { get; set; }
+        public virtual DbSet<Groups> Groups { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -131,11 +143,7 @@ namespace SmartTask.DataAccess.Data
                 .HasForeignKey(t => t.UpdatedById)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<TaskModel>()
-                .HasOne(t => t.AssignedTo)
-                .WithMany(u => u.AssignedTasks)
-                .HasForeignKey(t => t.AssignedToId)
-                .OnDelete(DeleteBehavior.Restrict);
+       
 
             // Assignment History
             modelBuilder.Entity<AssignTask>()
@@ -149,53 +157,33 @@ namespace SmartTask.DataAccess.Data
                 .WithMany(u => u.TasksAssigned)
                 .HasForeignKey(at => at.AssignedById)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<UserGroups>()
+           .HasKey(ug => new { ug.UserID, ug.GroupID });
+
+            modelBuilder.Entity<UserConnection>()
+            .HasKey(uc => new { uc.connectionID, uc.UserID });
+
+            // Map User entity to a custom table if needed
+            //modelBuilder.Entity<User>()
+            //    .ToTable("Users");
         }
 
+        //Auditing 
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var UserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "System";
+            var UserName = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "System";
+            BeforeSaveChanges(UserId, UserName);
+            return await base.SaveChangesAsync(cancellationToken);
+        }
         public override int SaveChanges()
         {
-            ValidateUserDepartmentBranchRelationship();
-            //ValidateProjectDepartmentBranchRelationship();
+            var UserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "System";
+            var UserName = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "System";
+            BeforeSaveChanges(UserId, UserName);
             return base.SaveChanges();
-        }
-
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            ValidateUserDepartmentBranchRelationship();
-            //ValidateProjectDepartmentBranchRelationship();
-            return base.SaveChangesAsync(cancellationToken);
-        }
-
-        public async Task<int> SaveChangesAsync(string userId, string userName)
-        {
-            BeforeSaveChanges(userId, userName);
-            ValidateUserDepartmentBranchRelationship();
-            //ValidateProjectDepartmentBranchRelationship();
-            return await base.SaveChangesAsync();
-        }
-
-        private void ValidateUserDepartmentBranchRelationship()
-        {
-            var users = ChangeTracker.Entries<ApplicationUser>()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
-                .Select(e => e.Entity)
-                .ToList();
-
-            foreach (var user in users)
-            {
-                if (user.BranchId != null && user.DepartmentId != null)
-                {
-                    bool relationExists = BranchDepartments.Any(bd =>
-                        bd.BranchId == user.BranchId &&
-                        bd.DepartmentId == user.DepartmentId);
-
-                    if (!relationExists)
-                    {
-                        throw new InvalidOperationException(
-                            $"Department with Id {user.DepartmentId} is not associated with Branch Id {user.BranchId}. " +
-                            "The department must be linked to the branch before assigning the user.");
-                    }
-                }
-            }
         }
 
         //private void ValidateProjectDepartmentBranchRelationship()
