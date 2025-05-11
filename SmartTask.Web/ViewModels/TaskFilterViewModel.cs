@@ -5,7 +5,7 @@ namespace SmartTask.Web.ViewModels
 {
     public class TaskFilterViewModel
     {
-        public Status? Status { get; set; }
+        public Status Status { get; set; }
         public string AssignedToUserId { get; set; }
 
         [DataType(DataType.Date)]

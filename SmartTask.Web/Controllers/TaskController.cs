@@ -249,6 +249,7 @@ namespace SmartTask.Web.Controllers
                 taskViewModels.Add(taskVM);
             }
             ViewBag.Users = await _userManager.Users.ToListAsync();
+            
             return View(taskViewModels);
         }
         [HttpGet]
@@ -401,8 +402,8 @@ namespace SmartTask.Web.Controllers
                 .AsQueryable();
 
 
-            if (filter.Status.HasValue)
-                query = query.Where(t => t.Status == filter.Status.Value);
+            if (filter.Status!=0)
+                query = query.Where(t => t.Status == filter.Status);
 
             if (filter.StartDate.HasValue)
                 query = query.Where(t => t.StartDate == filter.StartDate);

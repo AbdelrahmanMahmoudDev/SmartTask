@@ -1,6 +1,6 @@
 ﻿@using SmartTask.Web.ViewModels
 @model IEnumerable<TaskViewModel>
-
+@using SmartTask.Core.Models.Enums
 @{
     ViewData["Title"] = "Tasks Overview";
 }
@@ -19,11 +19,14 @@
         </div>
         <div class="card-body">
             <form id="filterForm" class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Status</label>
-                    <select name="Status" class="form-select">
-                        <option value="">-- Select Status --</option>
-                        <!-- Add status options here -->
+                <div class="  col-md-3">
+                    <label  class="form-label">Status</label>
+                    <select  class="form-select"name="Status"id="Status">
+                        <option value="@null">Select-Status</option>
+                        <option value="@Status.Todo">ToDo</option>
+                        <option value="@Status.InProgress">InProgress</option>
+                        <option value="@Status.Done">Done</option>
+                        <option value="@Status.Cancelled">Cancelled</option>
                     </select>
                 </div>
 
@@ -92,6 +95,7 @@
                         data: $('#filterForm').serialize(),
                         success: function (partialView) {
                             $('#taskTable').html(partialView).slideDown(200);
+                            
                         },
                         error: function () {
                             alert("Failed to load tasks.");
