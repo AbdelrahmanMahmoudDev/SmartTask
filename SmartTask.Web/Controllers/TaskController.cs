@@ -367,8 +367,9 @@ namespace SmartTask.Web.Controllers
                 //.ThenInclude(a=>a.Branch).ThenInclude(a => a.Department)
                 .AsQueryable();
 
-           
-                query = query.Where(t => t.Status == filter.Status);
+
+            if (filter.Status.HasValue)
+                query = query.Where(t => t.Status == filter.Status.Value);
 
             if (filter.StartDate.HasValue)
                 query = query.Where(t => t.StartDate == filter.StartDate);
