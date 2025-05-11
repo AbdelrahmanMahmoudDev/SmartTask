@@ -170,7 +170,7 @@ namespace SmartTask.Web.Controllers
         }
 
 
-            
+
 
 
 
@@ -185,7 +185,7 @@ namespace SmartTask.Web.Controllers
             Name = "Department1",
 
         },
-        
+
             };
         }
         [HttpGet]
@@ -228,8 +228,8 @@ namespace SmartTask.Web.Controllers
                 branches = branches.Where(x => x.ManagerId == manager).ToList();
             }
 
-                //Filter(Search)
-                if (!string.IsNullOrEmpty(searchValue))
+            //Filter(Search)
+            if (!string.IsNullOrEmpty(searchValue))
             {
                 branches = branches.Where(x => x.Name.ToLower().Contains(searchValue.ToLower())).ToList();
             }
@@ -284,4 +284,3 @@ namespace SmartTask.Web.Controllers
 }
 
 
-  
