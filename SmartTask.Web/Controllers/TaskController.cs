@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
+using SmartTask.BL.Service.Hubs;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
+using SmartTask.Core.Models.Notification;
 using SmartTask.Core.ViewModels;
 using SmartTask.DataAccess.Data;
 using SmartTask.Web.ViewModels;
@@ -23,15 +26,18 @@ namespace SmartTask.Web.Controllers
         private readonly IProjectRepository _projectRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAssignTaskRepository _assignTaskRepository;
+        private readonly IHubContext<NotificationHub> _hub;
 
         public TaskController(ITaskRepository taskRepository, IProjectRepository projectRepository,
-            UserManager<ApplicationUser> usermanager, SmartTaskContext context, IAssignTaskRepository assignTaskRepository)
+            UserManager<ApplicationUser> usermanager, SmartTaskContext context, 
+            IAssignTaskRepository assignTaskRepository, IHubContext<NotificationHub> hub)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
             _userManager = usermanager;
             _context = context;
             _assignTaskRepository = assignTaskRepository;
+            _hub = hub;
         }
 
         public IActionResult Details(int id)
@@ -265,6 +271,9 @@ namespace SmartTask.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TaskViewModel taskVM)
         {
+            // Notification for signalR
+            Notification notification ;
+            string NotificationMessage = "NA";
             var userId = User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier).Value;
             taskVM.CreatedById = userId;
             if (!ModelState.IsValid)
@@ -292,6 +301,23 @@ namespace SmartTask.Web.Controllers
             await _taskRepository.AddAsync(task);
             await _assignTaskRepository.AssignTasksToUserByIds(taskVM.AssignedToId, task, User);
             task.Assignments = await _assignTaskRepository.FindTasksAssignedToUserByIds(taskVM.AssignedToId);
+
+            // Add SignalR
+            var user = await _userManager.GetUserAsync(User);
+            NotificationMessage = $"{user.FullName} Assigned new Task : {taskVM.Title}";
+            foreach (var receiverID in taskVM.AssignedToId)
+            {
+                notification = new Notification
+                {
+                    Message = NotificationMessage,
+                    Type = "Assgin New Task",
+                    SenderId = userId,
+                    ReceiverId = receiverID
+                };
+                //await _hub.Clients.All.SendAsync("newassignedtask", notification);
+                await _hub.Clients.User(receiverID).SendAsync("newassignedtask", notification);
+                //save to db
+            }
             return RedirectToAction(nameof(Index));
         }
 
