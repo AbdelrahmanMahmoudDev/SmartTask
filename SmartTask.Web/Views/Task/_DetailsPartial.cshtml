@@ -89,6 +89,9 @@
         <div class="col-12">
             <h6 class="text-muted">Comments</h6>
             <hr />
+
+            <div id="comments">
+
             @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedAt))
             {
                 <div class="mb-2">
@@ -96,8 +99,8 @@
                     <small class="text-muted">@comment.CreatedAt.ToString("dd-MM-yyyy HH:mm")</small>
                 </div>
             }
-
-            <form method="post" action="@Url.Action("AddComment", "Task")">
+            </div>
+            <form id="commentForm" method="post" action="@Url.Action("AddComment", "Task")">
                 <input type="hidden" name="taskId" value="@Model.Id" />
                 <input type="hidden" name="authorId" value="@userId" />
                 <div class="mb-3">
@@ -121,7 +124,7 @@
                 </div>
             }
 
-            <form method="post" enctype="multipart/form-data" action="@Url.Action("AddAttachment", "Task")">
+            <form id="attachmentForm" method="post" enctype="multipart/form-data" action="@Url.Action("AddAttachment", "Task")">
                 <input type="hidden" name="taskId" value="@Model.Id" />
                 <div class="mb-3">
                     <label for="attachmentFile" class="form-label">Add Attachment</label>
@@ -136,3 +139,48 @@
 <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 </div>
+
+
+
+<script>
+    $(document).ready(function () {
+        $('#commentForm').on('submit', function (e) {
+            e.preventDefault(); 
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                success: function (response) {
+                    $('#commentForm')[0].reset();
+                },
+                error: function (xhr) {
+                    alert('Failed to add comment: ' + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#attachmentForm').on('submit', function (e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    $('#attachmentForm')[0].reset();
+                },
+                error: function (xhr) {
+                    alert('Failed to upload file: ' + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>

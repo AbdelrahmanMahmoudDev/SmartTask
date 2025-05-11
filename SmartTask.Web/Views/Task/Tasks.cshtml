@@ -303,7 +303,7 @@
             type: 'GET',
             data: { taskid: taskId },
             success: function(x) {
-                            document.getElementById('depend').innerText='this task depend on :'+x+' Tasks';
+                            document.getElementById('depend').innerText='this task has '+x+' Tasks depends on it';
                         },
             error: function(xhr) {
                             alert('Error: ' + xhr.responseText);
@@ -322,7 +322,7 @@ function deleteTask(b) {
         type: 'DELETE',
             data: { taskid: a },
         success: function() {
-                        alert('Task deleted successfully!');
+                        @* alert('Task deleted successfully!'); *@
                                 document.getElementById(`row ${a}`).remove();
                     },
         error: function(xhr) {
