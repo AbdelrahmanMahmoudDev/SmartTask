@@ -62,7 +62,7 @@ namespace SmartTask.Web.Controllers
 
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
-
+            return Ok();
             return RedirectToAction("Details", new { id = taskId });
         }
 
@@ -99,7 +99,7 @@ namespace SmartTask.Web.Controllers
 
             _context.Attachments.Add(attachment);
             await _context.SaveChangesAsync();
-
+            return Ok();
             return RedirectToAction("Details", new { id = taskId });
         }
 
@@ -151,7 +151,8 @@ namespace SmartTask.Web.Controllers
         {
             var graph = new Dictionary<int, List<int>>();
             var visited = new HashSet<int>();
-            var allTasks = _context.Tasks;
+            var task=_context.Tasks.FirstOrDefault(x=>x.Id==id);
+            var allTasks = _context.Tasks.Where(x=>x.ProjectId==task.ProjectId);
 
             await _context.TaskDependencies.ForEachAsync(t =>
             {
