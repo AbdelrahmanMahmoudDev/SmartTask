@@ -166,7 +166,7 @@ namespace SmartTask.BL.Services
             {
                 if (!selectedTaskIds.Contains(dependency.PredecessorId))
                 {
-                    await _taskDependencyRepository.DeleteAsync(dependency.PredecessorId);
+                    await _taskDependencyRepository.DeleteAsync(dependency.Id);
                 }
             }
         }
