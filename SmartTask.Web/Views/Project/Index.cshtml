@@ -1,12 +1,15 @@
+
+
 @model SmartTask.Web.ViewModels.ProjectVM.ProjectIndexViewModel
 
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.css">
 <style>
     :root {
-        --primary-color: #e74c3c; 
+        --primary-color: #e74c3c;
         --primary-hover: #c0392b;
         --secondary-color: #ecf0f1;
     }
@@ -31,7 +34,6 @@
             top: 0;
         }
 
-        /* تنسيق خلايا الجدول */
         #projectsTable tbody td {
             padding: 12px 15px;
             vertical-align: middle;
@@ -99,6 +101,69 @@
                 box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
             }
 
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin: 15px 0;
+    }
+
+        .dataTables_wrapper .dataTables_length select {
+            padding: 8px 15px;
+            font-size: 16px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid #d1d3e2;
+            margin: 0 10px;
+        }
+
+        .dataTables_wrapper .dataTables_length label {
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            padding: 10px 20px;
+            font-size: 16px;
+            height: 40px;
+            border-radius: 20px;
+            width: 400px;
+            border: 1px solid #d1d3e2;
+        }
+
+        .dataTables_wrapper .dataTables_filter label {
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+    .dataTables_wrapper .dataTables_info {
+        font-size: 15px;
+        padding: 15px 0;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 8px 15px;
+        font-size: 16px;
+        margin: 0 5px;
+    }
+
+    /* لتحسين الشكل على الأجهزة الصغيرة */
+    @@media (max-width: 768px) {
+        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter
+
+    {
+        text-align: center;
+    }
+
+    .dataTables_wrapper .dataTables_length select {
+        width: 80px;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100%;
+    }
+
+    }
     .btn-action {
         padding: 0.4rem 0.6rem;
         font-size: 0.85rem;
@@ -193,7 +258,7 @@
 
         .btn-create:hover {
             background-color: var(--primary-hover);
-            color: white;
+            color: white !important;
             border-color: var(--primary-hover);
         }
 
@@ -212,6 +277,87 @@
             justify-content: center;
         }
     }
+
+
+    .card-header.bg-light {
+        background-color: #f8f9fa !important;
+        border-bottom: 1px solid #eee;
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+
+    #btnApplyFilter {
+        min-width: 120px;
+    }
+
+    #btnResetFilter {
+        min-width: 100px;
+
+    }
+
+    .daterangepicker {
+        z-index: 1050 !important;
+    }
+
+
+    #projectsTable tbody td {
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+        #projectsTable tbody td:hover {
+            background-color: #f5f5f5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+            #projectsTable tbody td:hover::after {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 3px;
+                height: 100%;
+                background-color: var(--primary-color);
+            }
+
+    .btn-action {
+        transition: all 0.3s ease;
+    }
+
+        .btn-action:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+    .form-control:hover, .form-select:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.1);
+    }
+    .card-body .row {
+        align-items: flex-end;
+    }
+
+    .form-label {
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .btn-outline-secondary {
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .form-control, .form-select {
+        height: 38px;
+    }
+
 </style>
 
 @{
@@ -230,6 +376,50 @@
             </a>
         </secure-content>
     </div>
+
+    @* apply filter *@
+
+    <div class="card">
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-filter me-2"></i>Advanced Filter
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <!-- أضف align-items-end هنا -->
+                    <div class="col-md-2">
+                        <label class="form-label">Project Name</label>
+                        <input type="text" id="filterName" class="form-control" placeholder="Filter by name...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Owner</label>
+                        <input type="text" id="filterOwner" class="form-control" placeholder="Filter by owner...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Status</label>
+                        <select id="filterStatus" class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="Active">Active</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Date Range</label>
+                        <input type="text" id="filterDateRange" class="form-control" placeholder="Select date range...">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <!-- استخدم d-flex و align-items-end -->
+                        <button id="btnResetFilter" class="btn btn-outline-secondary w-100">
+                            <!-- أضف w-100 -->
+                            <i class="fas fa-undo me-1"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <div class="card">
         <div class="card-body">
@@ -329,16 +519,50 @@
     }
 }
 
+
+
+
+
 @section Scripts {
+    <!-- jQuery  -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!--   DataTables -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
 
-    <script>
-        $(document).ready(function() {
-            $('#projectsTable').DataTable({
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js"></script>
+
+
+
+
+
+
+<script>
+    $(document).ready(function() {
+        // Initialize date range picker
+        $('#filterDateRange').daterangepicker({
+            autoUpdateInput: false,
+            locale: {
+                cancelLabel: 'Clear',
+                format: 'DD/MM/YYYY'
+            }
+        });
+
+        $('#filterDateRange').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+            table.draw();
+        });
+
+        $('#filterDateRange').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+            table.draw();
+        });
+                  // Initialize DataTable 
+            var table = $('#projectsTable').DataTable({
                 dom: '<"top"<"row"<"col-md-6"l><"col-md-6"f>>>rt<"bottom"<"row"<"col-md-6"i><"col-md-6"p>>><"clear">',
                 responsive: true,
                 buttons: [
@@ -347,13 +571,8 @@
                         text: '<i class="fas fa-file-excel me-2"></i> Export to Excel',
                         className: 'btn btn-sm',
                         title: 'Projects_List'
-                    },
-                    {
-                        extend: 'print',
-                        text: '<i class="fas fa-print me-2"></i> Print',
-                        className: 'btn btn-sm btn-secondary',
-                        title: 'Projects List'
                     }
+                   
                 ],
                 language: {
                     search: '<i class="fas fa-search me-2"></i>',
@@ -369,16 +588,72 @@
                         previous: '<i class="fas fa-angle-left"></i>'
                     }
                 },
-                columnDefs: [
-                    { orderable: false, targets: 5 },
-                    { className: "dt-nowrap", targets: [2, 3] }
-                ],
                 initComplete: function() {
-                    $('.dt-buttons').addClass('mb-3');
+                    $('.dataTables_length select').addClass('form-select');
                     $('.dataTables_filter input').addClass('form-control');
-                    $('.dataTables_length select').addClass('form-select form-select-sm');
+                    $('.dt-buttons').addClass('mb-3');
+
+                    $('.dataTables_length label').css('font-size', '16px');
+                    $('.dataTables_filter label').css('font-size', '16px');
                 }
             });
+
+
+        // Apply filters on typing
+        $('#filterName, #filterOwner').on('keyup', function() {
+            applyFilters();
         });
-    </script>
+
+        // Apply filters on select change
+        $('#filterStatus').on('change', function() {
+            applyFilters();
+        });
+
+        // Apply all filters function
+        function applyFilters() {
+            // Clear any previous date filters
+            $.fn.dataTable.ext.search.pop();
+
+            // Apply column filters
+            table.columns(0).search($('#filterName').val().trim());
+            table.columns(1).search($('#filterOwner').val().trim());
+            table.columns(4).search($('#filterStatus').val().trim());
+
+            // Date range filtering
+            var dateRange = $('#filterDateRange').val();
+            if (dateRange) {
+                var dates = dateRange.split(' - ');
+                var startDate = moment(dates[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+                var endDate = moment(dates[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+
+                // Add custom filter function for date range
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        var rowStartDate = moment(data[2], 'DD MMM YYYY').format('YYYY-MM-DD');
+                        var rowEndDate = moment(data[3], 'DD MMM YYYY').format('YYYY-MM-DD');
+
+                        return (rowStartDate >= startDate && rowStartDate <= endDate) ||
+                               (rowEndDate >= startDate && rowEndDate <= endDate) ||
+                               (rowStartDate <= startDate && rowEndDate >= endDate);
+                    }
+                );
+            }
+
+            table.draw();
+        }
+
+        // Reset all filters
+        $('#btnResetFilter').click(function() {
+            $('#filterName').val('');
+            $('#filterOwner').val('');
+            $('#filterStatus').val('');
+            $('#filterDateRange').val('');
+
+            // Clear all filters
+            table.columns().search('');
+            $.fn.dataTable.ext.search.pop();
+            table.draw();
+        });
+    });
+</script>
 }
