@@ -171,5 +171,181 @@ namespace SmartTask.Web.Controllers
 
             return View(branch);
         }
+
+
+        //GetBranchs method is returning the IEnumerable Branchs from database
+        [HttpGet]
+        IEnumerable<Branch> GetBranchs()
+        {
+            return new List<Branch>
+            {
+                new Branch
+        {
+            Name = "Ahmed Ali",
+
+        },
+        new Branch
+        {
+            Name = "Mona Hassan",
+
+        },
+        new Branch
+        {
+            Name = "Mohamed Fathy",
+
+        },
+        new Branch
+        {
+            Name = "Fatima Ibrahim",
+
+        },
+        new Branch
+        {
+            Name = "Youssef Tarek",
+
+        },
+        new Branch
+        {
+            Name = "Sara Khaled",
+
+        },
+        new Branch
+        {
+            Name = "Omar Mostafa",
+
+        },
+        new Branch
+        {
+            Name = "Nourhan Adel",
+
+        },
+        new Branch
+        {
+            Name = "Khaled Samir",
+
+        },
+        new Branch
+        {
+            Name = "Salma Ramadan",
+
+        },
+        new Branch
+        {
+            Name = "Ali Mahmoud",
+
+        },
+        new Branch
+        {
+            Name = "Laila ElKady",
+
+        },
+        new Branch
+        {
+            Name = "Amr Tamer",
+
+        },
+        new Branch
+        {
+            Name = "Hala Nasser",
+
+        }, new Branch
+        {
+            Name = "Marwa sayed",
+
+        },
+        new Branch
+        {
+            Name = "Fady Khalil",
+
+        }
+
+            };
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetData()
+        {
+
+            // Get request parameters from DataTables
+            var draw = Request.Query["draw"].FirstOrDefault();
+            var start = Request.Query["start"].FirstOrDefault();
+            var length = Request.Query["length"].FirstOrDefault();
+            var searchValue = Request.Query["search[value]"].FirstOrDefault();
+            var sortColumnIndex = Request.Query["order[0][column]"].FirstOrDefault();
+            var sortDirection = Request.Query["order[0][dir]"].FirstOrDefault();
+
+
+            int pageSize = length != null ? Convert.ToInt32(length) : 0;
+            int skip = start != null ? Convert.ToInt32(start) : 0;
+
+
+            // Advanced filter parameters
+            var location = Request.Query["location"].FirstOrDefault();
+            var position = Request.Query["position"].FirstOrDefault();
+            var startDateStr = Request.Query["startDate"].FirstOrDefault();
+            var endDateStr = Request.Query["endDate"].FirstOrDefault();
+            var minSalaryStr = Request.Query["minSalary"].FirstOrDefault();
+            var maxSalaryStr = Request.Query["maxSalary"].FirstOrDefault();
+            var minAgeStr = Request.Query["minAge"].FirstOrDefault();
+            var maxAgeStr = Request.Query["maxAge"].FirstOrDefault();
+
+            var branches = GetBranchs();
+            int totalRecords = branches.Count();
+
+            
+
+            //Filter(Search)
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+                branches = branches.Where(x => x.Name.ToLower().Contains(searchValue.ToLower())).ToList();
+            }
+
+            // Total records after filtering
+            int totalRecordsFiltered = branches.Count();
+
+            // Sorting
+            if (!string.IsNullOrEmpty(sortColumnIndex) && !string.IsNullOrEmpty(sortDirection))
+            {
+                switch (Convert.ToInt32(sortColumnIndex))
+                {
+                    case 0:
+                        branches = sortDirection == "asc" ? branches.OrderBy(e => e.Name) : branches.OrderByDescending(e => e.Name);
+                        break;
+                    default:
+                        branches = branches.OrderBy(e => e.Name);
+                        break;
+                }
+            }
+
+
+
+            //Pagination 
+            if (pageSize > 0)
+            {
+                branches = branches.Skip(skip).Take(pageSize);
+            }
+
+
+
+            // Format the data for output
+            var result = branches.Select(b => new
+            {
+                b.Id,
+                b.Name,
+                ManagerName = b.Manager != null ? b.Manager.FullName : "N/A"
+            }).ToList();
+
+            // Return JSON data for DataTable
+            return Json(new
+            {
+                draw = draw,
+                recordsTotal = totalRecords,
+                recordsFiltered = totalRecordsFiltered,
+                data = result
+            });
+        }
+
+        
     }
 }
+

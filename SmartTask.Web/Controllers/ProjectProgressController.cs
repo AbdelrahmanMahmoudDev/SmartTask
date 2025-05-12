@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartTask.BL.IServices;
 using SmartTask.Core.Models;
 using SmartTask.Web.ViewModels.ProjectVM;
+using Task = SmartTask.Core.Models.Task;
 
 namespace SmartTask.Web.Controllers
 {
@@ -35,7 +36,7 @@ namespace SmartTask.Web.Controllers
             foreach (var project in userProjects)
             {
                 // Calculate tasks status
-                var tasks = project.Tasks ?? new List<Core.Models.Task>();
+                var tasks = project.Tasks ?? new List<Task>();
                 int totalTasks = tasks?.Count ?? 0;
                 int completedTasks = tasks.Count(t => new[] { "Completed", "Done" }.Contains(t.Status));
                 int inProgressTasks = tasks.Count(t => t.Status == "In Progress");
@@ -85,6 +86,8 @@ namespace SmartTask.Web.Controllers
 
             return View(model);
         }
+
+
 
         //مسئول عن عرض تفاصيل المشروع
         public async Task<IActionResult> Details(int id)

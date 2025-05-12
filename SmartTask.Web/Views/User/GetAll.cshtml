@@ -1,62 +1,249 @@
 ﻿@model SmartTask.Web.ViewModels.UsersViewModel
 
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary-color: #e74c3c;
+        --primary-hover: #c0392b;
+        --secondary-color: #ecf0f1;
+    }
+
+    #usersTable {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+        #usersTable thead th {
+            background-color: #edf2f4;
+            color: black;
+            font-weight: 600;
+            padding: 15px;
+            border: none;
+            position: sticky;
+            top: 0;
+        }
+
+        #usersTable tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        #usersTable tbody tr {
+            transition: all 0.2s;
+        }
+
+            #usersTable tbody tr:hover {
+                background-color: #fef2f1;
+            }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.5em 1em;
+        margin: 0 3px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        transition: all 0.3s;
+    }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--primary-color);
+            color: white !important;
+            border: 1px solid var(--primary-color);
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: var(--primary-hover);
+            color: white !important;
+            border: 1px solid var(--primary-hover);
+        }
+
+    .dataTables_filter input {
+        border-radius: 20px;
+        border: 1px solid #d1d3e2;
+        padding: 8px 15px;
+        width: 300px;
+        margin-left: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+        .dataTables_filter input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+        }
+
+    .btn-sm {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+        margin: 2px;
+        border-radius: 4px;
+    }
+
+    .btn-action {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+        margin: 2px;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .text-muted {
+        color: #6c757d !important;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .btn-create {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        padding: 8px 20px;
+        border-radius: 30px;
+        font-weight: 500;
+        color: white;
+    }
+
+        .btn-create:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+            color: white;
+        }
+</style>
+
 @{
     ViewData["Title"] = "Users";
-    var prevDisabled = !Model.Users.HasPreviousPage ? "disabled" : "";
-    var nextDisabled = !Model.Users.HasNextPage ? "disabled" : "";
 }
 
-<h2>Users</h2>
+<div class="container-fluid py-4">
+    <div class="page-header">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-users text-primary me-2"></i> Users Management
+        </h1>
+        <secure-content asp-area="" asp-controller="User" asp-action="Create">
+            <a asp-action="Create" class="btn btn-create">
+                <i class="fas fa-plus-circle me-2"></i> Create New
+            </a>
+        </secure-content>
+    </div>
 
-<form asp-action="GetAll" method="get" class="mb-3">
-    <input type="text" name="searchString" value="@Model.SearchString" class="form-control" placeholder="Search..." />
-    <button type="submit" class="btn btn-primary mt-2">Search</button>
-</form>
+    <div class="card">
+        <div class="card-body">
+            <table id="usersTable" class="table table-hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-user me-2"></i>Full Name</th>
+                        <th><i class="fas fa-envelope me-2"></i>Email</th>
+                        <th><i class="fas fa-building me-2"></i>Department</th>
+                        <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.Users)
+                    {
+                        <tr>
+                            <td>
+                                <i class="fas fa-user-circle text-primary me-2"></i>
+                                @user?.FullName
+                            </td>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Full Name</th>
-            <th>Email</th>
-            <th>Department</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model.Users)
-        {
-            <tr>
-                <td>@user.FullName</td>
-                <td>@user.Email</td>
-                <td>@user.Department.Name</td>
-                <td>
-                     <secure-content asp-area="" asp-controller="User" asp-action="Edit">
-                    <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Update</a>
-                    </secure-content>
-                       <secure-content asp-area="" asp-controller="User" asp-action="Delete">
-                    <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
-					</secure-content>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<!-- Pagination Controls -->
-<div class="d-flex justify-content-between align-items-center">
-    <a asp-action="GetAll"
-       asp-route-page="@(Model.Users.PageIndex - 1)"
-       asp-route-searchString="@Model.SearchString"
-       class="btn btn-primary @prevDisabled">
-        Previous
-    </a>
-
-    <span>Page @Model.Users.PageIndex of @Model.Users.TotalPages</span>
-
-    <a asp-action="GetAll"
-       asp-route-page="@(Model.Users.PageIndex + 1)"
-       asp-route-searchString="@Model.SearchString"
-       class="btn btn-primary @nextDisabled">
-        Next
-    </a>
+                            <td>@user?.Email</td>
+                            <td>
+                                @if (user?.Department != null)
+                                {
+                                    @user.Department.Name
+                                }
+                                else
+                                {
+                                    <span class="text-muted">N/A</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex">
+                                    <secure-content asp-area="" asp-controller="User" asp-action="Edit">
+                                        <a asp-action="Edit" asp-route-id="@user?.Id" class="btn btn-sm btn-outline-warning me-2">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </secure-content>
+                                    <secure-content asp-area="" asp-controller="User" asp-action="Delete">
+                                        <a asp-action="Delete" asp-route-id="@user?.Id" class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('Are you sure you want to delete this user?')">
+                                            <i class="fas fa-trash-alt"></i> 
+                                        </a>
+                                    </secure-content>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#usersTable').DataTable({
+                dom: '<"top"<"row"<"col-md-6"l><"col-md-6"f>>>rt<"bottom"<"row"<"col-md-6"i><"col-md-6"p>>><"clear">',
+                responsive: true,
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: '<i class="fas fa-file-excel me-2"></i> Export to Excel',
+                        className: 'btn btn-sm',
+                        title: 'Users_List'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fas fa-print me-2"></i> Print',
+                        className: 'btn btn-sm btn-secondary',
+                        title: 'Users List'
+                    }
+                ],
+                language: {
+                    search: '<i class="fas fa-search me-2"></i>',
+                    searchPlaceholder: "Search users...",
+                    lengthMenu: "Show _MENU_ users",
+                    info: "Showing _START_ to _END_ of _TOTAL_ users",
+                    infoEmpty: "No users available",
+                    infoFiltered: "(filtered from _MAX_ total users)",
+                    paginate: {
+                        first: '<i class="fas fa-angle-double-left"></i>',
+                        last: '<i class="fas fa-angle-double-right"></i>',
+                        next: '<i class="fas fa-angle-right"></i>',
+                        previous: '<i class="fas fa-angle-left"></i>'
+                    }
+                },
+                columnDefs: [
+                    { orderable: false, targets: 3 } // تعطيل الترتيب لأعمدة الأكشن
+                ],
+                initComplete: function() {
+                    $('.dt-buttons').addClass('mb-3');
+                    $('.dataTables_filter input').addClass('form-control');
+                    $('.dataTables_length select').addClass('form-select form-select-sm');
+                }
+            });
+        });
+    </script>
+}

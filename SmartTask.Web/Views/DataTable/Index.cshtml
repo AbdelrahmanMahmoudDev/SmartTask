@@ -1,88 +1,12 @@
-﻿@using SmartTask.Web.ViewModels.DepartmentVM
-<!-- Views/Department/Index.cshtml -->
-@model DepartmentIndexViewModel
+﻿
 
-<h1>Departments</h1>
-
-<secure-content asp-area="" asp-controller="Department" asp-action="Create">
-    <a asp-action="Create" class="btn btn-success">Create New</a>
-</secure-content>
-
-<form asp-action="Index" method="get">
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" name="searchString" value="@Model.SearchString"
-               placeholder="Search departments...">
-        <button class="btn btn-outline-secondary" type="submit">Search</button>
-    </div>
-</form>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Manager</th>
-            <th>Department</th>
-            <secure-content asp-area="" asp-controller="Department" asp-action="Edit">
-
-                <th>Edit</th>
-            </secure-content>
-
-            <secure-content asp-area="" asp-controller="Department" asp-action="Delete">
-
-                <th>Delete</th>
-            </secure-content>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var department in Model.Departments)
-        {
-            <tr>
-                <td>@department.Name</td>
-                <td>@department.Manager?.FullName</td>
-              
-                <td><a href="/department/details/@department.Id" class="btn btn-primary">Details</a></td>
-                    <secure-content asp-area="" asp-controller="Branch" asp-action="Edit">
-
-                        <td><a href="/Department/edit/@department.Id" class="btn btn-primary">Edit</a></td>
-                    </secure-content>
-                    <secure-content asp-area="" asp-controller="Department" asp-action="Delete">
-                        <td><a href="/Department/Delete/@department.Id" onclick="return confirm('Are you sure?')" class="btn btn-danger">Delete</a></td>
-
-                    </secure-content>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@{
-    var prevDisabled = !Model.Departments.HasPreviousPage ? "disabled" : "";
-    var nextDisabled = !Model.Departments.HasNextPage ? "disabled" : "";
-}
-
-<a asp-action="Index"
-   asp-route-page="@(Model.Departments.PageIndex - 1)"
-   asp-route-searchString="@Model.SearchString"
-   class="btn btn-primary @prevDisabled">
-    Previous
-</a>
-<a asp-action="Index"
-   asp-route-page="@(Model.Departments.PageIndex + 1)"
-   asp-route-searchString="@Model.SearchString"
-   class="btn btn-primary @nextDisabled">
-    Next
-</a>
-
-@{
-    ViewData["Title"] = "Department Table";
-}
-<!-- ====== CDN CSS Links ====== -->
 <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-<link href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css" rel="stylesheet" />
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.css" rel="stylesheet">
 
-<!-- ====== CUSTOM CSS STYLE ====== -->
+
 <style>
     /* ====== ROOT VARIABLES ====== */
     /* Define color scheme and design tokens for consistent theming */
@@ -203,13 +127,13 @@
     }
 
     /* ====== MAIN TABLE STYLES ====== */
-    #tblDepartments {
+    #tblUsers {
         margin: 0 !important; /* Remove default margins */
         font-size: 1.05rem; /* Slightly larger base font size */
     }
 
         /* Table header styles */
-        #tblDepartments thead th {
+        #tblUsers thead th {
             background-color: #184067; /* Primary color header */
             color: white; /* White text for contrast */
             font-weight: 500; /* Semi-bold headers */
@@ -222,12 +146,12 @@
             vertical-align: middle;
         }
 
-        #tblDepartments tbody td {
+        #tblUsers tbody td {
             vertical-align: middle;
             border-bottom: 1px solid rgba(0,0,0,0.05);
         }
 
-        #tblDepartments tbody tr:hover {
+        #tblUsers tbody tr:hover {
             background-color: rgba(67, 97, 238, 0.03);
         }
 
@@ -543,7 +467,7 @@
             width: 100%;
         }
 
-        #tblDepartments {
+        #tblUsers {
             min-width: 600px;
         }
     }
@@ -554,23 +478,23 @@
             padding: 0;
         }
 
-        #tblDepartments {
+        #tblUsers {
             width: 100% !important;
         }
 
-            #tblDepartments tbody tr {
+            #tblUsers tbody tr {
                 margin-bottom: 1rem;
                 border: 1px solid #e0e0e0;
                 border-radius: 8px;
                 overflow: hidden;
             }
 
-            #tblDepartments td:nth-child(4),
-            #tblDepartments td:nth-child(5) { /* Start Date */
+            #tblUsers td:nth-child(4),
+            #tblUsers td:nth-child(5) { /* Start Date */
                 display: none;
             }
 
-            #tblDepartments td i {
+            #tblUsers td i {
                 font-size: 1rem !important;
             }
     }
@@ -585,7 +509,7 @@
                 margin-top: 0.5rem;
             }
 
-        #tblDepartments td:nth-child(3) { /* Location */
+        #tblUsers td:nth-child(3) { /* Location */
             display: none;
         }
 
@@ -734,125 +658,338 @@
         color: #0d6efd;
     }
 
-    .action-btn {
-        padding: 6px 12px;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        text-align: center;
-        display: inline-block;
-    }
-
-    /* .view-btn { */
-    /*     background-color: #17a2b8; /* أزرق سماوي */ */
-    /* } */
-
-    /* .edit-btn { */
-    /*     background-color: #007bff; /* أزرق */ */
-    /* } */
-
-    /* .delete-btn { */
-    /*     background-color: #dc3545; /* أحمر */ */
-    /* } */
-
-    .create-btn {
-        background-color: #007bfa; /* أصفر */
-        color: #fff;
-    }
-
-
 </style>
 
-<!-- ====== HTML BODY START ====== -->
-<div class="container mt-5">
-    <div class="dashboard-heading mb-4">
-        <div class="heading-icon">
-            <i class="fas fa-building"></i>
-        </div>
-        <span class="heading-text">Department Table</span>
-        <div class="heading-decoration"></div>
-    </div>
 
-    <div class="card shadow">
-        <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-table me-2"></i>Departments</h5>
-        </div>
+<h2 class="text-center mb-4 dashboard-heading">
+    <span class="heading-icon">
+        <i class="fa-solid fa-table-cells-large"></i>
+    </span>
+    <span class="heading-text">Users Dashboard</span>
+    <span class="heading-decoration"></span>
+</h2>
 
-        
-        <div class="card-body">
-            <div class="table-responsive">
-                <secure-content asp-controller="Department" asp-action="Create">
-                    <a href="/Department/Create" class="action-btn create-btn mb-3">
-                        <i class="fas fa-plus"></i> Create New
-                    </a>
-                </secure-content>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12">
 
-                <table id="tblDepartments" class="table table-striped table-bordered nowrap" style="width:100%">
-                    <thead>
-                        <tr>
-                            
-                            <th>Name</th>
-                            <th>Manager</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var department in Model.Departments)
-                        {
-                            <tr>
-                                <td>@department.Name</td>
-                                <td>@department.Manager?.FullName</td>
-                                <td>
-                                    <!-- View Button -->
-                                    <a href="/Department/Details/@department.Id" class="action-btn view-btn me-1 text-white">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
+            <!--Advanced Filter-->
+            <div class="container mt-4">
+                <!-- Advanced Filter Panel -->
+                <div class="card filter-card">
 
-                                    <!-- Edit Button -->
-                                    <a href="/Department/Edit/@department.Id" class="action-btn edit-btn me-1 text-white">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                    <div class="filter-body">
 
-                                    <!-- Delete Button -->
-                                    <a href="/Department/Delete/@department.Id" onclick="return confirm('Are you sure?')" class="action-btn delete-btn text-white">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
 
-                            </tr>
-                        }
-                        
-                    </tbody>
-                </table>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="locationFilter" class="form-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i> Location
+                                </label>
+                                <select id="locationFilter" class="form-select">
+                                    <option value="">All Locations</option>
+                                    <!-- Locations will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="positionFilter" class="form-label">
+                                    <i class="fas fa-briefcase me-1"></i> Position
+                                </label>
+                                <select id="positionFilter" class="form-select">
+                                    <option value="">All Positions</option>
+                                    <!-- Positions will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="dateRangeFilter" class="form-label">
+                                    <i class="far fa-calendar-alt me-1"></i> Start Date Range
+                                </label>
+                                <input type="text" id="dateRangeFilter" class="form-control" placeholder="Select date range" />
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="salaryRangeMin" class="form-label">
+                                    <i class="fas fa-dollar-sign me-1"></i> Salary Range
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" id="salaryRangeMin" class="form-control" placeholder="Min" min="0" />
+                                    <span class="input-group-text">-</span>
+                                    <input type="number" id="salaryRangeMax" class="form-control" placeholder="Max" min="0" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="ageRangeMin" class="form-label">
+                                    <i class="fas fa-user-clock me-1"></i> Age Range
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" id="ageRangeMin" class="form-control" placeholder="Min" min="0" max="100" />
+                                    <span class="input-group-text">-</span>
+                                    <input type="number" id="ageRangeMax" class="form-control" placeholder="Max" min="0" max="100" />
+                                </div>
+                            </div>
+                            <div class="col-md-9 mb-3 d-flex align-items-end justify-content-end">
+                                <button id="applyFilters" class="btn btn-primary filter-btn filter-btn-primary me-2">
+                                    <i class="fas fa-check me-1"></i> Apply Filters
+                                </button>
+                                <button id="resetFilters" class="btn btn-secondary filter-btn">
+                                    <i class="fas fa-undo me-1"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="responsive-table-container">
+
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">
+                                <i class="fas fa-users me-2"></i>Employee Records
+                                @* <div> *@
+                                @*     <button class="btn btn-light me-2"> *@
+                                @*         <i class="fas fa-file-export me-1"></i> Export *@
+                                @*     </button> *@
+                                @*     <button class="btn btn-light" id="btnFilterToggle"> *@
+                                @*          Filters *@
+                                @*     </button> *@
+                                @* </div> *@
+                            </h4>
+
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="tblUsers">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-user me-1"></i> Name</th>
+                                            <th class="multiline-cell"><i class="fas fa-briefcase me-1"></i> Position</th>
+                                            <th><i class="fas fa-map-marker-alt me-1"></i> Location</th>
+                                            <th><i class="fas fa-birthday-cake me-1"></i> Age</th>
+                                            <th><i class="fas fa-calendar-alt me-1"></i> Start Date</th>
+                                            <th><i class="fas fa-dollar-sign me-1"></i> Salary</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be loaded dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+
+
         </div>
     </div>
 </div>
 
-<!-- ====== JS SCRIPTS ====== -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
 
-<script>
-    $(document).ready(function () {
-        $('#tblDepartments').DataTable({
-            responsive: true,
-            language: {
-                search: "<i class='fas fa-search'></i>",
-                searchPlaceholder: "Search departments...",
-                lengthMenu: "Show _MENU_ entries",
-                info: "Showing <span class='highlight-info'>_START_</span> to <span class='highlight-info'>_END_</span> of <span class='highlight-info'>_TOTAL_</span> entries",
-                paginate: {
-                    previous: "<i class='fas fa-chevron-left'></i>",
-                    next: "<i class='fas fa-chevron-right'></i>"
+@section Scripts {
+    <!--jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Then load moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.js"></script>
+
+    <!--  Bootstrap and DataTables scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+
+    <script>
+                $(document).ready(function () {
+            // Initialize date range picker
+            $('#dateRangeFilter').daterangepicker({
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: 'Clear',
+                    format: 'DD/MM/YYYY'
                 }
-            }
+            });
+
+            $('#dateRangeFilter').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+            });
+
+            $('#dateRangeFilter').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+            });
+
+            // Initialize DataTable with a variable to reference it later
+            var table = $('#tblUsers').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "ajax": {
+                    "url": "/DataTable/GetData",
+                    "type": "GET",
+                    "datatype": "json",
+                    "data": function(d) {
+                        // Add custom filter parameters
+                        d.location = $('#locationFilter').val();
+                        d.position = $('#positionFilter').val();
+
+                        var dateRange = $('#dateRangeFilter').val();
+                        if (dateRange) {
+                            var dates = dateRange.split(' - ');
+                            d.startDate = dates[0];
+                            d.endDate = dates[1];
+                        }
+
+                        d.minSalary = $('#salaryRangeMin').val();
+                        d.maxSalary = $('#salaryRangeMax').val();
+                        d.minAge = $('#ageRangeMin').val();
+                        d.maxAge = $('#ageRangeMax').val();
+
+                        return d;
+                    }
+                },
+                "responsive": true,
+                "autoWidth": false,
+                "columnDefs": [
+                    {
+                        "targets": '_all',
+                        "orderable": true,
+                        "className": "dt-nowrap"
+                    }
+                ],
+                "columns": [
+                    {
+                        "data": "name",
+                        "name": "Name",
+                        "autoWidth": true,
+                        "render": function(data, type, row) {
+                            return `<div class="d-flex align-items-center">
+                                <div class="avatar me-2" style="width: 36px; height: 36px; background-color: #${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem;">
+                                    ${row.name.charAt(0).toUpperCase()}
+                                </div>
+                                <span style="font-size: 1.05rem;">${data}</span>
+                            </div>`;
+                        }
+                    },
+                    {
+                        "data": "position",
+                        "name": "Position",
+                        "autoWidth": true,
+                        "className": "multiline-cell",
+                        "render": function(data) {
+                            return `<span class="badge-position">${data.replace(/\n/g, '<br>')}</span>`;
+                        }
+                    },
+                    {
+                        "data": "location",
+                        "name": "Location",
+                        "autoWidth": true,
+                        "render": function(data) {
+                            return `<i class="fas fa-map-pin me-1" style="color: #f72585;"></i> ${data}`;
+                        }
+                    },
+                    {
+                        "data": "age",
+                        "name": "Age",
+                        "autoWidth": true,
+                        "className": "text-center",
+                        "render": function(data) {
+                            return `<span style="font-size: 1.1rem;">${data}</span>`;
+                        }
+                    },
+                    {
+                        "data": "startDateString",
+                        "name": "Start Date",
+                        "autoWidth": true,
+                        "render": function(data) {
+                            return `<i class="far fa-calendar me-1" style="color: #4895ef;"></i> ${data}`;
+                        }
+                    },
+                    {
+                        "data": "salary",
+                        "name": "Salary",
+                        "autoWidth": true,
+                        "className": "salary-highlight",
+                        "render": function(data) {
+                            return `<i class="fas fa-dollar-sign me-1" style="color: #4cc9f0;"></i> ${data.toLocaleString('en-US', {style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+                        }
+                    }
+                ],
+                "language": {
+                    "emptyTable": "<div class='text-center py-5'><i class='fas fa-database fa-4x mb-3' style='color: #6c757d;'></i><h4>No records found</h4><p class='text-muted'>Try adjusting your search or filter to find what you're looking for.</p></div>",
+                    "processing": '<div class="spinner-border text-primary" style="width: 2rem; height: 2rem;" role="status"><span class="visually-hidden">Loading...</span></div> Processing...',
+                    "search": "<i class='fas fa-search'></i>",
+                    "lengthMenu": "Show _MENU_ <i class='fas fa-users'></i>",
+                    "info": "Showing <span class='highlight-info'>_START_</span> to <span class='highlight-info'>_END_</span> of <span class='highlight-info'>_TOTAL_</span> entries",
+                    "infoEmpty": "No entries to show",
+                    "infoFiltered": "<span class='text-muted'>(filtered from _MAX_ total entries)</span>",
+                    "paginate": {
+                        "first": "<i class='fas fa-angle-double-left'></i>",
+                        "last": "<i class='fas fa-angle-double-right'></i>",
+                        "next": "<i class='fas fa-angle-right'></i>",
+                        "previous": "<i class='fas fa-angle-left'></i>"
+                    }
+                },
+                 "dom":
+                        "<'row mb-3'<'col-md-8 d-flex align-items-center'<'dataTables_filter'f><'ms-2'<'#customFilter'>>>><'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+        ,
+
+                "initComplete": function() {
+                    $('.dataTables_filter input').attr('placeholder', 'Search employees...');
+
+                    this.api().columns().header().each(function(header) {
+                        var title = $(header).text();
+                        $(header).closest('table').find('tbody td').attr('data-label', title);
+                    });
+                }
+            });
+
+            // Load locations dropdown
+            $.ajax({
+                url: '/DataTable/GetLocations',
+                type: 'GET',
+                success: function(data) {
+                    $.each(data, function(i, item) {
+                        $('#locationFilter').append($('<option>', {
+                            value: item,
+                            text: item
+                        }));
+                    });
+                }
+            });
+
+            // Load positions dropdown
+            $.ajax({
+                url: '/DataTable/GetPositions',
+                type: 'GET',
+                success: function(data) {
+                    $.each(data, function(i, item) {
+                        $('#positionFilter').append($('<option>', {
+                            value: item,
+                            text: item
+                        }));
+                    });
+                }
+            });
+
+            // Apply filters button click
+            $('#applyFilters').on('click', function() {
+                table.ajax.reload();
+            });
+
+            // Reset filters button click
+            $('#resetFilters').on('click', function() {
+                $('#locationFilter').val('');
+                $('#positionFilter').val('');
+                $('#dateRangeFilter').val('');
+                $('#salaryRangeMin').val('');
+                $('#salaryRangeMax').val('');
+                $('#ageRangeMin').val('');
+                $('#ageRangeMax').val('');
+                table.ajax.reload();
+            });
+
         });
-    });
-</script>
-
-
-
-
+    </script>
+}

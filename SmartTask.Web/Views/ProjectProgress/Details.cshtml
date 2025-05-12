@@ -452,13 +452,45 @@
                             </div>
                         </div>
                     </div>
-               
+                    @* <div class="row mt-4"> *@
+                    @*     <div class="col-md-12"> *@
+                    @*         <div class="card shadow-sm"> *@
+                    @*             <div class="card-header bg-white"> *@
+                    @*                 <h5 class="card-title mb-0">Task Completion Rate</h5> *@
+                    @*             </div> *@
+                    @*             <div class="card-body"> *@
+                    @*                 <div id="completionRateChart" style="height: 250px;"></div> *@
+                    @*             </div> *@
+                    @*         </div> *@
+                    @*     </div> *@
+                    @* </div> *@
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Delete Project Modal -->
+@* <div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectModalLabel" aria-hidden="true"> *@
+@*     <div class="modal-dialog"> *@
+@*         <div class="modal-content"> *@
+@*             <div class="modal-header"> *@
+@*                 <h5 class="modal-title" id="deleteProjectModalLabel">Confirm Deletion</h5> *@
+@*                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> *@
+@*             </div> *@
+@*             <div class="modal-body"> *@
+@*                 <p>Are you sure you want to delete <strong>@Model.Name</strong>? This action cannot be undone and will remove all tasks associated with this project.</p> *@
+@*             </div> *@
+@*             <div class="modal-footer"> *@
+@*                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button> *@
+@*                 <form asp-action="Delete" asp-controller="Project" asp-route-id="@Model.Id" method="post"> *@
+@*                     @Html.AntiForgeryToken() *@
+@*                     <button type="submit" class="btn btn-danger">Delete Project</button> *@
+@*                 </form> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
 
 @section Scripts {
     <!-- Add ApexCharts library -->
@@ -646,3 +678,10 @@
     </script>
     }
 
+@* <style> *@
+@*     /* Card hover effects */ *@
+@*     .card { *@
+@*         transition: transform 0.2s, box-shadow 0.2s; *@
+@*     } *@
+
+@*         .card:hover { *@

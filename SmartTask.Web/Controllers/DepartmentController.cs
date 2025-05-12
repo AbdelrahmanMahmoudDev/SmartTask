@@ -168,5 +168,110 @@ namespace SmartTask.Web.Controllers
             ViewBag.Managers = new SelectList(managers, "Id", "FullName", selectedManagerId);
             ViewBag.AllUsers = allUsers;
         }
+
+
+            private IEnumerable<Department> GetDepartments()
+            {
+                return new List<Department>
+        {
+            new Department { Id = 1, Name = "IT Department" },
+            new Department { Id = 2, Name = "HR Department" },
+            new Department { Id = 3, Name = "Finance Department" },
+            new Department { Id = 4, Name = "Marketing Department" },
+            new Department { Id = 5, Name = "Sales Department" }
+        };
+            }
+
+
+
+        //GetDepartments method is returning the IEnumerable Departments from database
+
+        [HttpGet]
+        public ActionResult GetData()
+        {
+
+            // Get request parameters from DataTables
+            var draw = Request.Query["draw"].FirstOrDefault();
+            var start = Request.Query["start"].FirstOrDefault();
+            var length = Request.Query["length"].FirstOrDefault();
+            var searchValue = Request.Query["search[value]"].FirstOrDefault();
+            var sortColumnIndex = Request.Query["order[0][column]"].FirstOrDefault();
+            var sortDirection = Request.Query["order[0][dir]"].FirstOrDefault();
+
+
+            int pageSize = length != null ? Convert.ToInt32(length) : 0;
+            int skip = start != null ? Convert.ToInt32(start) : 0;
+
+
+            // Advanced filter parameters
+            var location = Request.Query["location"].FirstOrDefault();
+            var position = Request.Query["position"].FirstOrDefault();
+            var startDateStr = Request.Query["startDate"].FirstOrDefault();
+            var endDateStr = Request.Query["endDate"].FirstOrDefault();
+            var minSalaryStr = Request.Query["minSalary"].FirstOrDefault();
+            var maxSalaryStr = Request.Query["maxSalary"].FirstOrDefault();
+            var minAgeStr = Request.Query["minAge"].FirstOrDefault();
+            var maxAgeStr = Request.Query["maxAge"].FirstOrDefault();
+
+            var branches = GetDepartments();
+            int totalRecords = branches.Count();
+
+
+
+            //Filter(Search)
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+                branches = branches.Where(x => x.Name.ToLower().Contains(searchValue.ToLower())).ToList();
+            }
+
+            // Total records after filtering
+            int totalRecordsFiltered = branches.Count();
+
+            // Sorting
+            if (!string.IsNullOrEmpty(sortColumnIndex) && !string.IsNullOrEmpty(sortDirection))
+            {
+                switch (Convert.ToInt32(sortColumnIndex))
+                {
+                    case 0:
+                        branches = sortDirection == "asc" ? branches.OrderBy(e => e.Name) : branches.OrderByDescending(e => e.Name);
+                        break;
+                    default:
+                        branches = branches.OrderBy(e => e.Name);
+                        break;
+                }
+            }
+
+
+
+            //Pagination 
+            if (pageSize > 0)
+            {
+                branches = branches.Skip(skip).Take(pageSize);
+            }
+
+
+
+            // Format the data for output
+            var result = branches.Select(b => new
+            {
+                b.Id,
+                b.Name,
+                ManagerName = b.Manager != null ? b.Manager.FullName : "N/A"
+            }).ToList();
+
+            // Return JSON data for DataTable
+            return Json(new
+            {
+                draw = draw,
+                recordsTotal = totalRecords,
+                recordsFiltered = totalRecordsFiltered,
+                data = result
+            });
+
+        }
+
     }
 }
+
+
+  
