@@ -33,7 +33,7 @@ namespace SmartTask.BL.Services
             var task =await _taskRepository.GetWithDetailsAsync(id);
             return task;
         }
-        public async void AddComment(int taskId, string authorId, string content)
+        public async Task<Comment> AddComment(int taskId, string authorId, string content)
         {
             var comment = new Comment
             {
@@ -42,9 +42,13 @@ namespace SmartTask.BL.Services
                 Content = content.Trim(),
                 CreatedAt = DateTime.Now
             };
-            _commentRepository.AddAsync(comment);
+            await _commentRepository.AddAsync(comment);
+
+            return await _commentRepository.GetByIdAsync(comment.Id);
+
+
         }
-        public async System.Threading.Tasks.Task AddAttachment(int taskId, IFormFile file,string userid,string webRootPath)
+        public async System.Threading.Tasks.Task<Attachment> AddAttachment(int taskId, IFormFile file,string userid,string webRootPath)
         {
 
             var uploadsFolder = Path.Combine(webRootPath, "uploads");
@@ -69,8 +73,8 @@ namespace SmartTask.BL.Services
                 UploadedById = userid,
                 CreatedAt = DateTime.Now
             };
-
-           await _attachmentRepository.AddAsync(attachment);
+            await _attachmentRepository.AddAsync(attachment);
+            return await _attachmentRepository.GetByIdAsync(attachment.Id);
         }
 
         public async Task<List<Core.Models.Task>> TasksForUserInProject(int projectId,string userid)

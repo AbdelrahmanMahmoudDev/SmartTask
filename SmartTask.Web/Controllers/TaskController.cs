@@ -66,8 +66,41 @@ namespace SmartTask.Web.Controllers
             {
                 return BadRequest("Comment content is required");
             }
-            _taskService.AddComment(taskId, authorId, content);
-            return Ok();
+           Comment comment = await _taskService.AddComment(taskId, authorId, content);
+            if (comment == null)
+            {
+                return StatusCode(500, "Failed to add comment");
+            }
+
+            IEnumerable<AssignTask> taskUsers = await _assignTaskRepository.GetByTaskIdAsync(comment.TaskId);
+            
+            //SignalR Part
+            Notification notification;
+            var user = await _userManager.GetUserAsync(User);
+            string NotificationMessage = $"{user.FullName} Commented on : {comment.Task.Title}";
+            foreach (var receiverID in taskUsers)
+            {
+                notification = new Notification
+                {
+                    Message = NotificationMessage,
+                    Type = "Comment",
+                    SenderId = user.Id,
+                    ReceiverId = receiverID.UserId
+                };
+
+                await _hub.Clients.User(receiverID.UserId).SendAsync("assignedtask", notification);
+                //save to db
+                await _notificationRepository.AddAsync(notification);
+            }
+
+                return Json(new
+                {
+                author = comment.Author?.FullName,
+                content = comment.Content,
+                createdAt = comment.CreatedAt.ToString("dd-MM-yyyy HH:mm")
+                 });
+
+            //return Ok();
         }
 
         [HttpPost]
@@ -77,9 +110,41 @@ namespace SmartTask.Web.Controllers
             {
                 return BadRequest("No file selected");
             }
-           await _taskService.AddAttachment(taskId, file, User.FindFirstValue(ClaimTypes.NameIdentifier),_environment.WebRootPath);
 
-            return Ok();
+            var user = await _userManager.GetUserAsync(User);
+
+            var attachment = await _taskService.AddAttachment(taskId, file,user.Id ,_environment.WebRootPath);
+           
+            if (attachment == null)
+            {
+                return StatusCode(500, "Failed to upload attachment");
+            }
+
+            //SignalR Part
+            Notification notification;
+            IEnumerable<AssignTask> taskUsers = await _assignTaskRepository.GetByTaskIdAsync(attachment.TaskId);
+            string NotificationMessage = $"{user.FullName} Added Attachment on : {attachment.Task.Title}";
+            foreach (var receiverID in taskUsers)
+            {
+                notification = new Notification
+                {
+                    Message = NotificationMessage,
+                    Type = "Attachment",
+                    SenderId = user.Id,
+                    ReceiverId = receiverID.UserId
+                };
+
+                await _hub.Clients.User(receiverID.UserId).SendAsync("assignedtask", notification);
+                //save to db
+                await _notificationRepository.AddAsync(notification);
+            }
+
+            return Json(new
+            {
+                fileName = attachment.FileName,
+                filePath = attachment.FilePath,
+                createdAt = attachment.CreatedAt.ToString("dd-MM-yyyy HH:mm")
+            });
         }
 
         public async Task<IActionResult> TasksForUserInProject(int projectId)

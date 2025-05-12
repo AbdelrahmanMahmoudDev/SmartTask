@@ -38,11 +38,15 @@ function initializeNotifications()
         console.log('new assign task');
         if (notification.type == "NewTask")
         {
-            toastr.info(notification.message, "Success");
-        }
+            toastr.success(notification.message, "Success");
+        } 
         else if (notification.type == "UpdateTask")
         {
             toastr.warning(notification.message, "Warning");
+        }
+        else  {
+            toastr.info(notification.message, "Information");
+
         }
 
     });

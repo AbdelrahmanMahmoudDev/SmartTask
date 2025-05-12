@@ -153,6 +153,14 @@
                 data: $(this).serialize(),
                 success: function (response) {
                     $('#commentForm')[0].reset();
+                    const newComment = `
+                        <div class="mb-2">
+                            <p><strong>${response.author}:</strong> ${response.content}</p>
+                            <small class="text-muted">${response.createdAt}</small>
+                        </div>
+                    `;
+
+                    $('#comments').prepend(newComment);
                 },
                 error: function (xhr) {
                     alert('Failed to add comment: ' + xhr.responseText);
@@ -176,6 +184,13 @@
                 processData: false,
                 success: function (response) {
                     $('#attachmentForm')[0].reset();
+                    const newAttachment = `
+                        <div class="mb-2">
+                            <a href="${response.filePath}" class="btn btn-link" target="_blank">${response.fileName}</a>
+                            <small class="text-muted">${response.createdAt}</small>
+                        </div>
+                    `;
+                     $('#attachmentForm').prepend(newAttachment);
                 },
                 error: function (xhr) {
                     alert('Failed to upload file: ' + xhr.responseText);
