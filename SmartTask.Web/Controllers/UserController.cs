@@ -22,7 +22,9 @@ namespace SmartTask.Web.Controllers
             _userService = userService;
             _departmentService = departmentService;
         }
-        public async Task<IActionResult> GetAll(string? searchString = null, int page = 1 , int pageSize = 10)
+
+        [HttpGet]
+        public async Task<IActionResult> Index(string? searchString = null, int page = 1 , int pageSize = 10)
         {
             //var users = _userService.GetAll(page, pageSize); 
             //return View(users);
@@ -112,7 +114,7 @@ namespace SmartTask.Web.Controllers
                 var success = await _userService.UpdateAsync(user);
                 if (!success) return NotFound();
 
-                return RedirectToAction(nameof(GetAll));
+                return RedirectToAction(nameof(Index));
             }
 
             var departments = await _departmentService.GetAllDepartmentsAsync();

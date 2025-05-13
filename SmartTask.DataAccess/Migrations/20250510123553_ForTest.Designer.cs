@@ -12,8 +12,8 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
-    [Migration("20250509113926_update_ImageeUrl_AspUser")]
-    partial class update_ImageeUrl_AspUser
+    [Migration("20250510123553_ForTest")]
+    partial class ForTest
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
