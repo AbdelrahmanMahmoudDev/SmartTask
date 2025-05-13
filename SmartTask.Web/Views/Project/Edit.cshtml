@@ -43,6 +43,18 @@
                     </select>
                     <span asp-validation-for="OwnerId" class="text-danger"></span>
                 </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <select class="form-select" asp-for="SelectedDepartmentId" asp-items="@(new SelectList(ViewBag.Departments, "Id", "Name"))">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Branch</label>
+                    <select class="form-select" asp-for="SelectedBranchId" asp-items="@(new SelectList(ViewBag.Branches, "Id", "Name"))">
+                        <option value="">-- Select Branch --</option>
+                    </select>
+                </div>
 
                 <div class="form-group">
                     <label asp-for="Status"></label>

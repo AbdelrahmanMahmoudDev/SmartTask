@@ -28,6 +28,9 @@ namespace SmartTask.Web.ViewModels.ProjectVM
         [Required(ErrorMessage = "Status is required")]
         [Display(Name = "Status")]
         public string Status { get; set; }
+        public int? SelectedDepartmentId { get; set; }
+
+        public int? SelectedBranchId { get; set; }
 
         public List<UserCheckboxModel> AssignedUsers { get; set; } = new List<UserCheckboxModel>();
     }

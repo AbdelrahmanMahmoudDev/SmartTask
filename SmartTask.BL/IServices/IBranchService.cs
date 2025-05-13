@@ -13,6 +13,7 @@ namespace SmartTask.Bl.IServices
 
         Task<Branch> GetBranchAsync(int id);
         PaginatedList<Branch> GetAllBranchAsync(int page, int pageSize);
+        Task<IEnumerable<Branch>> GetAllAsync();
         Task<Branch> AddAsync(Branch branch);
 
         Task UpdateAsync(Branch branch);

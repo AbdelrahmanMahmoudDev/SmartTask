@@ -63,6 +63,32 @@ namespace SmartTask.BL.Services
             await _projectRepository.DeleteAsync(id);
         }
 
+        public async Task<PaginatedList<Project>> GetFilteredByDepartmentProjectsAsync(string searchString, int? departmentId, int? branchId, int page, int pageSize)
+        {
+            var query = _projectRepository.GetQueryable();
+
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(p =>
+                    p.Name.Contains(searchString) ||
+                    p.Description.Contains(searchString));
+
+            }
+
+            if (departmentId > 0)
+            {
+                query = query.Where(p => p.DepartmentId == departmentId);
+            }
+
+            if (branchId > 0)
+            {
+                query = query.Where(p => p.BranchId == branchId);
+            }
+
+
+            return PaginatedList<Project>.Create(query, page, pageSize);
+        }
         public async Task<bool> AddMemberAsync(int projectId, string userId)
         {
             var project = await _projectRepository.GetByIdAsync(projectId);

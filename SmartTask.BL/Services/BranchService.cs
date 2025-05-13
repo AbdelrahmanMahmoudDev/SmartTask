@@ -92,5 +92,10 @@ namespace SmartTask.Bl.Services
         {
             return await branchRepository.GetWithDetailsAsync(id);
         }
+
+        public async Task<IEnumerable<Branch>> GetAllAsync()
+        {
+            return  await branchRepository.GetAllAsync();
+        }
     }
 }
