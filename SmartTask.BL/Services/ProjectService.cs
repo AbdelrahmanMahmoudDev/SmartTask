@@ -78,12 +78,12 @@ namespace SmartTask.BL.Services
 
             if (departmentId > 0)
             {
-                query = query.Where(p => p.DepartmentId == departmentId);
+                query = query.Where(p => p.ProjectMembers.Any(x=>x.User.DepartmentId==departmentId));
             }
 
             if (branchId > 0)
             {
-                query = query.Where(p => p.BranchId == branchId);
+                query = query.Where(p => p.ProjectMembers.Any(x => x.User.BranchId == branchId));
             }
 
 

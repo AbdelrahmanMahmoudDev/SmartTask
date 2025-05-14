@@ -212,6 +212,10 @@
             justify-content: center;
         }
     }
+
+    #projectsTable_filter{
+        display: none !important;
+    }
 </style>
 
 @{
@@ -229,12 +233,48 @@
                 <i class="fas fa-plus-circle me-2"></i> Create New
             </a>
         </secure-content>
+    
     </div>
-
+   
     <div class="card">
+       
         <div class="card-body">
+         
             <table id="projectsTable" class="table table-hover" style="width:100%">
                 <thead>
+                    <tr>
+                        <form asp-action="FilterIndex" method="get" class="mb-4">
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <input type="text"
+                                           name="searchString"
+                                           value="@Model.SearchString"
+                                           class="form-control"
+                                           placeholder="Search by name or description..." />
+                                </div>
+
+
+                                <div class="col-md-3">
+                                    <select class="form-select" asp-for="SelectedDepartmentId" asp-items="@(new SelectList(Model.Departments, "Id", "Name"))">
+                                        <option value="">-- Select Department --</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <select class="form-select" asp-for="SelectedBranchId" asp-items="@(new SelectList(Model.Branches, "Id", "Name"))">
+                                        <option value="">-- Select Branch --</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-outline-secondary w-100">
+                                        <i class="fas fa-search me-1"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </tr>
+                    
                     <tr>
                         <th><i class="fas fa-signature me-2"></i>Name</th>
                         <th><i class="fas fa-user-tie me-2"></i>Owner</th>
@@ -356,7 +396,7 @@
                     }
                 ],
                 language: {
-                    search: '<i class="fas fa-search me-2"></i>',
+                   
                     searchPlaceholder: "Search projects...",
                     lengthMenu: "Show _MENU_ projects",
                     info: "Showing _START_ to _END_ of _TOTAL_ projects",
@@ -375,10 +415,12 @@
                 ],
                 initComplete: function() {
                     $('.dt-buttons').addClass('mb-3');
-                    $('.dataTables_filter input').addClass('form-control');
+                   
                     $('.dataTables_length select').addClass('form-select form-select-sm');
                 }
             });
         });
     </script>
+  
+
 }
