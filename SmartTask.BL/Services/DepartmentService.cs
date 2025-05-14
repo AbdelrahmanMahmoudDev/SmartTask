@@ -38,7 +38,7 @@ namespace SmartTask.BL.Services
                 query = query.Where(d => d.Name.Contains(searchString));
             }
 
-            return PaginatedList<Department>.Create(query, page, pageSize);
+            return await PaginatedList<Department>.CreateAsync(query, page, pageSize);
         }
 
         public async Task<Department> AddDepartmentAsync(Department department)

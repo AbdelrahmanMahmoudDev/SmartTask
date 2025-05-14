@@ -17,6 +17,8 @@ using SmartTask.DataAccess.Data;
 using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
 using task = System.Threading.Tasks.Task;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace SmartTask.Api
 {
@@ -142,6 +144,15 @@ namespace SmartTask.Api
             });
 
             #endregion
+
+            builder.Services.AddControllers()
+                                            .AddJsonOptions(options =>
+                                            {
+                                                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+                                                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                                                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                                                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                                            });
 
             var app = builder.Build();
 
