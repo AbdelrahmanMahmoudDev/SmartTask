@@ -22,19 +22,11 @@ namespace SmartTask.Web.Controllers
             _userService = userService;
             _departmentService = departmentService;
         }
-        public async Task<IActionResult> GetAll(string? searchString = null, int page = 1 , int pageSize = 10)
+
+        [HttpGet]
+        public async Task<IActionResult> Index(string? searchString = null, int page = 1 , int pageSize = 10)
         {
-            //var users = _userService.GetAll(page, pageSize); 
-            //return View(users);
-
-            Expression<Func<ApplicationUser, bool>>? filter = null;
-
-            if (!string.IsNullOrWhiteSpace(searchString))
-            {
-                filter = u => u.FullName.Contains(searchString) || u.Email.Contains(searchString);
-            }
-
-            var users = await _userService.GetFilteredAsync(filter, page, pageSize);
+            var users = await _userService.GetFilteredAsync(searchString, page, pageSize);
 
             var viewModel = new UsersViewModel
             {
@@ -49,7 +41,7 @@ namespace SmartTask.Web.Controllers
         {
             Expression<Func<ApplicationUser, bool>> filter = u => u.DepartmentId == null;
 
-            var users = await _userService.GetFilteredAsync(filter, page, pageSize);
+            var users = await _userService.GetFilteredAsync(null, page, pageSize);
 
             var departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.Departments = departments;
@@ -112,7 +104,7 @@ namespace SmartTask.Web.Controllers
                 var success = await _userService.UpdateAsync(user);
                 if (!success) return NotFound();
 
-                return RedirectToAction(nameof(GetAll));
+                return RedirectToAction(nameof(Index));
             }
 
             var departments = await _departmentService.GetAllDepartmentsAsync();

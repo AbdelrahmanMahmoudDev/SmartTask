@@ -39,11 +39,11 @@ namespace SmartTask.BL.Services
         }
         public async Task< PaginatedList<ApplicationUser>> GetAll(int page, int pageSize)
         {
-            return await _paginatedService.GetFiltered(null, page, pageSize);
+            return await _paginatedService.GetFilteredAsync(null, page, pageSize);
         }
         public async Task<ApplicationUser> GetByIdAsync(string id)
         {
-            return await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
+            return await _userManager.Users.Include(u => u.Department).FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<bool> UpdateAsync(ApplicationUser updatedUser)
@@ -68,25 +68,24 @@ namespace SmartTask.BL.Services
             return result.Succeeded;
         }
 
-        public async Task<PaginatedList<ApplicationUser>> GetFilteredAsync(Expression<Func<ApplicationUser, bool>>? filter,
-            int page , int pageSize)
+        public async Task<PaginatedList<ApplicationUser>> GetFilteredAsync(string searchString, int page, int pageSize)
         {
-            var query = _userManager.Users
-                .Include(u => u.Department)
-                .AsQueryable();
+            var query = _userManager.Users.Include(u => u.Department).AsQueryable();
 
-            if (filter != null)
+            if (!string.IsNullOrWhiteSpace(searchString))
             {
-                query = query.Where(filter);
+                query = query.Where(u => u.FullName.Contains(searchString) || u.Email.Contains(searchString));
             }
 
-            return await System.Threading.Tasks.Task.FromResult(PaginatedList<ApplicationUser>.Create(query, page, pageSize));
+            return await PaginatedList<ApplicationUser>.CreateAsync(query, page, pageSize);
         }
 
         public async Task<bool> AssignUserToDepartmentAsync(string userId, int departmentId)
         {
-            var user = _userManager.Users.Include(u=>u.Department).FirstOrDefault(u => u.Id == userId);
+            var user = _userManager.Users.Include(u => u.Department).FirstOrDefault(u => u.Id == userId);
             if (user == null) return false;
+
+            if (user.DepartmentId != null) return false;
 
             var department = await _departmentRepository.GetByIdAsync(departmentId);
             if (department == null) return false;

@@ -25,10 +25,10 @@ namespace SmartTask.Bl.Services
             this.paginatedService = paginatedService;
         }
 
-        public PaginatedList<Branch> GetAllBranchAsync(int page, int pageSize)
+        public async Task<PaginatedList<Branch>> GetAllBranchAsync(int page, int pageSize)
         {
             var query = branchRepository.GetQueryable();
-            return PaginatedList<Branch>.Create(query,page, pageSize);
+            return await PaginatedList<Branch>.CreateAsync(query,page, pageSize);
         }
 
         public async Task<Branch> GetBranchAsync(int id)
@@ -74,19 +74,37 @@ namespace SmartTask.Bl.Services
         }
 
 
+        //public async Task<PaginatedList<Branch>> GetFiltered(string searchString, string? managerId, int page, int pageSize)
+        //{
+        //    var query = branchRepository.GetQueryable()
+        //        .Include(b => b.Manager) 
+        //        .Include(b => b.BranchDepartments) 
+        //        .ThenInclude(bd => bd.Department);
+
+        //    Expression<Func<Branch, bool>> filter = b =>
+        //        (string.IsNullOrEmpty(searchString) || b.Name.Contains(searchString)) &&
+        //        (string.IsNullOrEmpty(managerId) || b.ManagerId == managerId);
+
+        //    return await paginatedService.GetFiltered(filter, page, pageSize);
+        //}
+
         public async Task<PaginatedList<Branch>> GetFiltered(string searchString, string? managerId, int page, int pageSize)
         {
-            var query = branchRepository.GetQueryable()
-                .Include(b => b.Manager) 
-                .Include(b => b.BranchDepartments) 
-                .ThenInclude(bd => bd.Department);
+            var query = branchRepository.GetQueryable();
 
-            Expression<Func<Branch, bool>> filter = b =>
-                (string.IsNullOrEmpty(searchString) || b.Name.Contains(searchString)) &&
-                (string.IsNullOrEmpty(managerId) || b.ManagerId == managerId);
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(b => b.Name.Contains(searchString));
+            }
 
-            return await paginatedService.GetFiltered(filter, page, pageSize);
+            if (!string.IsNullOrEmpty(managerId))
+            {
+                query = query.Where(b => b.ManagerId == managerId);
+            }
+
+            return await paginatedService.GetFilteredAsync(query, page, pageSize);
         }
+
 
         public async Task<Branch> GetBranchWithDetailsAsync(int id)
         {
