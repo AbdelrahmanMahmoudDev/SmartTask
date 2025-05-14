@@ -105,5 +105,29 @@ namespace SmartTask.Web.Controllers
         {
             return View();
         }
+
+
+        public async Task<IActionResult> TasksForOneUser(string status = null, string priority = null)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var query = _context.Tasks
+                .Where(t => t.AssignedToId == userId);
+
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(t => t.Status == status);
+
+            if (!string.IsNullOrEmpty(priority))
+                query = query.Where(t => t.Priority == priority);
+
+            var tasks = await query.ToListAsync();
+
+            // نحط القيم دي في ViewBag علشان نعرضها في الفلترة
+            ViewBag.StatusFilter = status;
+            ViewBag.PriorityFilter = priority;
+
+            return View("PersonalTasks", tasks);
+        }
+
     }
 }
