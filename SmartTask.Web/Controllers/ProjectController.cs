@@ -44,7 +44,7 @@ namespace SmartTask.Web.Controllers
             //return View(viewModel);
             var departments = await _departmentService.GetAllDepartmentsAsync();
             var branches = await _branchService.GetAllAsync();
-
+            int x = 5;
             var projects = await _projectService.GetFilteredByDepartmentProjectsAsync(searchString, selectedDepartmentId, selectedBranchId, page, pageSize);
 
             var viewModel = new ProjectIndexViewModel
