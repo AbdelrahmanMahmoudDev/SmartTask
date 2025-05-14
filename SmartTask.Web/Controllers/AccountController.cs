@@ -35,7 +35,7 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> Login(LoginViewModel account)
         {
             ApplicationUser user = new ApplicationUser();   
-            Console.WriteLine($"{account.UserName}");
+            //Console.WriteLine($"{account.UserName}");
             if (ModelState.IsValid)
             {
                 try

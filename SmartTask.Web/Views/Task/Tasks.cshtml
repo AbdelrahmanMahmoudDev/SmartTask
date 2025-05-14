@@ -229,7 +229,7 @@
     // Handle opening the popup and loading partial view
     $(document).on('click', '.openPopup', function () {
         const taskId = $(this).data("task-id");
-
+       
         $.ajax({
             url: '/Task/LoadNodes/' + taskId, // Your action for loading dependencies form
             type: 'GET',
