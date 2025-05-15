@@ -46,7 +46,7 @@ function initializeNotifications()
         }
         else if (notification.type == "Delete") 
         {
-            toastr.error(notification.message, "Error");
+            toastr.error(notification.message, "Delete");
         }
         else  {
             toastr.info(notification.message, "Information");
