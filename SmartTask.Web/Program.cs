@@ -12,12 +12,15 @@ using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
 
 using SmartTask.Core.IExternalServices;
+
 using SmartTask.Bl.IServices;
+
 using SmartTask.Bl.Services;
 
 using System;
-using task=System.Threading.Tasks.Task;
+using task = System.Threading.Tasks.Task;
 using SmartTask.BL.Service.Hubs;
+
 namespace SmartTask.Web
 {
     public class Program
@@ -31,7 +34,6 @@ namespace SmartTask.Web
             {
                 options.Filters.Add(typeof(DynamicAuthorizationFilter));
             });
-
 
             //signal R
             builder.Services.AddSignalR();
@@ -118,7 +120,7 @@ namespace SmartTask.Web
             services.AddScoped<INotificationService, NotificationService>();
 
             // Repository Interfaces to Implementations
-         
+
             services.AddScoped<IAISuggestionRepository, AISuggestionRepository>();
             services.AddScoped<IAssignTaskRepository, AssignTaskRepository>();
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
@@ -130,7 +132,7 @@ namespace SmartTask.Web
             //services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
-            
+
             //services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
             //services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<ITaskDependencyRepository, TaskDependencyRepository>();
@@ -138,10 +140,9 @@ namespace SmartTask.Web
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserLoginHistoryRepository, UserLoginHistoryRepository>();
             services.AddScoped<IAuditRepository, AuditRepository>();
-            services.AddScoped<TaskService>();
+            services.AddScoped<ITaskService, TaskService>();
 
             services.AddScoped<INotificationRepository, NotificationRepository>();
-            
         }
     }
 }
