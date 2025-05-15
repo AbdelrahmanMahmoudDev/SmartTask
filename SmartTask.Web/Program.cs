@@ -51,14 +51,26 @@ namespace SmartTask.Web
                 option.Password.RequireUppercase = false;
                 option.Password.RequireNonAlphanumeric = false;
             }).AddEntityFrameworkStores<SmartTaskContext>();
-
-            // Dependency Injection
+            builder.Services.AddAuthentication()
+    .AddCookie()// Local Identity login
+    .AddMicrosoftAccount("Outlook", options =>
+    {
+        options.ClientId = builder.Configuration["AzureAd:ClientId"];
+        options.ClientSecret = builder.Configuration["AzureAd:ClientSecret"];
+        options.CallbackPath = builder.Configuration["AzureAd:CallbackPath"];
+        options.SaveTokens = true;
+        options.Scope.Add("offline_access");
+        options.Scope.Add("User.Read");
+        options.Scope.Add("Calendars.Read");
+    });
+            //// Dependency Injection
             RegisterRepositories(builder.Services);
 
             builder.Services.AddScoped(typeof(IPaginatedService<>), typeof(PaginatedService<>));
             builder.Services.AddHttpContextAccessor();
-
+            builder.Services.AddSession();
             var app = builder.Build();
+            app.UseSession();
             using var scope = app.Services.CreateScope();
             var services = scope.ServiceProvider;
             var context = services.GetRequiredService<SmartTaskContext>();
