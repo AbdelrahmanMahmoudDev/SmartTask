@@ -22,16 +22,22 @@ namespace SmartTask.BL.Services
             _userManager = userManager;
         }
 
-        public async Task< PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int page, int pageSize)
+        public async Task<PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int? departmentId, int page, int pageSize)
         {
             var query = _projectRepository.GetQueryable();
-            
 
+            // Apply search filter
             if (!string.IsNullOrEmpty(searchString))
             {
                 query = query.Where(p =>
                     p.Name.Contains(searchString) ||
                     p.Description.Contains(searchString));
+            }
+
+            // Apply department filter for Dashboard filtering
+            if (departmentId.HasValue)
+            {
+                query = query.Where(p => p.DepartmentId == departmentId.Value);
             }
 
             return PaginatedList<Project>.Create(query, page, pageSize);

@@ -17,6 +17,7 @@ using task=System.Threading.Tasks.Task;
 using Microsoft.AspNetCore.Authorization;
 using SmartTask.Web.Authorization.Handlers;
 using SmartTask.Web.Authorization.Requirements;
+using SmartTask.Web.Authorization;
 
 namespace SmartTask.Web
 {
@@ -39,15 +40,17 @@ namespace SmartTask.Web
             // Database & Identity
             builder.Services.AddDbContext<SmartTaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Authorizing User Update
+            // Authorizing Users
             builder.Services.AddAuthorization(options =>
             {
-                options.AddPolicy("CanEditUser", policy =>
-                    policy.Requirements.Add(new EditUserRequirement()));
+                AuthorizationPolicyConfiguration.ConfigureAuthorizationPolicies(options);
             });
 
             // HttpContextAccessor (required for the authorization handler)
             builder.Services.AddHttpContextAccessor();
+
+            // Register authorization handlers
+            AuthorizationPolicyConfiguration.RegisterAuthorizationHandlers(builder.Services);
 
             // Register the authorization handler
             builder.Services.AddScoped<IAuthorizationHandler, EditUserAuthorizationHandler>();
@@ -68,6 +71,9 @@ namespace SmartTask.Web
 
             // IUser service
             builder.Services.AddScoped<IUserService, UserService>();
+
+            builder.Services.AddScoped<IProjectService, ProjectService>();
+            builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 
             var app = builder.Build();
             using var scope = app.Services.CreateScope();

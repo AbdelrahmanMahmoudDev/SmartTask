@@ -10,10 +10,10 @@ namespace SmartTask.BL.IServices
 {
     public interface IProjectService
     {
-        Task< PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int page, int pageSize);
+        Task< PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int? departmentId, int page, int pageSize);
         Task<Project> AddProjectAsync(Project project);
         Task<Project> GetProjectByIdAsync(int id);
-       
+
         Task UpdateProjectAsync(Project project);
         Task DeleteProjectAsync(int id);
 
