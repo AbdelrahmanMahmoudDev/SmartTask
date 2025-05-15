@@ -182,9 +182,33 @@ namespace SmartTask.Web.Controllers
                 return BadRequest("Task can't be deleted because it has started.");
             }
 
+            //SignalR Part
+            Notification notification;
+
+            var assignedUsers = await _assignTaskRepository.GetByTaskIdAsync(taskid);
+
+            var user = await _userManager.GetUserAsync(User);
+            string NotificationMessage = $"{user.FullName} Deleted Task : {task.Title}";
+            foreach (var receiverID in assignedUsers)
+            {
+
+                notification = new Notification
+                {
+                    Message = NotificationMessage,
+                    Type = "Delete",
+                    SenderId = user.Id,
+                    ReceiverId = receiverID.UserId
+                };
+
+                await _hub.Clients.User(receiverID.UserId).SendAsync("assignedtask", notification);
+                //save to db
+                await _notificationRepository.AddAsync(notification);
+            }
+
+            //Delete Task
             await _taskService.DeleteDepend(taskid);
             await _taskService.Delete(taskid);
-            return Ok();
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Loadnodes(int id)

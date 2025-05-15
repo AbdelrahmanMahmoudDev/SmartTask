@@ -40,9 +40,13 @@ function initializeNotifications()
         {
             toastr.success(notification.message, "Success");
         } 
-        else if (notification.type == "UpdateTask")
+        else if (notification.type == "UpdateTask") 
         {
             toastr.warning(notification.message, "Warning");
+        }
+        else if (notification.type == "Delete") 
+        {
+            toastr.error(notification.message, "Error");
         }
         else  {
             toastr.info(notification.message, "Information");
