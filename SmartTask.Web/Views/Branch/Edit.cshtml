@@ -30,7 +30,8 @@
 
             <div class="form-group">
                 <label asp-for="SelectedDepartmentIds" class="control-label">Departments</label>
-                <select asp-for="SelectedDepartmentIds" asp-items="@(new MultiSelectList(Model.AllDepartments, "Id", "Name", Model.SelectedDepartmentIds))" class="form-control" multiple>
+                <select asp-for="SelectedDepartmentIds" asp-items="@(new MultiSelectList(Model.AllDepartments, "Id", "Name", Model.SelectedDepartmentIds))" 
+                class="form-select select2" multiple="multiple" data-placeholder="-- Select Departments --">
                 </select>
                 <span asp-validation-for="SelectedDepartmentIds" class="text-danger"></span>
             </div>
@@ -46,6 +47,20 @@
     <a asp-action="Index" class="btn btn-secondary">Back to List</a>
 </div>
 
+
+<script src="~/lib/jquery/jquery.min.js"></script>
+<script src="~/lib/select2/js/select2.min.js"></script>
+
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        $(document).ready(function () {
+            $('#userDropdown').select2({
+                tags: true,
+                placeholder: "-- Select Departments --",
+                allowClear: true,
+                width: '100%',
+            });
+        });
+    </script>
 }
