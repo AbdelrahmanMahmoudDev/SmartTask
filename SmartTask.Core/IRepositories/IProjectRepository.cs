@@ -1,3 +1,4 @@
+using SmartTask.Core.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Project = SmartTask.Core.Models.Project;
@@ -14,8 +15,9 @@ namespace SmartTask.Core.IRepositories
         Task<IEnumerable<Project>> GetByCreatedByIdAsync(string createdById);
         Task<IEnumerable<Project>> GetProjectsByUserIdAsync(string userId);
         Task<Project> AddAsync(Project project);
-        Task UpdateAsync(Project project);
-        Task DeleteAsync(int id);
+        System.Threading.Tasks.Task UpdateAsync(Project project);
+        System.Threading.Tasks.Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
+        List<ApplicationUser> GetMembers(int id);
     }
 }

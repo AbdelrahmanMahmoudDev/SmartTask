@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Graph;
+using SmartTask.BL.IServices;
 using SmartTask.BL.Services;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
+using SmartTask.Web.ViewModels;
 using System.Security.Claims;
 
 namespace SmartTask.Web.Controllers
@@ -13,10 +16,12 @@ namespace SmartTask.Web.Controllers
     {
         IConfiguration _config;
         private readonly IEventRepository eventRepository;
-        public OutLookController(IConfiguration config,IEventRepository eventRepository)
+        private readonly IProjectRepository projectRepository;
+        public OutLookController(IConfiguration config,IEventRepository eventRepository,IProjectRepository project)
         {
             _config = config;
             this.eventRepository = eventRepository;
+            projectRepository = project;
         }
         [Authorize]
         public IActionResult Index()
@@ -152,5 +157,71 @@ namespace SmartTask.Web.Controllers
 
             return tokenResult;
         }
+        public async Task<IActionResult> LoadAddTaskPartial(int eventId)
+        {
+            var projects = await projectRepository.GetAllAsyncWithoutInclude();
+            var model = new AddEventAsTaskViewModel
+            {
+                EventId = eventId,
+                Projects = projects.Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Name }).ToList()
+            };
+            return PartialView("_AddTaskPartial", model);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetUsersForProject(int projectId)
+        {
+            var users = projectRepository.GetMembers(projectId);
+            return Json(users.Select(u => new { u.Id, u.FullName }));
+        }
+
+        public async Task<JsonResult> ValidateStartDate(DateTime Start, int ProjectId)
+        {
+            var project = await projectRepository.GetByIdAsync(ProjectId);
+
+            if (project == null)
+                return Json("Invalid project.");
+
+            if (Start < project.StartDate || Start > project.EndDate)
+                return Json($"Start must be between {project.StartDate:d} and {project.EndDate:d}");
+
+            return Json(true);
+        }
+
+        public async Task<JsonResult> ValidateEndDate(DateTime End, DateTime Start, int ProjectId)
+        {
+            var project = await projectRepository.GetByIdAsync(ProjectId);
+
+            if (project == null)
+                return Json("Invalid project.");
+
+            if (End < project.StartDate || End > project.EndDate)
+                return Json($"End must be between {project.StartDate:d} and {project.EndDate:d}");
+
+            if (End < Start)
+                return Json("End date must be after start date.");
+
+            return Json(true);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddTaskFromEvent(AddEventAsTaskViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Invalid data");
+
+            // Custom date validation using DB (example)
+            //var project = await projectRepository.GetProjectByIdAsync(model.ProjectId.Value);
+            //if (model.Start < project.StartDate || model.End > project.EndDate)
+            //{
+            //    ModelState.AddModelError("", "Start/End dates must be within project duration.");
+            //    return View("_AddTaskPartial", model);
+            //}
+
+            // Save the task
+            //await _taskService.CreateTaskFromEventAsync(model);
+            Console.WriteLine(model.EventId+" "+model.ProjectId+" "+model.UserIds.ToString()+" "+model.Start);
+            return RedirectToAction("Cal"); // or wherever
+        }
+
     }
 }

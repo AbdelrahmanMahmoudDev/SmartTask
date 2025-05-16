@@ -29,6 +29,7 @@
                 <tr>
                     <th>Subject</th>
                     <th class="col-attendees">Attendees</th>
+                    <th>Progect</th>
                     <th>Start</th>
                     <th>End</th>
                 </tr>
@@ -39,12 +40,86 @@
                     <tr>
                         <td>@e.Subject</td>
                         <td class="col-attendees">@e.Attendees</td>
-                        <td>@e.Start.ToString("g")</td>
-                        <td>@e.End.ToString("g")</td>
+                        <td>@e.Start</td>
+                        @if(!e.TaskId.HasValue){
+                            <td>
+                                <button class="btn btn-sm btn-success add-task-btn"
+                                        data-event-id="@e.Id"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addTaskModal">
+                                    <i class="fas fa-plus"></i> Add Task
+                                </button>
+                            </td>
+                        }else{
+                            <td>@e.Task.Project.Name</td>
+                        }
+                        <td>@e.End</td>
                     </tr>
                 }
             </tbody>
         </table>
+
     </div>
 </div>
+
+
+
+
+<div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Event as Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="addTaskModalBody">
+                <!-- Partial view content loads here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    $(document).on('click', '.add-task-btn', function () {
+        var eventId = $(this).data('event-id');
+        $('#addTaskModalBody').load('/Outlook/LoadAddTaskPartial?eventId=' + eventId, function () {
+        // Initialize Select2 after content is loaded
+        $('#userDropdown').select2({
+            placeholder: 'Select users',
+            width: '100%'
+        });
+    });
+    });
+
+    $(document).on('change', '#projectDropdown', function () {
+        var projectId = $(this).val();
+        if (!projectId) return;
+
+        $.getJSON('/Outlook/GetUsersForProject?projectId=' + projectId, function (data) {
+            var $userDropdown = $('#userDropdown');
+            $userDropdown.empty();
+
+            data.forEach(function (user) {
+                $userDropdown.append(`<option value="${user.id}">${user.fullName}</option>`);
+                $userDropdown.append(`<option value="${user.id}">${user.fullName}</option>`);
+
+            });
+
+            $userDropdown.trigger('change');
+        });
+    });
+</script>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+
+
+
+
+
 
