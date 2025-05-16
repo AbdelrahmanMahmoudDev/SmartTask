@@ -163,7 +163,7 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> TasksForUser()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var tasks =  _taskService.TasksForUser(userId);
+            var tasks = await _taskService.TasksForUser(userId);
             return View("Tasks", tasks);
         }
 
@@ -180,6 +180,11 @@ namespace SmartTask.Web.Controllers
             if (task.Status != Core.Models.Enums.Status.Todo)
             {
                 return BadRequest("Task can't be deleted because it has started.");
+            }
+            var task1 = await _taskService.ISAParent(taskid);
+            if (task1)
+            {
+                return BadRequest("Task can't be deleted because this task has a childern.");
             }
 
             //SignalR Part
@@ -208,7 +213,7 @@ namespace SmartTask.Web.Controllers
             //Delete Task
             await _taskService.DeleteDepend(taskid);
             await _taskService.Delete(taskid);
-            return RedirectToAction("Index");
+            return Ok();
         }
 
         public async Task<IActionResult> Loadnodes(int id)

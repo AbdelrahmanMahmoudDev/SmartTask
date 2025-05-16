@@ -1,36 +1,34 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using SmartTask.BL.IServices;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
 using SmartTask.Core.Models.ServiceDto;
-using SmartTask.DataAccess.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartTask.BL.Services
 {
-    public class TaskService
+    public class TaskService : ITaskService
     {
         private ITaskRepository _taskRepository;
         private ICommentRepository _commentRepository;
         private IAttachmentRepository _attachmentRepository;
         private ITaskDependencyRepository _taskDependencyRepository;
-        public TaskService(ITaskRepository taskRepository, ICommentRepository commentRepository
-            , IAttachmentRepository attachmentRepository,ITaskDependencyRepository taskDependencyRepository)
+
+        public TaskService(ITaskRepository taskRepository, ICommentRepository commentRepository, IAttachmentRepository attachmentRepository, ITaskDependencyRepository taskDependencyRepository)
         {
             _taskRepository = taskRepository;
             _commentRepository = commentRepository;
             _attachmentRepository = attachmentRepository;
             _taskDependencyRepository = taskDependencyRepository;
         }
+
         public async Task<Core.Models.Task> Details(int id)
         {
-            var task =await _taskRepository.GetWithDetailsAsync(id);
+            var task = await _taskRepository.GetWithDetailsAsync(id);
+            return task;
+        }
+        public async Task<bool> ISAParent(int id)
+        {
+            var task = await _taskRepository.ISAParent(id);
             return task;
         }
         public async Task<Comment> AddComment(int taskId, string authorId, string content)
@@ -45,12 +43,10 @@ namespace SmartTask.BL.Services
             await _commentRepository.AddAsync(comment);
 
             return await _commentRepository.GetByIdAsync(comment.Id);
-
-
         }
-        public async System.Threading.Tasks.Task<Attachment> AddAttachment(int taskId, IFormFile file,string userid,string webRootPath)
-        {
 
+        public async Task<Attachment> AddAttachment(int taskId, IFormFile file, string userId, string webRootPath)
+        {
             var uploadsFolder = Path.Combine(webRootPath, "uploads");
             if (!Directory.Exists(uploadsFolder))
             {
@@ -70,59 +66,63 @@ namespace SmartTask.BL.Services
                 TaskId = taskId,
                 FileName = file.FileName,
                 FilePath = $"/uploads/{uniqueFileName}",
-                UploadedById = userid,
+                UploadedById = userId,
                 CreatedAt = DateTime.Now
             };
             await _attachmentRepository.AddAsync(attachment);
             return await _attachmentRepository.GetByIdAsync(attachment.Id);
         }
 
-        public async Task<List<Core.Models.Task>> TasksForUserInProject(int projectId,string userid)
+        public async Task<List<Core.Models.Task>> TasksForUserInProject(int projectId, string userId)
         {
-            var tasks=(await _taskRepository.GetByProjectIdAsync(projectId)).Where(t=>t.Assignments.Select(u => u.UserId == userid).FirstOrDefault()).ToList();
+            var tasks = (await _taskRepository.GetByProjectIdAsync(projectId)).Where(t => t.Assignments.Select(u => u.UserId == userId).FirstOrDefault()).ToList();
             return tasks;
         }
+
         public async Task<List<Core.Models.Task>> TasksForProject(int projectId)
         {
             var tasks = (await _taskRepository.GetByProjectIdAsync(projectId)).ToList();
             return tasks;
         }
-        public async Task<List<Core.Models.Task>> TasksForUser(string userid)
+
+        public async Task<List<Core.Models.Task>> TasksForUser(string userId)
         {
-            var tasks = (await _taskRepository.GetByAssignedToIdAsync(userid)).ToList();
+            var tasks = (await _taskRepository.GetByAssignedToIdAsync(userId)).ToList();
             return tasks;
         }
-        public async Task<int> NumofDepend(int taskid)
-        {
-            return (await _taskDependencyRepository.GetByPredecessorIdAsync(taskid))
-                .Count();
-        }
-        public async Task<Core.Models.Task> GetTask(int taskid)
-        {
-            return (await _taskRepository.GetByIdAsync(taskid));
-        }
-        public async System.Threading.Tasks.Task DeleteDepend(int taskid)
-        {
-            var depend = (await _taskDependencyRepository.GetByPredecessorIdAsync(taskid)).ToList();
-                await _taskDependencyRepository.DeleteRangeAsync(depend);
 
-            var depend2 = (await _taskDependencyRepository.GetBySuccessorIdAsync(taskid)).ToList();
+        public async Task<int> NumofDepend(int taskId)
+        {
+            return (await _taskDependencyRepository.GetByPredecessorIdAsync(taskId)).Count();
+        }
+
+        public async Task<Core.Models.Task> GetTask(int taskId)
+        {
+            return (await _taskRepository.GetByIdAsync(taskId));
+        }
+
+        public async System.Threading.Tasks.Task DeleteDepend(int taskId)
+        {
+            var depend = (await _taskDependencyRepository.GetByPredecessorIdAsync(taskId)).ToList();
+            await _taskDependencyRepository.DeleteRangeAsync(depend);
+
+            var depend2 = (await _taskDependencyRepository.GetBySuccessorIdAsync(taskId)).ToList();
             await _taskDependencyRepository.DeleteRangeAsync(depend2);
-
         }
-        public async System.Threading.Tasks.Task Delete(int taskid)
+
+        public async System.Threading.Tasks.Task Delete(int taskId)
         {
-            await _taskRepository.DeleteAsync(taskid);
+            await _taskRepository.DeleteAsync(taskId);
         }
 
         public async Task<List<TaskDenpendDto>> Loadnodes(int id)
         {
             var graph = new Dictionary<int, List<int>>();
             var visited = new HashSet<int>();
-            var task =await _taskRepository.GetByIdAsync(id);
-            var allTasks =await _taskRepository.GetByProjectIdAsync(task.ProjectId);
+            var task = await _taskRepository.GetByIdAsync(id);
+            var allTasks = await _taskRepository.GetByProjectIdAsync(task.ProjectId);
 
-            var taskdepn=(await _taskDependencyRepository.GetAllAsync()).ToList()
+            var taskdepn = (await _taskDependencyRepository.GetAllAsync()).ToList()
                 .Where(x => x.Predecessor.ProjectId == task.ProjectId).ToList();
 
             taskdepn.ForEach(t =>
@@ -133,11 +133,11 @@ namespace SmartTask.BL.Services
                     }
                     graph[t.PredecessorId].Add(t.SuccessorId);
                 });
-            
+
             visited.DFS(id, graph);
 
             var notReachable = allTasks.ToList().ExceptBy(visited, e => e.Id);
-            var existingDeps =(await _taskDependencyRepository.GetBySuccessorIdAsync(id)).Select(e => e.PredecessorId).ToList();
+            var existingDeps = (await _taskDependencyRepository.GetBySuccessorIdAsync(id)).Select(e => e.PredecessorId).ToList();
 
             var taskViewDeps = notReachable.Select(n => new TaskDenpendDto
             {
@@ -151,7 +151,7 @@ namespace SmartTask.BL.Services
 
         public async System.Threading.Tasks.Task SaveSelectedTasks(int SelectedTaskId, List<int> selectedTaskIds)
         {
-            var existingDependencies =await _taskDependencyRepository.GetBySuccessorIdAsync(SelectedTaskId);
+            var existingDependencies = await _taskDependencyRepository.GetBySuccessorIdAsync(SelectedTaskId);
 
             foreach (var selectedId in selectedTaskIds)
             {
@@ -163,7 +163,6 @@ namespace SmartTask.BL.Services
                         PredecessorId = selectedId
                     });
                 }
-
             }
 
             foreach (var dependency in existingDependencies)
@@ -174,6 +173,5 @@ namespace SmartTask.BL.Services
                 }
             }
         }
-
     }
 }

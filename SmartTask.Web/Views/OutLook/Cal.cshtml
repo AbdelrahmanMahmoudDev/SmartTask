@@ -1,0 +1,50 @@
+﻿@using SmartTask.Core.Models
+@model IEnumerable<Event>
+
+@{
+    ViewData["Title"] = "Outlook Calendar";
+}
+<style>
+    .col-attendees {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+<!-- Font Awesome & Bootstrap (if not already included) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Your Outlook Calendar Events</h2>
+        <a asp-action="syncoutlook" asp-controller="Outlook" class="btn btn-outline-primary" title="Sync with Outlook">
+            <i class="fas fa-sync-alt me-2"></i> Sync
+        </a>
+    </div>
+    
+
+    <div class="table-responsive">
+        <table class="table datatable" id="eventsTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Subject</th>
+                    <th class="col-attendees">Attendees</th>
+                    <th>Start</th>
+                    <th>End</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td>@e.Subject</td>
+                        <td class="col-attendees">@e.Attendees</td>
+                        <td>@e.Start.ToString("g")</td>
+                        <td>@e.End.ToString("g")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

@@ -30,12 +30,6 @@ namespace SmartTask.Web.Controllers
             _userLoginHistory = userLoginHistory;
             _config = config;
         }
-      
-        
-        
-
-
-
 
         [HttpGet]
         public IActionResult Login()

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartTask.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
-    partial class SmartTaskContextModelSnapshot : ModelSnapshot
+    [Migration("20250515232805_OutLooktTaskId")]
+    partial class OutLooktTaskId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -531,9 +534,8 @@ namespace SmartTask.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("OutLooktTaskId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("OutLooktTaskId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("Start")
                         .HasColumnType("datetime2");
@@ -543,7 +545,7 @@ namespace SmartTask.DataAccess.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int?>("TaskId")
+                    b.Property<int>("TaskId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -975,7 +977,9 @@ namespace SmartTask.DataAccess.Migrations
 
                     b.HasOne("SmartTask.Core.Models.Task", "Task")
                         .WithMany("Events")
-                        .HasForeignKey("TaskId");
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ImportedBy");
 

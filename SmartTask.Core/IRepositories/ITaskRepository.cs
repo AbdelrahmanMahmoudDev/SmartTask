@@ -22,6 +22,7 @@ namespace SmartTask.Core.IRepositories
         Task UpdateAsync(ModelTask task);
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
+        Task<bool> ISAParent(int id);
         Task<IEnumerable<ModelTask>> GetAllTasksPerProject(int projectId);
     }
 }

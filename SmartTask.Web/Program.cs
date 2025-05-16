@@ -1,23 +1,22 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SmartTask.BL.IServices;
+using SmartTask.Bl.IServices;
 using SmartTask.Bl.Services;
+using SmartTask.BL.IServices;
+using SmartTask.BL.Service.Hubs;
+using SmartTask.BL.Services;
 using SmartTask.Core.IExternalServices;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
 using SmartTask.Core.Models.BasePermission;
-using SmartTask.BL.Services;
-using SmartTask.Web.CustomFilter;
 using SmartTask.DataAccess.Data;
 using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
-
-using SmartTask.Core.IExternalServices;
-using SmartTask.Bl.IServices;
-using SmartTask.Bl.Services;
-
+using SmartTask.Web.CustomFilter;
 using System;
-using task=System.Threading.Tasks.Task;
-using SmartTask.BL.Service.Hubs;
+using System.Threading.Tasks;
+using task = System.Threading.Tasks.Task;
+
 namespace SmartTask.Web
 {
     public class Program
@@ -26,55 +25,74 @@ namespace SmartTask.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Core MVC services configuration
+            #region MVC & Filters
+
             builder.Services.AddControllersWithViews(options =>
             {
                 options.Filters.Add(typeof(DynamicAuthorizationFilter));
             });
 
+            #endregion MVC & Filters
 
-            //signal R
+            #region SignalR
+
             builder.Services.AddSignalR();
 
-            // Database & Identity
+            #endregion SignalR
+
+            #region Database & Identity
+
             builder.Services.AddDbContext<SmartTaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Database context configuration
-            builder.Services.AddDbContext<SmartTaskContext>(options =>
-                options.UseSqlServer(
-                    builder.Configuration.GetConnectionString("DefaultConnection"),
-                    sqlOptions => sqlOptions.EnableRetryOnFailure()));
-            builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(option =>
+            builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
-                option.Password.RequiredLength = 4;
-                option.Password.RequireDigit = false;
-                option.Password.RequireUppercase = false;
-                option.Password.RequireNonAlphanumeric = false;
-            }).AddEntityFrameworkStores<SmartTaskContext>();
+                options.Password.RequiredLength = 4;
+                options.Password.RequireDigit = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+            })
+            .AddEntityFrameworkStores<SmartTaskContext>();
+
+            #endregion Database & Identity
+
+            #region Authentication
+
             builder.Services.AddAuthentication()
-    .AddCookie()// Local Identity login
-    .AddMicrosoftAccount("Outlook", options =>
-    {
-        options.ClientId = builder.Configuration["AzureAd:ClientId"];
-        options.ClientSecret = builder.Configuration["AzureAd:ClientSecret"];
-        options.CallbackPath = builder.Configuration["AzureAd:CallbackPath"];
-        options.SaveTokens = true;
-        options.Scope.Add("offline_access");
-        options.Scope.Add("User.Read");
-        options.Scope.Add("Calendars.Read");
-    });
-            //// Dependency Injection
+                .AddCookie()
+                .AddMicrosoftAccount("Outlook", options =>
+                {
+                    options.ClientId = builder.Configuration["AzureAd:ClientId"];
+                    options.ClientSecret = builder.Configuration["AzureAd:ClientSecret"];
+                    options.CallbackPath = builder.Configuration["AzureAd:CallbackPath"];
+                    options.SaveTokens = true;
+                    options.Scope.Add("offline_access");
+                    options.Scope.Add("User.Read");
+                    options.Scope.Add("Calendars.Read");
+                });
+
+            #endregion Authentication
+
+            #region Dependency Injection and Others
+
             RegisterRepositories(builder.Services);
 
             builder.Services.AddScoped(typeof(IPaginatedService<>), typeof(PaginatedService<>));
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddSession();
+
+            #endregion Dependency Injection and Others
+
             var app = builder.Build();
+
+            #region Session and Migration
+
             app.UseSession();
+
             using var scope = app.Services.CreateScope();
             var services = scope.ServiceProvider;
             var context = services.GetRequiredService<SmartTaskContext>();
             var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+
             try
             {
                 await context.Database.MigrateAsync();
@@ -84,21 +102,27 @@ namespace SmartTask.Web
                 var logger = loggerFactory.CreateLogger<Program>();
                 logger.LogError(ex, "An error occurred while migrating the database.");
             }
-            // Error Handling
+
+            #endregion Session and Migration
+
+            #region Middlewares
+
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
 
-            // Middleware Pipeline
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // Endpoints
+            #endregion Middlewares
+
+            #region Endpoints
+
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
@@ -107,18 +131,25 @@ namespace SmartTask.Web
 
             app.MapHub<NotificationHub>("/notificationHub");
 
+            #endregion Endpoints
+
             app.Run();
         }
 
         private static void RegisterRepositories(IServiceCollection services)
         {
             services.AddSingleton<IMvcControllerDiscovery, MvcControllerDiscovery>();
-            services.AddSingleton(new DynamicAuthorizationOptions { DefaultAdminUser = "ahmedramadan.l403@gmail.com" });
+            services.AddSingleton(new DynamicAuthorizationOptions
+            {
+                DefaultAdminUser = "ahmedramadan.l403@gmail.com"
+            });
+
+            // Services
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<ITaskService, TaskService>();
 
-            // Repository Interfaces to Implementations
-         
+            // Repositories
             services.AddScoped<IAISuggestionRepository, AISuggestionRepository>();
             services.AddScoped<IAssignTaskRepository, AssignTaskRepository>();
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
@@ -127,21 +158,15 @@ namespace SmartTask.Web
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             services.AddScoped<IEventRepository, EventRepository>();
-            //services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
-            
-            //services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
-            //services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<ITaskDependencyRepository, TaskDependencyRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+
             services.AddScoped<IUserLoginHistoryRepository, UserLoginHistoryRepository>();
             services.AddScoped<IAuditRepository, AuditRepository>();
-            services.AddScoped<TaskService>();
-
             services.AddScoped<INotificationRepository, NotificationRepository>();
-            
         }
     }
 }

@@ -3,15 +3,20 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Graph;
 using SmartTask.BL.Services;
+using SmartTask.Core.IRepositories;
+using SmartTask.Core.Models;
+using System.Security.Claims;
 
 namespace SmartTask.Web.Controllers
 {
     public class OutLookController : Controller
     {
         IConfiguration _config;
-        public OutLookController(IConfiguration config)
+        private readonly IEventRepository eventRepository;
+        public OutLookController(IConfiguration config,IEventRepository eventRepository)
         {
-            _config = config;   
+            _config = config;
+            this.eventRepository = eventRepository;
         }
         [Authorize]
         public IActionResult Index()
@@ -34,9 +39,9 @@ namespace SmartTask.Web.Controllers
             var refreshToken = await HttpContext.GetTokenAsync("Outlook", "refresh_token");
             var expiresAt = await HttpContext.GetTokenAsync("Outlook", "expires_at");
 
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("access_token")) &&
-                string.IsNullOrEmpty(HttpContext.Session.GetString("refresh_token")) &&
-                string.IsNullOrEmpty(HttpContext.Session.GetString("expires_at")))
+            //if (string.IsNullOrEmpty(HttpContext.Session.GetString("access_token")) &&
+            //    string.IsNullOrEmpty(HttpContext.Session.GetString("refresh_token")) &&
+            //    string.IsNullOrEmpty(HttpContext.Session.GetString("expires_at")))
             {
                 HttpContext.Session.SetString("access_token", accessToken);
                 HttpContext.Session.SetString("refresh_token", refreshToken);
@@ -44,55 +49,93 @@ namespace SmartTask.Web.Controllers
             }
 
 
-            return RedirectToAction("cal");
+            return RedirectToAction("Cal");
         }
 
 
         [Authorize]
-        public async Task<IActionResult> cal()
+        public async Task<IActionResult> Cal(int size=100,int page=0)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var allEvents = new List<Microsoft.Graph.Models.Event>();
+            var s = (await eventRepository.GetByImportedByIdAsync(userId)).Skip(page*size).Take(size).ToList();
+            return View(s);
+        }
+        [Authorize]
+        public async Task<IActionResult> syncoutlook()
         {
             var accessToken = HttpContext.Session.GetString("access_token");
             var refreshToken = HttpContext.Session.GetString("refresh_token");
             var expiresAtStr = HttpContext.Session.GetString("expires_at");
-
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("access_token")) ||
+                string.IsNullOrEmpty(HttpContext.Session.GetString("refresh_token")))
+            {
+                return RedirectToAction("Index");
+            }
             if (DateTime.TryParse(expiresAtStr, out var expiresAt))
             {
                 if (DateTime.UtcNow > expiresAt)
                 {
-                    accessToken = await RefreshAccessTokenAsync(refreshToken);
-                    HttpContext.Session.SetString("access_token", accessToken);
-                    HttpContext.Session.SetString("expires_at", DateTime.UtcNow.AddMinutes(60).ToString());
+                    var a = await RefreshAccessTokenAsync(refreshToken);
+                    HttpContext.Session.SetString("access_token", a.access_token);
+                    var at = DateTime.UtcNow.AddSeconds(a.expires_in);
+                    HttpContext.Session.SetString("expires_at", at.ToString("o"));
+                    HttpContext.Session.SetString("refresh_token", a.refresh_token);
                 }
             }
-
-            // Ensure the required NuGet packages are installed:  
-            // 1. Microsoft.Graph  
-            // 2. Microsoft.Graph.Auth  
-            // 3. Microsoft.Identity.Client  
-
             var authProvider = new MyAccessTokenProvider(accessToken);
-
-            // Create the GraphServiceClient using your custom provider
             var graphClient = new GraphServiceClient(authProvider);
 
-
-            // Get the current date/time in ISO 8601 format (required by Microsoft Graph)
-            var todayIso = DateTime.UtcNow.ToString("o"); // "o" = round-trip format like 2025-05-15T14:00:00.000Z
-            
-            // Get the events from the user's calendar
-            var events = await graphClient.Me.Events.GetAsync(opt =>
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var allEvents = new List<Microsoft.Graph.Models.Event>();
+            var s = (await eventRepository.GetByImportedByIdAsync(userId)).Select(x => x.OutLooktTaskId).ToList();
+            var page = await graphClient.Me.Events.GetAsync(opt =>
             {
-
-                //opt.QueryParameters.Top = 10;
-                //opt.QueryParameters.Select = new[] { "subject", "start", "end" };
-                opt.QueryParameters.Filter = $"start/dateTime ge '{todayIso}'";
                 opt.QueryParameters.Orderby = new[] { "start/dateTime" };
             });
+            int i = 10;
 
-            return View(events.Value);
+            while (page != null)
+            {
+                allEvents.AddRange(page.Value.Where(x => !s.Contains(x.ICalUId)));
+                if (page.OdataNextLink != null)
+                {
+                    page = await graphClient.Me.Events.GetAsync(requestConfig =>
+                    {
+                        requestConfig.QueryParameters.Skip = i;
+                        requestConfig.QueryParameters
+                        .Orderby = new[] { "start/dateTime" };
+                    });
+                    i += 10;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            foreach (var a in allEvents)
+            {
+                var b = new Event()
+                {
+                    OutLooktTaskId = a.ICalUId,
+
+                    Start = DateTime.Parse(a.Start.DateTime),
+
+                    End = DateTime.Parse(a.End.DateTime),
+
+                    Subject = a.Subject,
+
+                    Attendees = string.Join(", ", a.Attendees.Select(att => att.EmailAddress?.Address)),
+
+                    ImportedById = userId
+
+                };
+                await eventRepository.AddAsync(b);
+            }
+            return RedirectToAction("Cal");
         }
 
-        private async Task<string> RefreshAccessTokenAsync(string refreshToken)
+        private async Task<OAuthResponse> RefreshAccessTokenAsync(string refreshToken)
         {
             var http = new HttpClient();
             var parameters = new Dictionary<string, string>
@@ -107,7 +150,7 @@ namespace SmartTask.Web.Controllers
             var res = await http.PostAsync($"https://login.microsoftonline.com/{_config["AzureAd:TenantId"]}/oauth2/v2.0/token", new FormUrlEncodedContent(parameters));
             var tokenResult = await res.Content.ReadFromJsonAsync<OAuthResponse>();
 
-            return tokenResult.access_token;
+            return tokenResult;
         }
     }
 }

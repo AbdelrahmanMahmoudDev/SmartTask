@@ -150,6 +150,10 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Tasks.AnyAsync(t => t.Id == id);
         }
+        public async Task<bool> ISAParent(int id)
+        {
+            return await _context.Tasks.AnyAsync(t => t.ParentTaskId== id);
+        }
 
         public async Task<IEnumerable<ModelTask>> GetAllTasksPerProject(int projectId)
         {
