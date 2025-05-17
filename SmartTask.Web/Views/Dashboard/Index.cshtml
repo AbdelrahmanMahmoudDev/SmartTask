@@ -1,0 +1,486 @@
+﻿@model IEnumerable<SmartTask.Core.Models.Project>
+@using Microsoft.AspNetCore.Identity
+@using SmartTask.Core.Models
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Dashboard";
+    var currentUser = await UserManager.GetUserAsync(User);
+    var totalProjects = Model.Count();
+    var totalTasks = Model.Sum(p => p.Tasks?.Count ?? 0);
+    var completedProjects = Model.Count(p => p.Status == "Completed");
+    var pendingprojects = Model.Count(p => p.Status == "Pending");
+    var inProgressProjects = Model.Count(p => p.Status == "In Progress");
+
+    // بيانات المهام المثالبة
+    var sampleTasks = new List<dynamic>
+    {
+        new { Name = "Design UI Mockups", Status = "Completed", Priority = "High", DueDate = DateTime.Now.AddDays(-2) },
+        new { Name = "Implement Authentication", Status = "In Progress", Priority = "High", DueDate = DateTime.Now.AddDays(3) },
+        new { Name = "Database Schema Design", Status = "Pending", Priority = "Medium", DueDate = DateTime.Now.AddDays(1) },
+        new { Name = "API Development", Status = "Not Started", Priority = "Critical", DueDate = DateTime.Now.AddDays(5) }
+    };
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-red: #dc3545;
+            --light-red: #f8d7da;
+            --dark-red: #c82333;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: white;
+            padding: 2rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+        }
+
+        .stat-card {
+            background: white;
+            border-left: 4px solid var(--primary-red);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .project-card {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+            .project-card:hover {
+                box-shadow: 0 5px 15px rgba(220, 53, 69, 0.2);
+                transform: translateY(-3px);
+            }
+
+        .progress {
+            height: 12px;
+            background-color: #f1f1f1;
+        }
+
+        .progress-bar {
+            background-color: var(--primary-red);
+        }
+
+        .task-item {
+            padding: 0.75rem 1rem;
+            border-left: 3px solid var(--primary-red);
+            margin-bottom: 0.75rem;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .badge-priority {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+        }
+
+        .badge-high {
+            background-color: var(--primary-red);
+        }
+
+        .badge-medium {
+            background-color: #ffc107;
+        }
+
+        .badge-critical {
+            background-color: #6f42c1;
+        }
+
+        .view-all {
+            color: var(--primary-red);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .filter-section {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .bg-light-success {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .bg-light-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .bg-light-red {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        .task-status {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-inprogress {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-pending {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        .status-notstarted {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        /* Add to your existing CSS */
+        .bg-light-info {
+            background-color: rgba(23, 162, 184, 0.1);
+        }
+
+        .text-info {
+            color: #17a2b8 !important;
+        }
+
+        .bg-light-purple {
+            background-color: rgba(111, 66, 193, 0.1);
+        }
+
+        .text-purple {
+            color: #6f42c1 !important;
+        }
+
+        .g-3 {
+            gap: 1rem;
+        }
+
+        .stat-card {
+            height: 100%;
+        }
+
+        .username-highlight {
+            color: #f8f9fc; 
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            background: linear-gradient(to right, #ffd700, #f9f0a5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            padding: 0 5px;
+            border-radius: 4px;
+            text-stroke: 0.5px #d1d8ff; 
+        }
+
+        .project-card {
+            transition: all 0.3s ease;
+        }
+
+        .btn_view.btn-outline-primary:hover i,
+        .btn_view.btn-outline-primary:hover {
+            color: white !important;
+        }
+
+        .sorting {
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="dashboard-header mb-5">
+            <h1><i class="fas fa-tachometer-alt me-2"></i>Welcome, <span class="username-highlight">@currentUser?.FullName</span></h1>            <p class="mb-0">Here's an overview of your projects and tasks</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4 g-3">
+            <!-- Total Projects -->
+            <div class="col-md">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted">TOTAL PROJECTS</h6>
+                            <h3 class="mb-0">@totalProjects</h3>
+                            <small class="text-muted">
+                                <span class="text-danger fw-bold">100%</span> of all work
+                            </small>
+                        </div>
+                        <div class="bg-light-red p-3 rounded-circle">
+                            <i class="fas fa-project-diagram text-danger fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed -->
+            <div class="col-md">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted">COMPLETED</h6>
+                            <h3 class="mb-0">@completedProjects</h3>
+                            <small class="text-muted">
+                                <span class="text-success fw-bold">@((completedProjects * 100 / totalProjects).ToString("0"))%</span> completion rate
+                            </small>
+                        </div>
+                        <div class="bg-light-success p-3 rounded-circle">
+                            <i class="fas fa-check-circle text-success fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- In Progress -->
+            <div class="col-md">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted">IN PROGRESS</h6>
+                            <h3 class="mb-0">@inProgressProjects</h3>
+                            <small class="text-muted">
+                                <span class="text-info fw-bold">@((inProgressProjects * 100 / totalProjects).ToString("0"))%</span> in development
+                            </small>
+                        </div>
+                        <div class="bg-light-info p-3 rounded-circle">
+                            <i class="fas fa-sync-alt text-info fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending -->
+            <div class="col-md">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted">PENDING</h6>
+                            <h3 class="mb-0">@pendingprojects</h3>
+                            <small class="text-muted">
+                                <span class="text-warning fw-bold">@((pendingprojects * 100 / totalProjects).ToString("0"))%</span> awaiting start
+                            </small>
+                        </div>
+                        <div class="bg-light-warning p-3 rounded-circle">
+                            <i class="fas fa-clock text-warning fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Tasks -->
+            <div class="col-md">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted">TOTAL TASKS</h6>
+                            <h3 class="mb-0">@totalTasks</h3>
+                            <small class="text-muted">
+                                <span class="text-purple fw-bold">@((totalTasks * 100 / totalProjects).ToString("0"))%</span> task coverage
+                            </small>
+                        </div>
+                        <div class="bg-light-purple p-3 rounded-circle">
+                            <i class="fas fa-tasks text-purple fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Projects Section -->
+            <div class="col-md-7">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-project-diagram me-2 text-danger"></i>Your Projects</h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary me-2 sort-btn" data-sort="date-asc">
+                                <i class="fas fa-arrow-up me-1"></i> Oldest First
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary me-2 sort-btn" data-sort="date-desc">
+                                <i class="fas fa-arrow-down me-1"></i> Newest First
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary sort-btn" data-sort="status">
+                                <i class="fas fa-sort me-1"></i> Sort by Status
+                            </button>
+                            <a href="@Url.Action("Index", "Project")" class=" btn_view btn btn-sm btn-outline-primary ms-2">
+                                <i class="fas fa-list me-1"></i> View All
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body" id="projects-container">
+                        @if (!Model.Any())
+                        {
+                            <div class="alert alert-info">
+                                No projects found. @(User.IsInRole("Admin") ? "Create a new project" : "Contact your manager")
+                            </div>
+                        }
+                        else
+                        {
+                            foreach (var project in Model)
+                            {
+                                var completedTasks = project.Tasks?.Count(t => t.Status == "Completed") ?? 0;
+                                var totalProjectTasks = project.Tasks?.Count() ?? 1;
+                                var progressPercentage = (int)((completedTasks / (double)totalProjectTasks) * 100);
+                                var statusClass = project.Status == "Completed" ? "success" :
+                                project.Status == "In Progress" ? "primary" : "warning";
+
+                                <div class="project-card mb-3 p-3 border rounded"
+                                     data-status="@project.Status"
+                                     data-date="@project.StartDate?.ToString("yyyyMMdd")"
+                                     onclick="window.location.href='@Url.Action("Details", "Project", new { id = project.Id })'"
+                                     style="cursor: pointer;">
+
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h5 class="text-@statusClass fw-bold">
+                                                @project.Name
+                                                @if (project.Status == "Completed")
+                                                {
+                                                    <i class="fas fa-check-circle ms-2"></i>
+                                                }
+                                            </h5>
+                                            <p class="text-muted mb-2">
+                                                @(project.Description?.Length > 100 ? project.Description.Substring(0, 100) + "..." : project.Description)
+                                            </p>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-light text-dark me-2">
+                                                    <i class="fas fa-tasks me-1"></i> @totalProjectTasks Tasks
+                                                </span>
+                                                <span class="badge bg-light text-dark">
+                                                    <i class="fas fa-check-circle me-1 text-success"></i> @completedTasks Completed
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-@statusClass">
+                                                @project.Status
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="progress mt-3" style="height: 8px;">
+                                        <div class="progress-bar bg-@statusClass"
+                                             role="progressbar"
+                                             style="width: @progressPercentage%"
+                                             aria-valuenow="@progressPercentage"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100">
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <small class="text-muted">
+                                            <i class="far fa-calendar-alt me-1"></i>
+                                            @project.StartDate?.ToString("dd MMM yyyy") - @project.EndDate?.ToString("dd MMM yyyy")
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="fas fa-building me-1"></i>
+                                            @(project.Department?.Name ?? "No Department")
+                                        </small>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Section -->
+            <div class="col-md-5 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-tasks me-2 text-danger"></i>Recent Tasks</h5>
+                            <a href="#" class="view-all">View All</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var task in sampleTasks)
+                        {
+                            <div class="task-item">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">@task.Name</h6>
+                                    <span class="badge badge-@(task.Priority.ToLower()) badge-priority">
+                                        @task.Priority
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="task-status status-@(task.Status.Replace(" ", "").ToLower())">
+                                        @task.Status
+                                    </span>
+                                    <small class="text-muted">
+                                        <i class="far fa-calendar-alt me-1"></i>
+                                        @task.DueDate.ToString("dd MMM yyyy")
+                                    </small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+        <script>
+
+            $(document).ready(function() {
+                $('.sort-btn').click(function() {
+                    const sortType = $(this).data('sort'); // يمكن أن يكون 'date-asc' أو 'date-desc' أو 'status'
+                    const $container = $('#projects-container');
+                    const $projects = $container.find('.project-card').detach();
+
+                    $projects.sort(function(a, b) {
+                        if (sortType.includes('date')) {
+                            const dateA = $(a).data('date');
+                            const dateB = $(b).data('date');
+                            return sortType === 'date-asc' ? dateA - dateB : dateB - dateA;
+                        } else { // status
+                            const statusOrder = { "Completed": 1, "In Progress": 2, "Pending": 3 };
+                            return statusOrder[$(a).data('status')] - statusOrder[$(b).data('status')];
+                        }
+                    });
+
+                    $container.append($projects);
+                });
+            });
+                        $container.addClass('sorting');
+            setTimeout(() => $container.removeClass('sorting'), 300);
+        </script>
+    }
+</body>
+</html>

@@ -24,5 +24,6 @@ namespace SmartTask.BL.IServices
 
         //To Diplay Details of a specific project for a specific user
         Task<Project> GetProjectDetailsAsync(int projectId, string userId);
+        Task<PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int page, int pageSize);
     }
 }

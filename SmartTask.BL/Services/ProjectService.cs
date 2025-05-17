@@ -76,7 +76,7 @@ namespace SmartTask.BL.Services
                 return false;
 
             var existingMember = project.ProjectMembers.FirstOrDefault(pm => pm.UserId == userId);
-            if (existingMember != null) return true; 
+            if (existingMember != null) return true;
 
             project.ProjectMembers.Add(new ProjectMember
             {
@@ -97,5 +97,11 @@ namespace SmartTask.BL.Services
         {
             return _projectRepository.GetProjectByIdAsync(projectId, userId);
         }
+
+        public async Task<PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int page, int pageSize)
+        {
+            return await GetFilteredProjectsAsync(searchString, null, page, pageSize);
+        }
+
     }
 }

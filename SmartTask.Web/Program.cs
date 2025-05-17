@@ -12,6 +12,7 @@ using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
 using SmartTask.Bl.Hubs;
 using SmartTask.Bl.IServices;
+using Microsoft.AspNetCore.Identity;
 using System;
 using task=System.Threading.Tasks.Task;
 using Microsoft.AspNetCore.Authorization;
@@ -62,7 +63,9 @@ namespace SmartTask.Web
                     sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<SmartTaskContext>();
+     .AddEntityFrameworkStores<SmartTaskContext>()
+     .AddDefaultTokenProviders();
+
 
             // Dependency Injection
             RegisterRepositories(builder.Services);

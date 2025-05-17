@@ -542,27 +542,28 @@
 
 
 <script>
-    $(document).ready(function() {
-        // Initialize date range picker
-        $('#filterDateRange').daterangepicker({
-            autoUpdateInput: false,
-            locale: {
-                cancelLabel: 'Clear',
-                format: 'DD/MM/YYYY'
-            }
-        });
+                $(document).ready(function() {
+                // Initialize date range picker
+                $('#filterDateRange').daterangepicker({
+                    autoUpdateInput: false,
+                    locale: {
+                        cancelLabel: 'Clear',
+                        format: 'DD/MM/YYYY'
+                    }
+                });
 
-        $('#filterDateRange').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
-            table.draw();
-        });
+                // Handle date range apply event
+                $('#filterDateRange').on('apply.daterangepicker', function(ev, picker) {
+                    $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+                    applyFilters(); // Call applyFilters directly here
+                });
 
-        $('#filterDateRange').on('cancel.daterangepicker', function(ev, picker) {
-            $(this).val('');
-            table.draw();
-        });
-                  // Initialize DataTable 
-            var table = $('#projectsTable').DataTable({
+                $('#filterDateRange').on('cancel.daterangepicker', function(ev, picker) {
+                    $(this).val('');
+                    applyFilters(); // Call applyFilters directly here
+                });
+
+                 var table = $('#projectsTable').DataTable({
                 dom: '<"top"<"row"<"col-md-6"l><"col-md-6"f>>>rt<"bottom"<"row"<"col-md-6"i><"col-md-6"p>>><"clear">',
                 responsive: true,
                 buttons: [
@@ -572,7 +573,7 @@
                         className: 'btn btn-sm',
                         title: 'Projects_List'
                     }
-                   
+
                 ],
                 language: {
                     search: '<i class="fas fa-search me-2"></i>',
@@ -598,62 +599,70 @@
                 }
             });
 
+                // Apply filters on typing
+                $('#filterName, #filterOwner').on('keyup', function() {
+                    applyFilters();
+                });
 
-        // Apply filters on typing
-        $('#filterName, #filterOwner').on('keyup', function() {
-            applyFilters();
-        });
+                // Apply filters on select change
+                $('#filterStatus').on('change', function() {
+                    applyFilters();
+                });
 
-        // Apply filters on select change
-        $('#filterStatus').on('change', function() {
-            applyFilters();
-        });
+                // Apply all filters function
+                function applyFilters() {
+                    // Clear any previous date filters
+                    $.fn.dataTable.ext.search.pop();
 
-        // Apply all filters function
-        function applyFilters() {
-            // Clear any previous date filters
-            $.fn.dataTable.ext.search.pop();
+                    // Apply column filters
+                    table.columns(0).search($('#filterName').val().trim());
+                    table.columns(1).search($('#filterOwner').val().trim());
+                    table.columns(4).search($('#filterStatus').val().trim());
 
-            // Apply column filters
-            table.columns(0).search($('#filterName').val().trim());
-            table.columns(1).search($('#filterOwner').val().trim());
-            table.columns(4).search($('#filterStatus').val().trim());
+                    // Date range filtering
+                    var dateRange = $('#filterDateRange').val();
+                    if (dateRange) {
+                        var dates = dateRange.split(' - ');
+                        if (dates.length === 2) {
+                            var startDate = moment(dates[0], 'DD/MM/YYYY');
+                            var endDate = moment(dates[1], 'DD/MM/YYYY');
 
-            // Date range filtering
-            var dateRange = $('#filterDateRange').val();
-            if (dateRange) {
-                var dates = dateRange.split(' - ');
-                var startDate = moment(dates[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
-                var endDate = moment(dates[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+                            if (startDate.isValid() && endDate.isValid()) {
+                                // Add custom filter function for date range
+                                $.fn.dataTable.ext.search.push(
+                                    function(settings, data, dataIndex) {
+                                        var rowStartDate = moment(data[2], 'DD MMM YYYY');
+                                        var rowEndDate = moment(data[3], 'DD MMM YYYY');
 
-                // Add custom filter function for date range
-                $.fn.dataTable.ext.search.push(
-                    function(settings, data, dataIndex) {
-                        var rowStartDate = moment(data[2], 'DD MMM YYYY').format('YYYY-MM-DD');
-                        var rowEndDate = moment(data[3], 'DD MMM YYYY').format('YYYY-MM-DD');
+                                        if (!rowStartDate.isValid() || !rowEndDate.isValid()) {
+                                            return false;
+                                        }
 
-                        return (rowStartDate >= startDate && rowStartDate <= endDate) ||
-                               (rowEndDate >= startDate && rowEndDate <= endDate) ||
-                               (rowStartDate <= startDate && rowEndDate >= endDate);
+                                        return (rowStartDate.isSameOrAfter(startDate) && rowStartDate.isSameOrBefore(endDate)) ||
+                                               (rowEndDate.isSameOrAfter(startDate) && rowEndDate.isSameOrBefore(endDate)) ||
+                                               (rowStartDate.isSameOrBefore(startDate) && rowEndDate.isSameOrAfter(endDate));
+                                    }
+                                );
+                            }
+                        }
                     }
-                );
-            }
 
-            table.draw();
-        }
+                    // Redraw the table to apply filters
+                    table.draw();
+                }
 
-        // Reset all filters
-        $('#btnResetFilter').click(function() {
-            $('#filterName').val('');
-            $('#filterOwner').val('');
-            $('#filterStatus').val('');
-            $('#filterDateRange').val('');
+                // Reset all filters
+                $('#btnResetFilter').click(function() {
+                    $('#filterName').val('');
+                    $('#filterOwner').val('');
+                    $('#filterStatus').val('');
+                    $('#filterDateRange').val('');
 
-            // Clear all filters
-            table.columns().search('');
-            $.fn.dataTable.ext.search.pop();
-            table.draw();
-        });
-    });
+                    // Clear all filters
+                    table.columns().search('');
+                    $.fn.dataTable.ext.search.pop();
+                    table.draw();
+                });
+            });
 </script>
 }

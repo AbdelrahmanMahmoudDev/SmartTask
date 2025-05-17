@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SmartTask.BL.Services;
+using SmartTask.Core.Models.BasePermission;
 
 namespace SmartTask.Web.Controllers
 {
@@ -18,15 +19,15 @@ namespace SmartTask.Web.Controllers
     {
         private readonly IProjectService _projectService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IDepartmentService _departmentService;
         private const int PageSize = 10;
 
         public DashboardController(
-            IProjectService projectService,
-            UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager,
-            IDepartmentService departmentService)
+           IProjectService projectService,
+           UserManager<ApplicationUser> userManager,
+           RoleManager<ApplicationRole> roleManager,
+           IDepartmentService departmentService)
         {
             _projectService = projectService;
             _userManager = userManager;
@@ -383,5 +384,7 @@ namespace SmartTask.Web.Controllers
 
             return RedirectToAction(nameof(Details), new { id = projectId });
         }
+
+        
     }
 }
