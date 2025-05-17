@@ -40,19 +40,21 @@
                     <tr>
                         <td>@e.Subject</td>
                         <td class="col-attendees">@e.Attendees</td>
-                        <td>@e.Start</td>
                         @if(!e.TaskId.HasValue){
                             <td>
-                                <button class="btn btn-sm btn-success add-task-btn"
-                                        data-event-id="@e.Id"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#addTaskModal">
-                                    <i class="fas fa-plus"></i> Add Task
-                                </button>
+                                <span id="task-cell-@e.Id">
+                                    <button class="btn btn-sm btn-success add-task-btn"
+                                            data-event-id="@e.Id"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#addTaskModal">
+                                        <i class="fas fa-plus"></i> Add Task
+                                    </button>
+                                </span>
                             </td>
                         }else{
                             <td>@e.Task.Project.Name</td>
                         }
+                        <td>@e.Start</td>
                         <td>@e.End</td>
                     </tr>
                 }
@@ -108,6 +110,32 @@
             });
 
             $userDropdown.trigger('change');
+        });
+    });
+
+
+
+
+        $(document).on('submit', '#addTaskForm', function (e) {
+        e.preventDefault();
+
+        var form = $(this);
+
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: form.serialize(),
+            success: function (response) {
+                const cellId = `#task-cell-${response.eventId}`;
+             $(cellId).replaceWith(`<span>${response.projectName}</span>`);
+                $('#addTaskModal').modal('hide');
+
+                alert('Task added successfully!');
+
+            },
+            error: function (xhr) {
+                $('#addTaskModalBody').html(xhr.responseText);
+            }
         });
     });
 </script>

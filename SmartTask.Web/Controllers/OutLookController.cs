@@ -3,12 +3,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Graph;
+using Microsoft.Graph.Models;
 using SmartTask.BL.IServices;
 using SmartTask.BL.Services;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
+using SmartTask.DataAccess.Repositories;
 using SmartTask.Web.ViewModels;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace SmartTask.Web.Controllers
 {
@@ -17,11 +20,18 @@ namespace SmartTask.Web.Controllers
         IConfiguration _config;
         private readonly IEventRepository eventRepository;
         private readonly IProjectRepository projectRepository;
-        public OutLookController(IConfiguration config,IEventRepository eventRepository,IProjectRepository project)
+        private readonly ITaskRepository _taskRepository;
+        private readonly IAssignTaskRepository _assignTaskRepository;
+
+        public OutLookController(IConfiguration config,IEventRepository eventRepository
+            ,IProjectRepository project,ITaskRepository taskRepository
+            ,IAssignTaskRepository assignTaskRepository)
         {
             _config = config;
             this.eventRepository = eventRepository;
             projectRepository = project;
+            _taskRepository=taskRepository;
+            _assignTaskRepository=assignTaskRepository;
         }
         [Authorize]
         public IActionResult Index()
@@ -120,7 +130,7 @@ namespace SmartTask.Web.Controllers
             }
             foreach (var a in allEvents)
             {
-                var b = new Event()
+                var b = new Core.Models.Event()
                 {
                     OutLooktTaskId = a.ICalUId,
 
@@ -130,7 +140,7 @@ namespace SmartTask.Web.Controllers
 
                     Subject = a.Subject,
 
-                    Attendees = string.Join(", ", a.Attendees.Select(att => att.EmailAddress?.Address)),
+                    Attendees = a.Body+"\n "+ string.Join(", ", a.Attendees.Select(att => att.EmailAddress?.Address)),
 
                     ImportedById = userId
 
@@ -207,20 +217,38 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> AddTaskFromEvent(AddEventAsTaskViewModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest("Invalid data");
+            {
+                var allErrors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
 
-            // Custom date validation using DB (example)
-            //var project = await projectRepository.GetProjectByIdAsync(model.ProjectId.Value);
-            //if (model.Start < project.StartDate || model.End > project.EndDate)
-            //{
-            //    ModelState.AddModelError("", "Start/End dates must be within project duration.");
-            //    return View("_AddTaskPartial", model);
-            //}
+                string errorMessage = string.Join(" | ", allErrors);
+                return BadRequest(errorMessage);
+            }
+            var ev = await eventRepository.GetByIdAsync(model.EventId);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Save the task
-            //await _taskService.CreateTaskFromEventAsync(model);
+            Core.Models.Task task = new Core.Models.Task
+            {
+                Title = ev.Subject,
+                Description = ev.Attendees,
+                StartDate = model.Start,
+                EndDate = model.End,
+                Status = Core.Models.Enums.Status.Todo,
+                Priority = model.Priority,
+                CreatedById = userId,
+                CreatedAt = DateTime.Now,
+                ProjectId = model.ProjectId.Value
+            };
+            await _taskRepository.AddAsync(task);
+            await _assignTaskRepository.AssignTasksToUserByIds(model.UserIds, task, User);
+            ev.CreatedAt = DateTime.Now;
+            ev.TaskId = task.Id;
+            await eventRepository.UpdateAsync(ev);
+            var projectname = (await projectRepository.GetByIdAsync(model.ProjectId.Value)).Name;
             Console.WriteLine(model.EventId+" "+model.ProjectId+" "+model.UserIds.ToString()+" "+model.Start);
-            return RedirectToAction("Cal"); // or wherever
+            return Ok(new { projectName = projectname, eventId = model.EventId });
         }
 
     }
