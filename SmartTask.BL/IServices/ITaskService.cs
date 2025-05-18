@@ -8,6 +8,7 @@ namespace SmartTask.BL.IServices
     public interface ITaskService
     {
         Task<Core.Models.Task> Details(int id);
+        Task<bool> ISAParent(int id);
 
         Task<Comment> AddComment(int taskId, string authorId, string content);
 

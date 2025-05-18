@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
+using SmartTask.BL.IServices;
 using SmartTask.BL.Service.Hubs;
 using SmartTask.BL.Services;
 using SmartTask.Core.IRepositories;
@@ -30,12 +31,12 @@ namespace SmartTask.Web.Controllers
         private readonly IAssignTaskRepository _assignTaskRepository;
         private readonly INotificationRepository _notificationRepository;
         private readonly IHubContext<NotificationHub> _hub;
-        private readonly TaskService _taskService;
+        private readonly ITaskService _taskService;
         private readonly IWebHostEnvironment _environment;
         public TaskController(ITaskRepository taskRepository, IProjectRepository projectRepository,
             UserManager<ApplicationUser> usermanager, SmartTaskContext context, 
             IAssignTaskRepository assignTaskRepository,INotificationRepository notificationRepository,
-            IHubContext<NotificationHub> hub, TaskService taskService
+            IHubContext<NotificationHub> hub, ITaskService taskService
             , IWebHostEnvironment environment)
         {
             _taskRepository = taskRepository;
@@ -311,7 +312,7 @@ namespace SmartTask.Web.Controllers
             };
             await _taskRepository.AddAsync(task);
             await _assignTaskRepository.AssignTasksToUserByIds(taskVM.AssignedToId, task, User);
-            task.Assignments = await _assignTaskRepository.FindTasksAssignedToUserByIds(taskVM.AssignedToId);
+            //task.Assignments = await _assignTaskRepository.FindTasksAssignedToUserByIds(taskVM.AssignedToId);
 
             //SignalR Part
 
@@ -326,9 +327,10 @@ namespace SmartTask.Web.Controllers
                     SenderId = userId,
                     ReceiverId = receiverID
                 };
-                
+
                 await _hub.Clients.User(receiverID).SendAsync("assignedtask", notification);
                 //save to db
+                //_context.ChangeTracker.Clear();
                 await _notificationRepository.AddAsync(notification);
             }
             return RedirectToAction(nameof(Index));
