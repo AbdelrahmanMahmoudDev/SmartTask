@@ -43,6 +43,7 @@ namespace SmartTask.Web
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection"),
                     sqlOptions => sqlOptions.EnableRetryOnFailure()));
+
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<SmartTaskContext>();
 
@@ -50,6 +51,11 @@ namespace SmartTask.Web
             RegisterRepositories(builder.Services);
 
             builder.Services.AddScoped(typeof(IPaginatedService<>), typeof(PaginatedService<>));
+
+            // IUser service
+            builder.Services.AddScoped<IUserService, UserService>();
+            // extendProjectDeadline Based ON Task Service
+            builder.Services.AddScoped<IProjectDeadlineExtendService, ProjectDeadlineExtendService>();
 
             var app = builder.Build();
             using var scope = app.Services.CreateScope();
@@ -117,8 +123,15 @@ namespace SmartTask.Web
             services.AddScoped<ITaskDependencyRepository, TaskDependencyRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+
+            services.AddScoped<IBranchService, BranchService>();
             services.AddScoped<IUserLoginHistoryRepository, UserLoginHistoryRepository>();
             services.AddScoped<IAuditRepository, AuditRepository>();
+            services.AddScoped<IDepartmentService, DepartmentService>();
+            services.AddScoped<IProjectService, ProjectService>();
+           
+
+
         }
     }
 }

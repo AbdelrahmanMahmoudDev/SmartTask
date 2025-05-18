@@ -1,0 +1,73 @@
+﻿@model SmartTask.Web.ViewModels.ProjectVM.ProjectFormViewModel
+
+<h1>New Project</h1>
+
+<div asp-validation-summary="All"></div>
+<form asp-action="Create">
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StartDate"></label>
+        <input asp-for="StartDate" id="startDate" class="form-control" type="date" />
+        <span asp-validation-for="StartDate" class="text-danger"></span>
+
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EndDate"></label>
+        <input asp-for="EndDate" id="endDate" class="form-control" type="date" />
+        <span asp-validation-for="EndDate" class="text-danger"></span>
+
+    </div>
+
+    <div class="form-group">
+        <label asp-for="OwnerId"></label>
+        <select asp-for="OwnerId" asp-items="@ViewBag.AdminUsers" class="form-control">
+            <option value="">Choose Owner</option>
+        </select>
+        <span asp-validation-for="OwnerId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Department</label>
+        <select class="form-select" asp-for="SelectedDepartmentId" asp-items="@(new SelectList(ViewBag.Departments, "Id", "Name"))">
+            <option value="">-- Select Department --</option>
+        </select>
+      </div>
+    <div class="form-group">
+        <label>Branch</label>
+        <select class="form-select" asp-for="SelectedBranchId" asp-items="@(new SelectList(ViewBag.Branches, "Id", "Name"))">
+            <option value="">-- Select Branch --</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+
+
+@section Scripts {
+    <script>
+        document.querySelector("form").addEventListener("submit", function (e) {
+            const startDate = new Date(document.getElementById("startDate").value);
+            const endDate = new Date(document.getElementById("endDate").value);
+            const errorSpan = document.getElementById("endDateError");
+
+            // Clear old error
+            errorSpan.innerText = "";
+
+            if (startDate && endDate && endDate < startDate) {
+                e.preventDefault(); // Prevent form submission
+                errorSpan.innerText = "End date must be after start date.";
+            }
+        });
+    </script>
+}

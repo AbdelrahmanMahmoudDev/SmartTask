@@ -1,0 +1,995 @@
+﻿
+
+<link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.css" rel="stylesheet">
+
+
+<style>
+    /* ====== ROOT VARIABLES ====== */
+    /* Define color scheme and design tokens for consistent theming */
+    :root {
+        --primary-color: #1565c0; /* Main brand color */
+        --secondary-color: #2196f3; /* Darker shade for accents */
+        --accent-color: #4895ef; /* Secondary accent color */
+        --light-color: #f8f9fa; /* Light background color */
+        --dark-color: #212529; /* Dark text color */
+        --success-color: #4cc9f0; /* Success/positive actions */
+        --warning-color: #f72585; /* Warning/destructive actions */
+    }
+
+    /* ====== BASE STYLES ====== */
+    body {
+        background-color: #f5f7fb; /* Light gray background */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font stack */
+    }
+
+
+
+    /* Modern heading design */
+    .dashboard-heading {
+        position: relative;
+        padding: 1rem 0;
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 2.2rem;
+        letter-spacing: 0.5px;
+    }
+
+    .heading-icon {
+        display: inline-block;
+        margin-right: 15px;
+        color: #ffffff;
+        background: linear-gradient(135deg, #4361ee, #1565c0);
+        width: 60px;
+        height: 60px;
+        line-height: 60px;
+        border-radius: 50%;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        transform: rotate(15deg);
+        transition: all 0.3s ease;
+    }
+
+        .heading-icon i {
+            font-size: 1.8rem;
+            vertical-align: middle;
+        }
+
+    .heading-text {
+        position: relative;
+        display: inline-block;
+        padding: 0 20px;
+        background: linear-gradient(to right, #4361ee, #4cc9f0);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .heading-decoration {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 4px;
+        background: linear-gradient(to right, #4361ee, #4cc9f0);
+        border-radius: 2px;
+    }
+
+    /* Animation on hover */
+    .dashboard-heading:hover .heading-icon {
+        transform: rotate(0deg) scale(1.1);
+        box-shadow: 0 6px 20px rgba(67, 140, 238, 0.4);
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .dashboard-heading {
+            font-size: 1.8rem;
+        }
+
+        .heading-icon {
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            margin-right: 10px;
+        }
+    }
+
+
+
+    /* ====== CARD COMPONENT ====== */
+    /* Container for the entire table with shadow and rounded corners */
+    .card {
+        border-radius: 12px; /* Smooth rounded corners */
+        weight: 80% box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: none; /* Remove default border */
+        overflow: hidden; /* Ensure rounded corners work properly */
+    }
+
+    /* Card header with gradient background */
+    .card-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white; /* White text for contrast */
+        padding: 1.2rem 1.5rem; /* Comfortable padding */
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* ====== TABLE CONTAINER ====== */
+    /* Wrapper for responsive table behavior */
+    .table-responsive {
+        border-radius: 12px; /* Match card rounding */
+        overflow: hidden; /* Contain table within rounded corners */
+    }
+
+    /* ====== MAIN TABLE STYLES ====== */
+    #tblUsers {
+        margin: 0 !important; /* Remove default margins */
+        font-size: 1.05rem; /* Slightly larger base font size */
+    }
+
+        /* Table header styles */
+        #tblUsers thead th {
+            background-color: #184067; /* Primary color header */
+            color: white; /* White text for contrast */
+            font-weight: 500; /* Semi-bold headers */
+            text-transform: uppercase; /* Uppercase column titles */
+            font-size: 0.99rem; /* Slightly smaller than body */
+            letter-spacing: 0.5px; /* Improve readability */
+            border: none; /* Remove default borders */
+            padding: 1.2rem 1.2rem; /* Comfortable cell padding */
+            white-space: nowrap; /* Prevent header text wrapping */
+            vertical-align: middle;
+        }
+
+        #tblUsers tbody td {
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        #tblUsers tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.03);
+        }
+
+    /* ====== DATA TABLES CONTROLS ====== */
+    /* Search filter input styling */
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 1rem; /* Spacing below search */
+        float: none !important; /* Override default float */
+        text-align: left; /* Align to left */
+    }
+
+    /* Length selector styling */
+    .dataTables_wrapper .dataTables_length {
+        margin-bottom: 1rem; /* Consistent spacing */
+        float: none !important; /* Override default float */
+    }
+
+    /* Search input field */
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #ced4da !important;
+        padding: 0.5rem 0.75rem !important;
+        border-radius: 6px !important;
+        font-size: 0.9rem !important;
+        width: 220px !important; /* Fixed width for consistency */
+        transition: all 0.2s ease; /* Smooth focus transition */
+        margin-left: 0 !important; /* Remove default margin */
+    }
+
+        /* Search input focus state */
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 0.2rem rgba(67, 140, 238, 0.15) !important;
+        }
+
+    /* Search label alignment */
+    .dataTables_wrapper .dataTables_filter label {
+        display: flex; /* Flex layout for icon alignment */
+        align-items: center; /* Center icon vertically */
+        margin-bottom: 0; /* Remove default margin */
+    }
+
+    /* Page length selector dropdown */
+    .dataTables_wrapper .dataTables_length select {
+        border: 1px solid #ced4da !important;
+        padding: 0.4rem 1.8rem 0.4rem 0.75rem !important;
+        border-radius: 6px !important;
+        font-size: 0.9rem !important;
+        height: auto !important; /* Override fixed height */
+    }
+
+    /* ====== TABLE INFORMATION DISPLAY ====== */
+    /* "Showing X to Y of Z entries" info */
+    .dataTables_wrapper .dataTables_info {
+        padding: 0.75rem 1rem !important;
+        background-color: #f8f9fa; /* Light background */
+        border-radius: 8px; /* Rounded corners */
+        color: #495057 !important; /* Dark gray text */
+        font-size: 0.9rem; /* Appropriate size */
+        border: 1px solid #e9ecef; /* Subtle border */
+        margin-top: 1rem; /* Spacing from table */
+        display: inline-block; /* Natural width */
+    }
+
+        /* Highlight numbers in info text */
+        .dataTables_wrapper .dataTables_info .highlight-info {
+            font-weight: 600; /* Bold numbers */
+            color: var(--primary-color); /* Brand color */
+            padding: 0.2rem 0.4rem; /* Small padding */
+            background-color: rgba(67, 140, 238, 0.1); /* Light highlight */
+            border-radius: 4px; /* Slightly rounded */
+        }
+
+    /* ====== CARD BODY SPACING ====== */
+    .card-body {
+        padding: 1.25rem !important; /* Comfortable inner spacing */
+    }
+
+    /* ====== CONTROL ROW LAYOUT ====== */
+    /* Top controls row (length + search) */
+    .dataTables_wrapper .row:first-child {
+        margin-bottom: 0.5rem; /* Spacing below controls */
+        align-items: center; /* Vertical alignment */
+    }
+
+    /* Search icon styling */
+    .dataTables_wrapper .dataTables_filter i.fa-search {
+        margin-right: 0.5rem; /* Space between icon and input */
+        color: #6c757d; /* Subdued icon color */
+    }
+
+    /* ====== SPECIAL CELL STYLES ====== */
+    /* Position badge styling */
+    .badge-position {
+        background-color: var(--accent-color);
+        color: white; /* White text */
+        font-weight: 500; /* Medium weight */
+        padding: 0.4rem 0.8rem; /* Comfortable padding */
+        border-radius: 50px; /* Pill shape */
+        font-size: 0.9rem; /* Appropriate size */
+        white-space: normal; /* Allow text wrapping */
+        display: inline-block; /* Proper badge behavior */
+        line-height: 1.4; /* Good line spacing */
+        max-width: 200px; /* Prevent excessive width */
+        word-break: break-word; /* Break long words */
+    }
+
+    /* Salary cell highlighting */
+    .salary-highlight {
+        font-weight: 600; /* Bold for emphasis */
+        color: var(--secondary-color); /* Brand color */
+    }
+
+    /* ====== ACTION BUTTONS ====== */
+    /* Base action button style */
+    .action-btn {
+        padding: 0.5rem 0.9rem; /* Comfortable size */
+        border-radius: 6px; /* Rounded corners */
+        font-size: 0.9rem; /* Appropriate size */
+        transition: all 0.3s ease; /* Smooth hover effects */
+    }
+
+    /* View button variant */
+    .view-btn {
+        background-color: var(--success-color);
+        color: white;
+        border: none;
+    }
+
+    /* Edit button variant */
+    .edit-btn {
+        background-color: var(--accent-color);
+        color: white;
+        border: none;
+    }
+
+    /* Delete button variant */
+    .delete-btn {
+        background-color: var(--warning-color);
+        color: white;
+        border: none;
+    }
+
+    /* Button hover effects */
+    .action-btn:hover {
+        transform: translateY(-2px); /* Lift effect */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    }
+
+    /* ====== LOADING INDICATOR ====== */
+    .dataTables_wrapper .dataTables_processing {
+        background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+        border-radius: 12px; /* Rounded corners */
+        padding: 1.5rem !important; /* Comfortable spacing */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        color: var(--dark-color); /* Dark text for contrast */
+        font-weight: 500; /* Medium weight */
+        font-size: 1.1rem; /* Slightly larger */
+    }
+
+    /* ====== MULTILINE CELLS ====== */
+    /* Cells that need text wrapping */
+    .multiline-cell {
+        white-space: normal !important; /* Allow text wrapping */
+        word-wrap: break-word; /* Break long words */
+        min-width: 200px; /* Minimum reasonable width */
+    }
+
+    /* ====== GENERAL TABLE WRAPPER ====== */
+    .dataTables_wrapper {
+        font-size: 1.05rem; /* Base font size */
+    }
+
+    /* Table icons sizing */
+    .table th i, .table td i {
+        font-size: 1.1rem; /* Appropriate icon size */
+    }
+
+    /* ====== PAGINATION CONTROLS ====== */
+    .dataTables_wrapper .dataTables_paginate {
+        margin-top: 1.5rem; /* Spacing from table */
+        padding: 0.5rem; /* Inner spacing */
+    }
+
+        /* Pagination buttons */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 0.5rem 0.9rem !important;
+            margin: 0 0.2rem !important; /* Small horizontal spacing */
+            border-radius: 6px !important;
+            border: 1px solid #e0e0e0 !important;
+            font-size: 0.9rem;
+            color: #495057 !important;
+            transition: all 0.3s ease; /* Smooth hover effects */
+            min-width: 36px; /* Minimum clickable area */
+            text-align: center; /* Center button text */
+            display: inline-flex; /* Flex layout */
+            align-items: center; /* Vertical centering */
+            justify-content: center; /* Horizontal centering */
+        }
+
+            /* Current/active page button */
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+                color: white !important;
+                border: none !important;
+                box-shadow: 0 2px 8px rgba(67, 97, 238, 0.3); /* Subtle glow */
+            }
+
+            /* Button hover state */
+            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                background-color: #f8f9fa !important;
+                color: var(--dark-color) !important;
+                border-color: #d0d0d0 !important;
+                transform: translateY(-1px); /* Lift effect */
+            }
+
+            /* Disabled buttons */
+            .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+            .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+                opacity: 0.5; /* Faded appearance */
+                cursor: not-allowed; /* Disabled cursor */
+                background: transparent !important;
+            }
+
+            /* Pagination icons */
+            .dataTables_wrapper .dataTables_paginate .paginate_button i {
+                font-size: 0.9rem; /* Appropriate icon size */
+            }
+
+        /* Ellipsis in pagination */
+        .dataTables_wrapper .dataTables_paginate .ellipsis {
+            padding: 0.5rem 0.75rem;
+            color: #6c757d; /* Subdued color */
+        }
+
+    /* ====== MOBILE RESPONSIVENESS ====== */
+    @@media (max-width: 576px) {
+        /* Stack pagination buttons on small screens */
+        .dataTables_wrapper .dataTables_paginate {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* Allow wrapping */
+        }
+            /* Adjust button sizing for mobile */
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                margin: 0.1rem !important; /* Tight spacing */
+                padding: 0.4rem 0.6rem !important; /* Smaller padding */
+                min-width: 30px; /* Smaller click target */
+            }
+    }
+
+    @@media (max-width: 768px) {
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+            .card-header > div {
+                margin-top: 0.5rem;
+            }
+
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_length {
+            float: none !important;
+            text-align: left !important;
+            margin-bottom: 0.5rem;
+        }
+
+            .dataTables_wrapper .dataTables_filter input {
+                width: 100% !important;
+            }
+
+        .table-container {
+            max-height: calc(100vh - 350px);
+        }
+    }
+
+    .table-container {
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+        margin-bottom: 20px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background-color: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .table-responsive thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
+    }
+
+    .table-container::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+        background-color: #90caf9;
+        border-radius: 5px;
+    }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background-color: #184067;
+        }
+
+    @@media (max-width: 768px) {
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* scroll سلس على iOS */
+            width: 100%;
+        }
+
+        #tblUsers {
+            min-width: 600px;
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .table-responsive {
+            border: none;
+            padding: 0;
+        }
+
+        #tblUsers {
+            width: 100% !important;
+        }
+
+            #tblUsers tbody tr {
+                margin-bottom: 1rem;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            #tblUsers td:nth-child(4),
+            #tblUsers td:nth-child(5) { /* Start Date */
+                display: none;
+            }
+
+            #tblUsers td i {
+                font-size: 1rem !important;
+            }
+    }
+
+    @@media (max-width: 575.98px) {
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+            .card-header > div {
+                margin-top: 0.5rem;
+            }
+
+        #tblUsers td:nth-child(3) { /* Location */
+            display: none;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            width: 100% !important;
+        }
+    }
+
+    .responsive-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+
+    .table-responsive {
+        background: linear-gradient(to right, white 30%, rgba(255,255,255,0)), linear-gradient(to left, white 30%, rgba(255,255,255,0));
+        background-repeat: no-repeat;
+        background-size: 40px 100%, 40px 100%;
+        background-position: left center, right center;
+        background-attachment: local, local;
+    }
+
+    @@media (max-width: 767.98px) {
+        .responsive-table-container {
+            padding: 0.5rem;
+            background: #f8f9fa;
+        }
+    }
+
+    .dt-nowrap {
+        white-space: nowrap;
+    }
+
+    div.dataTables_wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table.dataTable {
+        margin-top: 0 !important;
+    }
+
+    @@media (max-width: 767.98px) {
+        .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate {
+            white-space: normal;
+            text-align: center;
+        }
+
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            float: none !important;
+            text-align: center;
+        }
+
+            .dataTables_wrapper .dataTables_filter input {
+                width: 100% !important;
+            }
+    }
+
+
+
+
+    /*Advanced Filter*/
+    /* Advanced Filter Styles */
+    .filter-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+
+    .filter-header {
+        background-color: #f8f9fa;
+        padding: 15px 20px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .filter-body {
+        padding: 20px;
+        background-color: #ffffff;
+    }
+
+    .filter-btn {
+        padding: 8px 16px;
+        font-weight: 500;
+        border-radius: 5px;
+        transition: all 0.2s ease;
+    }
+
+    .filter-btn-primary {
+        background-color: #4361ee;
+        border-color: #4361ee;
+    }
+
+        .filter-btn-primary:hover {
+            background-color: #3a56d4;
+            border-color: #3a56d4;
+        }
+
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .form-select, .form-control {
+        border-radius: 5px;
+        border: 1px solid #ced4da;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+    }
+
+        .form-select:focus, .form-control:focus {
+            border-color: #4361ee;
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+
+    /* DataTable Custom Styles */
+    .dt-nowrap {
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    .multiline-cell {
+        white-space: pre-line;
+        line-height: 1.4;
+    }
+
+    .badge-position {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: #e9ecef;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        color: #495057;
+    }
+
+    .salary-highlight {
+        font-weight: 600;
+        color: #0d6efd;
+    }
+
+    .highlight-info {
+        font-weight: 600;
+        color: #0d6efd;
+    }
+
+</style>
+
+
+<h2 class="text-center mb-4 dashboard-heading">
+    <span class="heading-icon">
+        <i class="fa-solid fa-table-cells-large"></i>
+    </span>
+    <span class="heading-text">Users Dashboard</span>
+    <span class="heading-decoration"></span>
+</h2>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12">
+
+            <!--Advanced Filter-->
+            <div class="container mt-4">
+                <!-- Advanced Filter Panel -->
+                <div class="card filter-card">
+
+                    <div class="filter-body">
+
+
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="locationFilter" class="form-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i> Location
+                                </label>
+                                <select id="locationFilter" class="form-select">
+                                    <option value="">All Locations</option>
+                                    <!-- Locations will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="positionFilter" class="form-label">
+                                    <i class="fas fa-briefcase me-1"></i> Position
+                                </label>
+                                <select id="positionFilter" class="form-select">
+                                    <option value="">All Positions</option>
+                                    <!-- Positions will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="dateRangeFilter" class="form-label">
+                                    <i class="far fa-calendar-alt me-1"></i> Start Date Range
+                                </label>
+                                <input type="text" id="dateRangeFilter" class="form-control" placeholder="Select date range" />
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="salaryRangeMin" class="form-label">
+                                    <i class="fas fa-dollar-sign me-1"></i> Salary Range
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" id="salaryRangeMin" class="form-control" placeholder="Min" min="0" />
+                                    <span class="input-group-text">-</span>
+                                    <input type="number" id="salaryRangeMax" class="form-control" placeholder="Max" min="0" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="ageRangeMin" class="form-label">
+                                    <i class="fas fa-user-clock me-1"></i> Age Range
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" id="ageRangeMin" class="form-control" placeholder="Min" min="0" max="100" />
+                                    <span class="input-group-text">-</span>
+                                    <input type="number" id="ageRangeMax" class="form-control" placeholder="Max" min="0" max="100" />
+                                </div>
+                            </div>
+                            <div class="col-md-9 mb-3 d-flex align-items-end justify-content-end">
+                                <button id="applyFilters" class="btn btn-primary filter-btn filter-btn-primary me-2">
+                                    <i class="fas fa-check me-1"></i> Apply Filters
+                                </button>
+                                <button id="resetFilters" class="btn btn-secondary filter-btn">
+                                    <i class="fas fa-undo me-1"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="responsive-table-container">
+
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">
+                                <i class="fas fa-users me-2"></i>Employee Records
+                                @* <div> *@
+                                @*     <button class="btn btn-light me-2"> *@
+                                @*         <i class="fas fa-file-export me-1"></i> Export *@
+                                @*     </button> *@
+                                @*     <button class="btn btn-light" id="btnFilterToggle"> *@
+                                @*          Filters *@
+                                @*     </button> *@
+                                @* </div> *@
+                            </h4>
+
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="tblUsers">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-user me-1"></i> Name</th>
+                                            <th class="multiline-cell"><i class="fas fa-briefcase me-1"></i> Position</th>
+                                            <th><i class="fas fa-map-marker-alt me-1"></i> Location</th>
+                                            <th><i class="fas fa-birthday-cake me-1"></i> Age</th>
+                                            <th><i class="fas fa-calendar-alt me-1"></i> Start Date</th>
+                                            <th><i class="fas fa-dollar-sign me-1"></i> Salary</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be loaded dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <!--jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Then load moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.js"></script>
+
+    <!--  Bootstrap and DataTables scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+
+    <script>
+                $(document).ready(function () {
+            // Initialize date range picker
+            $('#dateRangeFilter').daterangepicker({
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: 'Clear',
+                    format: 'DD/MM/YYYY'
+                }
+            });
+
+            $('#dateRangeFilter').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+            });
+
+            $('#dateRangeFilter').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+            });
+
+            // Initialize DataTable with a variable to reference it later
+            var table = $('#tblUsers').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "ajax": {
+                    "url": "/DataTable/GetData",
+                    "type": "GET",
+                    "datatype": "json",
+                    "data": function(d) {
+                        // Add custom filter parameters
+                        d.location = $('#locationFilter').val();
+                        d.position = $('#positionFilter').val();
+
+                        var dateRange = $('#dateRangeFilter').val();
+                        if (dateRange) {
+                            var dates = dateRange.split(' - ');
+                            d.startDate = dates[0];
+                            d.endDate = dates[1];
+                        }
+
+                        d.minSalary = $('#salaryRangeMin').val();
+                        d.maxSalary = $('#salaryRangeMax').val();
+                        d.minAge = $('#ageRangeMin').val();
+                        d.maxAge = $('#ageRangeMax').val();
+
+                        return d;
+                    }
+                },
+                "responsive": true,
+                "autoWidth": false,
+                "columnDefs": [
+                    {
+                        "targets": '_all',
+                        "orderable": true,
+                        "className": "dt-nowrap"
+                    }
+                ],
+                "columns": [
+                    {
+                        "data": "name",
+                        "name": "Name",
+                        "autoWidth": true,
+                        "render": function(data, type, row) {
+                            return `<div class="d-flex align-items-center">
+                                <div class="avatar me-2" style="width: 36px; height: 36px; background-color: #${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem;">
+                                    ${row.name.charAt(0).toUpperCase()}
+                                </div>
+                                <span style="font-size: 1.05rem;">${data}</span>
+                            </div>`;
+                        }
+                    },
+                    {
+                        "data": "position",
+                        "name": "Position",
+                        "autoWidth": true,
+                        "className": "multiline-cell",
+                        "render": function(data) {
+                            return `<span class="badge-position">${data.replace(/\n/g, '<br>')}</span>`;
+                        }
+                    },
+                    {
+                        "data": "location",
+                        "name": "Location",
+                        "autoWidth": true,
+                        "render": function(data) {
+                            return `<i class="fas fa-map-pin me-1" style="color: #f72585;"></i> ${data}`;
+                        }
+                    },
+                    {
+                        "data": "age",
+                        "name": "Age",
+                        "autoWidth": true,
+                        "className": "text-center",
+                        "render": function(data) {
+                            return `<span style="font-size: 1.1rem;">${data}</span>`;
+                        }
+                    },
+                    {
+                        "data": "startDateString",
+                        "name": "Start Date",
+                        "autoWidth": true,
+                        "render": function(data) {
+                            return `<i class="far fa-calendar me-1" style="color: #4895ef;"></i> ${data}`;
+                        }
+                    },
+                    {
+                        "data": "salary",
+                        "name": "Salary",
+                        "autoWidth": true,
+                        "className": "salary-highlight",
+                        "render": function(data) {
+                            return `<i class="fas fa-dollar-sign me-1" style="color: #4cc9f0;"></i> ${data.toLocaleString('en-US', {style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+                        }
+                    }
+                ],
+                "language": {
+                    "emptyTable": "<div class='text-center py-5'><i class='fas fa-database fa-4x mb-3' style='color: #6c757d;'></i><h4>No records found</h4><p class='text-muted'>Try adjusting your search or filter to find what you're looking for.</p></div>",
+                    "processing": '<div class="spinner-border text-primary" style="width: 2rem; height: 2rem;" role="status"><span class="visually-hidden">Loading...</span></div> Processing...',
+                    "search": "<i class='fas fa-search'></i>",
+                    "lengthMenu": "Show _MENU_ <i class='fas fa-users'></i>",
+                    "info": "Showing <span class='highlight-info'>_START_</span> to <span class='highlight-info'>_END_</span> of <span class='highlight-info'>_TOTAL_</span> entries",
+                    "infoEmpty": "No entries to show",
+                    "infoFiltered": "<span class='text-muted'>(filtered from _MAX_ total entries)</span>",
+                    "paginate": {
+                        "first": "<i class='fas fa-angle-double-left'></i>",
+                        "last": "<i class='fas fa-angle-double-right'></i>",
+                        "next": "<i class='fas fa-angle-right'></i>",
+                        "previous": "<i class='fas fa-angle-left'></i>"
+                    }
+                },
+                 "dom":
+                        "<'row mb-3'<'col-md-8 d-flex align-items-center'<'dataTables_filter'f><'ms-2'<'#customFilter'>>>><'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+        ,
+
+                "initComplete": function() {
+                    $('.dataTables_filter input').attr('placeholder', 'Search employees...');
+
+                    this.api().columns().header().each(function(header) {
+                        var title = $(header).text();
+                        $(header).closest('table').find('tbody td').attr('data-label', title);
+                    });
+                }
+            });
+
+            // Load locations dropdown
+            $.ajax({
+                url: '/DataTable/GetLocations',
+                type: 'GET',
+                success: function(data) {
+                    $.each(data, function(i, item) {
+                        $('#locationFilter').append($('<option>', {
+                            value: item,
+                            text: item
+                        }));
+                    });
+                }
+            });
+
+            // Load positions dropdown
+            $.ajax({
+                url: '/DataTable/GetPositions',
+                type: 'GET',
+                success: function(data) {
+                    $.each(data, function(i, item) {
+                        $('#positionFilter').append($('<option>', {
+                            value: item,
+                            text: item
+                        }));
+                    });
+                }
+            });
+
+            // Apply filters button click
+            $('#applyFilters').on('click', function() {
+                table.ajax.reload();
+            });
+
+            // Reset filters button click
+            $('#resetFilters').on('click', function() {
+                $('#locationFilter').val('');
+                $('#positionFilter').val('');
+                $('#dateRangeFilter').val('');
+                $('#salaryRangeMin').val('');
+                $('#salaryRangeMax').val('');
+                $('#ageRangeMin').val('');
+                $('#ageRangeMax').val('');
+                table.ajax.reload();
+            });
+
+        });
+    </script>
+}

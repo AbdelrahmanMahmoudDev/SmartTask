@@ -3,14 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.Models;
 using SmartTask.Core.Models.BasePermission;
 using SmartTask.Core.Models.AuditModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using TaskModel = SmartTask.Core.Models.Task;
 
 namespace SmartTask.DataAccess.Data
 {
-    /// <summary>
-    /// Represents the EF Core database context for SmartTask.
-    /// Manages DbSet properties and configures entity relationships.
-    /// </summary>
     public class SmartTaskContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
         public SmartTaskContext(DbContextOptions<SmartTaskContext> options) : base(options)
@@ -18,15 +19,10 @@ namespace SmartTask.DataAccess.Data
         }
 
         public DbSet<TaskModel> Tasks { get; set; }
-        //public DbSet<Role> RolesSmart { get; set; }
-        //public DbSet<Permission> Permissions { get; set; }
-        //public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<BranchDepartment> BranchDepartments { get; set; }
         public DbSet<Project> Projects { get; set; }
-        //public DbSet<ProjectRole> ProjectRoles { get; set; }
-        //public DbSet<ProjectRolePermission> ProjectRolePermissions { get; set; }
         public DbSet<ProjectMember> ProjectMembers { get; set; }
         public DbSet<TaskDependency> TaskDependencies { get; set; }
         public DbSet<Comment> Comments { get; set; }
@@ -35,18 +31,21 @@ namespace SmartTask.DataAccess.Data
         public DbSet<AISuggestion> AISuggestions { get; set; }
         public DbSet<AssignTask> AssignTasks { get; set; }
         public DbSet<Audit> Audits { get; set; }
-        public DbSet<UserLoginHistory>UserLoginHistories { get; set; }
+        public DbSet<UserLoginHistory> UserLoginHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // Composite Primary Keys
-            //modelBuilder.Entity<RolePermission>().HasKey(rp => new { rp.RoleId, rp.PermissionId });
-            modelBuilder.Entity<BranchDepartment>().HasKey(bd => new { bd.BranchId, bd.DepartmentId });
-            //modelBuilder.Entity<ProjectRolePermission>().HasKey(prp => new { prp.ProjectRoleId, prp.PermissionId });
-            modelBuilder.Entity<ProjectMember>().HasKey(pm => new { pm.ProjectId, pm.UserId });
-            modelBuilder.Entity<AssignTask>().HasKey(at => new { at.TaskId, at.UserId });
+            modelBuilder.Entity<BranchDepartment>()
+                .HasKey(bd => new { bd.BranchId, bd.DepartmentId });
+
+            modelBuilder.Entity<ProjectMember>()
+                .HasKey(pm => new { pm.ProjectId, pm.UserId });
+
+            modelBuilder.Entity<AssignTask>()
+                .HasKey(at => new { at.TaskId, at.UserId });
 
             // Task Relationships
             modelBuilder.Entity<TaskModel>()
@@ -78,6 +77,32 @@ namespace SmartTask.DataAccess.Data
                 .HasOne(d => d.Manager)
                 .WithMany(u => u.ManagedDepartments)
                 .HasForeignKey(d => d.ManagerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // User-Branch-Department relationships
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.Department)
+                .WithMany(d => d.Users)
+                .HasForeignKey(u => u.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.Branch)
+                .WithMany(b => b.Users)
+                .HasForeignKey(u => u.BranchId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Project-Branch-Department relationships
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.Department)
+                .WithMany(d => d.Projects)
+                .HasForeignKey(p => p.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.Branch)
+                .WithMany(b => b.Projects)
+                .HasForeignKey(p => p.BranchId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Project Ownership
@@ -124,34 +149,99 @@ namespace SmartTask.DataAccess.Data
                 .WithMany(u => u.TasksAssigned)
                 .HasForeignKey(at => at.AssignedById)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            // Map User entity to a custom table if needed
-            //modelBuilder.Entity<User>()
-            //    .ToTable("Users");
         }
-        public async Task<int> SaveChangesAsync(string UserId, string UserName)
+
+        public override int SaveChanges()
         {
-            BeforeSaveChanges(UserId, UserName);
-            var result = await base.SaveChangesAsync();
-
-            return result;
+            ValidateUserDepartmentBranchRelationship();
+            //ValidateProjectDepartmentBranchRelationship();
+            return base.SaveChanges();
         }
-        private void BeforeSaveChanges(string UserId, string UserName)
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            ValidateUserDepartmentBranchRelationship();
+            //ValidateProjectDepartmentBranchRelationship();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<int> SaveChangesAsync(string userId, string userName)
+        {
+            BeforeSaveChanges(userId, userName);
+            ValidateUserDepartmentBranchRelationship();
+            //ValidateProjectDepartmentBranchRelationship();
+            return await base.SaveChangesAsync();
+        }
+
+        private void ValidateUserDepartmentBranchRelationship()
+        {
+            var users = ChangeTracker.Entries<ApplicationUser>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+                .Select(e => e.Entity)
+                .ToList();
+
+            foreach (var user in users)
+            {
+                if (user.BranchId != null && user.DepartmentId != null)
+                {
+                    bool relationExists = BranchDepartments.Any(bd =>
+                        bd.BranchId == user.BranchId &&
+                        bd.DepartmentId == user.DepartmentId);
+
+                    if (!relationExists)
+                    {
+                        throw new InvalidOperationException(
+                            $"Department with Id {user.DepartmentId} is not associated with Branch Id {user.BranchId}. " +
+                            "The department must be linked to the branch before assigning the user.");
+                    }
+                }
+            }
+        }
+
+        //private void ValidateProjectDepartmentBranchRelationship()
+        //{
+        //    var projects = ChangeTracker.Entries<Project>()
+        //        .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+        //        .Select(e => e.Entity)
+        //        .ToList();
+
+        //    foreach (var project in projects)
+        //    {
+        //        if (project.BranchId != null && project.DepartmentId != null)
+        //        {
+        //            bool relationExists = BranchDepartments.Any(bd =>
+        //                bd.BranchId == project.BranchId &&
+        //                bd.DepartmentId == project.DepartmentId);
+
+        //            if (!relationExists)
+        //            {
+        //                throw new InvalidOperationException(
+        //                    $"Department with Id {project.DepartmentId} is not associated with Branch Id {project.BranchId}. " +
+        //                    "The department must be linked to the branch before assigning the project.");
+        //            }
+        //        }
+        //    }
+        //}
+
+        private void BeforeSaveChanges(string userId, string userName)
         {
             ChangeTracker.DetectChanges();
-            var AuditEntries = new List<AuditEntry>();
+            var auditEntries = new List<AuditEntry>();
+
             foreach (var entry in ChangeTracker.Entries())
             {
                 if (entry.Entity is Audit || entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
                 {
                     continue;
                 }
-                var AuditEntry = new AuditEntry();
-                AuditEntry.UserId = UserId;
-                AuditEntry.TableName = entry.Entity.GetType().Name;
-                AuditEntry.Username = UserName;
 
-                AuditEntries.Add(AuditEntry);
+                var auditEntry = new AuditEntry
+                {
+                    UserId = userId,
+                    TableName = entry.Entity.GetType().Name,
+                    Username = userName
+                };
+
                 foreach (var property in entry.Properties)
                 {
                     string propertyName = property.Metadata.Name;
@@ -159,31 +249,31 @@ namespace SmartTask.DataAccess.Data
                     switch (entry.State)
                     {
                         case EntityState.Added:
-                            AuditEntry.Action = AuditAction.Create;
-                            AuditEntry.NewValues[propertyName] = property.CurrentValue;
+                            auditEntry.Action = AuditAction.Create;
+                            auditEntry.NewValues[propertyName] = property.CurrentValue;
                             break;
                         case EntityState.Deleted:
-                            AuditEntry.Action = AuditAction.Delete;
-                            AuditEntry.OldValues[propertyName] = property.OriginalValue;
+                            auditEntry.Action = AuditAction.Delete;
+                            auditEntry.OldValues[propertyName] = property.OriginalValue;
                             break;
                         case EntityState.Modified:
                             if (property.IsModified)
                             {
-                                AuditEntry.Action = AuditAction.Update;
-                                AuditEntry.OldValues[propertyName] = property.OriginalValue;
-                                AuditEntry.NewValues[propertyName] = property.CurrentValue;
-                                AuditEntry.AffectedColumns.Add(propertyName);
+                                auditEntry.Action = AuditAction.Update;
+                                auditEntry.OldValues[propertyName] = property.OriginalValue;
+                                auditEntry.NewValues[propertyName] = property.CurrentValue;
+                                auditEntry.AffectedColumns.Add(propertyName);
                             }
                             break;
                     }
-
                 }
 
+                auditEntries.Add(auditEntry);
             }
-            foreach (var AuditEntry in AuditEntries)
+
+            foreach (var auditEntry in auditEntries)
             {
-                var audit = AuditEntry.ToAudit();
-                Audits.Add(audit);
+                Audits.Add(auditEntry.ToAudit());
             }
         }
     }
