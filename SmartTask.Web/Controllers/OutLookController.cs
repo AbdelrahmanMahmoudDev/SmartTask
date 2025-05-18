@@ -176,7 +176,7 @@ namespace SmartTask.Web.Controllers
             {
                 EventId = eventId,
                 Start=DateTime.Now,
-                End=DateTime.Now,
+                End = DateTime.Now,
                 Projects = projects.Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Name }).ToList()
             };
             return PartialView("_AddTaskPartial", model);

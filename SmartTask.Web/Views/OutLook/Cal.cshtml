@@ -344,20 +344,19 @@
 <script>
 
 
-            $(document).on('click', '.add-task-btn', function () {
+    $(document).on('click', '.add-task-btn', function () {
         var eventId = $(this).data('event-id');
 
 
         // Show loading spinner
         $('#addTaskModalBody').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i><p class="mt-2">Loading form...</p></div>');
-
+        
         $('#addTaskModalBody').load('/Outlook/LoadAddTaskPartial?eventId=' + eventId, function () {
             // Initialize Select2 after content is loaded
             if ($.fn.select2) {
                 $('#userDropdown').select2({
                     placeholder: 'Select users',
                     width: '100%',
-                    dropdownParent: $('#addTaskModal')
                 });
             }
         });
@@ -400,11 +399,12 @@
                 $(cellId).html(`<span class="project-tag"><i class="fas fa-project-diagram me-1"></i> ${response.projectName}</span>`);
 
                 $('#addTaskModal').modal('hide');
-
+                
                 // Show success notification
                 showNotification('Task added successfully!', 'success');
             },
             error: function (xhr) {
+                
                 $('#addTaskModalBody').html(xhr.responseText);
                 showNotification('Error adding task. Please try again.', 'error');
             },
@@ -413,13 +413,12 @@
             }
         });
     });
-
     // Simple notification function
     function showNotification(message, type) {
-        // Create notification element
+    //     Create notification element
         var notification = $(`<div class="notification ${type}"><i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}</div>`);
 
-        // Add styles for notification
+    //     Add styles for notification
         notification.css({
             'position': 'fixed',
             'bottom': '20px',
@@ -435,24 +434,23 @@
             'transform': 'translateY(10px)'
         });
 
-        // Add to body
+    //     Add to body
         $('body').append(notification);
 
-        // Fade in
+    //     Fade in
         notification.animate({
             opacity: 1,
             transform: 'translateY(0)'
         }, 300);
 
-        // Auto remove after 3 seconds
-        setTimeout(function() {
-            notification.animate({
-                opacity: 0,
-                transform: 'translateY(10px)'
-            }, 300, function() {
-                notification.remove();
-            });
-        }, 3000);
+    //     Auto remove after 3 seconds
+        setTimeout(() => {
+        notification.css({
+            'opacity': '0',
+            'transform': 'translateY(10px)'
+        });
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
     }
 </script>
 
