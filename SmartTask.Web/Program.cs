@@ -35,8 +35,24 @@ namespace SmartTask.Web
             //signal R
             builder.Services.AddSignalR();
 
+            // Add session
+            // Register IHttpContextAccessor to access HttpContext in services or other parts of the app
+            builder.Services.AddHttpContextAccessor();
+
+            // Register a distributed in-memory cache to store session data temporarily in memory
+            builder.Services.AddDistributedMemoryCache();
+
+            // Register and configure session services with a 30-minute timeout and secure cookie settings
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);   
+                options.Cookie.HttpOnly = true;                   
+                options.Cookie.IsEssential = true;               
+            });
+
+
             // Database & Identity
-            builder.Services.AddDbContext<SmartTaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            //builder.Services.AddDbContext<SmartTaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Database context configuration
             builder.Services.AddDbContext<SmartTaskContext>(options =>
@@ -54,6 +70,10 @@ namespace SmartTask.Web
 
             // IUser service
             builder.Services.AddScoped<IUserService, UserService>();
+
+            //IDashboardService
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
+
 
             var app = builder.Build();
             using var scope = app.Services.CreateScope();
@@ -79,6 +99,7 @@ namespace SmartTask.Web
             // Middleware Pipeline
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseSession(); // Enable session middleware
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -127,6 +148,12 @@ namespace SmartTask.Web
             services.AddScoped<IAuditRepository, AuditRepository>();
             services.AddScoped<IDepartmentService, DepartmentService>();
             services.AddScoped<IProjectService, ProjectService>();
+
+            
+            services.AddScoped<IUserDashboardPreferenceRepository, UserDashboardPreferenceRepository>();
+
+
+
 
         }
     }

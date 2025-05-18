@@ -33,6 +33,8 @@ namespace SmartTask.DataAccess.Data
         public DbSet<Audit> Audits { get; set; }
         public DbSet<UserLoginHistory> UserLoginHistories { get; set; }
 
+        public DbSet<UserDashboardPreference> UserDashboardPreferences { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

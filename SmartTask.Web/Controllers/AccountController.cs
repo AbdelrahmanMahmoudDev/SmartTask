@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SmartTask.BL.IServices;
 using SmartTask.Core.Models;
 using SmartTask.Core.Models.BasePermission;
 using SmartTask.Web.ViewModels;
@@ -12,12 +13,14 @@ namespace SmartTask.Web.Controllers
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly RoleManager<ApplicationRole> roleManager;
+        private readonly IDashboardService _dashboardService;
 
-        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, RoleManager<ApplicationRole> _roleManager)
+        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, RoleManager<ApplicationRole> _roleManager, IDashboardService _dashboardService)
         {
             userManager = _userManager;
             signInManager = _signInManager;
             roleManager = _roleManager;
+            this._dashboardService = _dashboardService;
         }
 
         [HttpGet]
@@ -38,6 +41,11 @@ namespace SmartTask.Web.Controllers
                     if (result)
                     {
                         await signInManager.SignInAsync(user, isPersistent: account.RememberMe);
+                        //DashboardService
+                        var preference = await _dashboardService.GetUserDashboardSettingsAsync(user.Id);
+                        preference.LastLoginDate = DateTime.Now;
+                        await _dashboardService.UpdateUserPreferenceAsync(preference);
+
                         return RedirectToAction("Index", "Home");
                     }
                 }
@@ -167,5 +175,13 @@ namespace SmartTask.Web.Controllers
             TempData["Message"] = "Roles updated successfully!";
             return RedirectToAction("ManageUserRoles");
         }
+
+        // This action handles the AccessDenied scenario
+        public IActionResult AccessDenied(string returnUrl = null)
+        {
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
+        }
+
     }
 }
