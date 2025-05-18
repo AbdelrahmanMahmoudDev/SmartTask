@@ -11,6 +11,7 @@ using SmartTask.Core.Models;
 using SmartTask.DataAccess.Repositories;
 using SmartTask.Web.ViewModels;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SmartTask.Web.Controllers
@@ -140,7 +141,7 @@ namespace SmartTask.Web.Controllers
 
                     Subject = a.Subject,
 
-                    Attendees = a.Body+"\n "+ string.Join(", ", a.Attendees.Select(att => att.EmailAddress?.Address)),
+                    Attendees = Regex.Replace(a.Body.Content, "<.*?>", string.Empty)+"\n "+ string.Join(", ", a.Attendees.Select(att => att.EmailAddress?.Address)),
 
                     ImportedById = userId
 
