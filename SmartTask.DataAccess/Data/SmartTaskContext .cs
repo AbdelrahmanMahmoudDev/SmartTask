@@ -44,7 +44,6 @@ namespace SmartTask.DataAccess.Data
         public virtual DbSet<UserGroups> UserGroups { get; set; }
         public virtual DbSet<UserConnection> UserConnections { get; set; }
         public virtual DbSet<Groups> Groups { get; set; }
-        public DbSet<UserLoginHistory> UserLoginHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -205,9 +204,9 @@ namespace SmartTask.DataAccess.Data
 
                 var auditEntry = new AuditEntry
                 {
-                    UserId = userId,
+                    UserId = UserId,
                     TableName = entry.Entity.GetType().Name,
-                    Username = userName
+                    Username = UserName
                 };
 
                 foreach (var property in entry.Properties)

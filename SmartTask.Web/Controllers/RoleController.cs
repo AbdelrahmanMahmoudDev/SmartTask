@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SmartTask.BL.IServices;
 using SmartTask.Core.Models.BasePermission;
-using SmartTask.Web.ViewModels;
-using SmartTask.BL.IServices;
+using SmartTask.Core.ViewModels;
 
 namespace SmartTask.Web.Controllers
 {

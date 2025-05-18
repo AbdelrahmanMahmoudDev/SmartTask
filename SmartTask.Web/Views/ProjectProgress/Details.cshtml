@@ -182,7 +182,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Task</th>
-                                    <th>Assigned To</th>
+                                    @* <th>Assigned To</th> *@
                                     <th>Due Date</th>
                                     <th>Status</th>
                                     <th>Priority</th>
@@ -199,22 +199,22 @@
                                                 <div class="fw-medium">@task.Title</div>
                                                 <small class="text-muted">@task.Description</small>
                                             </td>
-                                            <td>
-                                                @if (task.AssignedTo != null)
-                                                {
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar-placeholder rounded-circle bg-primary text-white me-2"
-                                                             style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                                                            @(task.AssignedTo.UserName.Substring(0, 1).ToUpper())
-                                                        </div>
-                                                        <span>@task.AssignedTo.UserName</span>
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">Unassigned</span>
-                                                }
-                                            </td>
+                                            @* <td> *@
+                                            @*     @if (task.AssignedTo != null) *@
+                                            @*     { *@
+                                            @*         <div class="d-flex align-items-center"> *@
+                                            @*             <div class="avatar-placeholder rounded-circle bg-primary text-white me-2" *@
+                                            @*                  style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"> *@
+                                            @*                 @(task.AssignedTo.UserName.Substring(0, 1).ToUpper()) *@
+                                            @*             </div> *@
+                                            @*             <span>@task.AssignedTo.UserName</span> *@
+                                            @*         </div> *@
+                                            @*     } *@
+                                            @*     else *@
+                                            @*     { *@
+                                            @*         <span class="text-muted">Unassigned</span> *@
+                                            @*     } *@
+                                            @* </td> *@
                                             <td>
                                                 @if (task.EndDate.HasValue)
                                                 {
@@ -229,9 +229,9 @@
                                                 @{
                                                     var statusClass = task.Status switch
                                                     {
-                                                        "Completed" or "Done" => "bg-success",
-                                                        "In Progress" => "bg-primary",
-                                                        "Todo" or "Not Started" => "bg-warning",
+                                                        SmartTask.Core.Models.Enums.Status.Done => "bg-success",
+                                                        SmartTask.Core.Models.Enums.Status.InProgress => "bg-primary",
+                                                        SmartTask.Core.Models.Enums.Status.Todo => "bg-warning",
                                                         _ => "bg-secondary"
                                                     };
                                                 }
@@ -241,16 +241,16 @@
                                                 @{
                                                     var priorityClass = task.Priority switch
                                                     {
-                                                        "High" => "text-danger",
-                                                        "Medium" => "text-warning",
-                                                        "Low" => "text-success",
+                                                        SmartTask.Core.Models.Enums.Priority.High => "text-danger",
+                                                        SmartTask.Core.Models.Enums.Priority.Medium => "text-warning",
+                                                        SmartTask.Core.Models.Enums.Priority.Low => "text-success",
                                                         _ => ""
                                                     };
                                                     var priorityIcon = task.Priority switch
                                                     {
-                                                        "High" => "fa-arrow-up",
-                                                        "Medium" => "fa-minus",
-                                                        "Low" => "fa-arrow-down",
+                                                        SmartTask.Core.Models.Enums.Priority.High => "fa-arrow-up",
+                                                        SmartTask.Core.Models.Enums.Priority.Medium => "fa-minus",
+                                                        SmartTask.Core.Models.Enums.Priority.Low => "fa-arrow-down",
                                                         _ => "fa-minus"
                                                     };
                                                 }
@@ -322,7 +322,7 @@
                                             <div class="d-flex align-items-center mt-3">
                                                 @{
                                                     var completedStyle = Model.GetStatusStyle("Completed");
-                                                    var completedCount = Model.Tasks.Count(t => t.Status == "Completed");
+                                                    var completedCount = Model.Tasks.Count(t => t.Status == SmartTask.Core.Models.Enums.Status.Done);
                                                 }
                                                 <div class="status-icon rounded-circle p-2 me-3 d-flex justify-content-center align-items-center"
                                                      style="width: 50px; height: 50px; background-color: @completedStyle.BgColor;">
@@ -345,7 +345,7 @@
                                             <div class="d-flex align-items-center mt-3">
                                                 @{
                                                     var inProgressStyle = Model.GetStatusStyle("In Progress");
-                                                    var inProgressCount = Model.Tasks.Count(t => t.Status == "In Progress");
+                                                    var inProgressCount = Model.Tasks.Count(t => t.Status == SmartTask.Core.Models.Enums.Status.InProgress);
                                                 }
                                                 <div class="status-icon rounded-circle p-2 me-3 d-flex justify-content-center align-items-center"
                                                      style="width: 50px; height: 50px; background-color: @inProgressStyle.BgColor;">
@@ -368,7 +368,7 @@
                                             <div class="d-flex align-items-center mt-3">
                                                 @{
                                                     var todoStyle = Model.GetStatusStyle("Todo");
-                                                    var todoCount = Model.Tasks.Count(t => t.Status == "Todo");
+                                                    var todoCount = Model.Tasks.Count(t => t.Status == SmartTask.Core.Models.Enums.Status.Todo);
                                                 }
                                                 <div class="status-icon rounded-circle p-2 me-3 d-flex justify-content-center align-items-center"
                                                      style="width: 50px; height: 50px; background-color: @todoStyle.BgColor;">
@@ -391,7 +391,7 @@
                                             <div class="d-flex align-items-center mt-3">
                                                 @{
                                                     var notStartedStyle = Model.GetStatusStyle("Not Started");
-                                                    var notStartedCount = Model.Tasks.Count(t => t.Status == "Not Started");
+                                                    var notStartedCount = Model.Tasks.Count(t => t.Status == SmartTask.Core.Models.Enums.Status.Todo);
                                                 }
                                                 <div class="status-icon rounded-circle p-2 me-3 d-flex justify-content-center align-items-center"
                                                      style="width: 50px; height: 50px; background-color: @notStartedStyle.BgColor;">
@@ -431,7 +431,7 @@
                                         @* </li> *@
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             <span>High Priority Tasks</span>
-                                            <span class="badge bg-danger rounded-pill">@Model.Tasks.Count(t => t.Priority == "High")</span>
+                                            <span class="badge bg-danger rounded-pill">@Model.Tasks.Count(t => t.Priority == SmartTask.Core.Models.Enums.Priority.High)</span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             <span>Time Remaining</span>
@@ -512,7 +512,7 @@
 
             // Task Distribution Chart (Donut Chart)
             var taskDistOptions = {
-                series: [@Model.CompletedTasks, @Model.InProgressTasks, @Model.TodoTasks, @Model.Tasks.Count(t => t.Status == "Not Started")],
+                series: [@Model.CompletedTasks, @Model.InProgressTasks, @Model.TodoTasks, @Model.Tasks.Count(t => t.Status == SmartTask.Core.Models.Enums.Status.Todo)],
                 chart: {
                     type: 'donut',
                     height: 350
@@ -594,9 +594,9 @@
             // Priority Distribution Chart
             var priorityDistOptions = {
                 series: [
-        @Model.Tasks.Count(t => t.Priority == "High"),
-        @Model.Tasks.Count(t => t.Priority == "Medium"),
-        @Model.Tasks.Count(t => t.Priority == "Low")
+        @Model.Tasks.Count(t => t.Priority == SmartTask.Core.Models.Enums.Priority.High),
+        @Model.Tasks.Count(t => t.Priority == SmartTask.Core.Models.Enums.Priority.Medium),
+        @Model.Tasks.Count(t => t.Priority == SmartTask.Core.Models.Enums.Priority.Low)
                 ],
                 chart: {
                     type: 'pie',
@@ -629,7 +629,7 @@
                     data: [@Model.CompletedTasks]
                 }, {
                     name: 'Remaining',
-                    data: [@(Model.InProgressTasks + Model.TodoTasks + Model.Tasks.Count(t => t.Status == "Not Started"))]
+                    data: [@(Model.InProgressTasks + Model.TodoTasks + Model.Tasks.Count(t => t.Status == SmartTask.Core.Models.Enums.Status.Todo))]
                 }],
                 chart: {
                     type: 'bar',

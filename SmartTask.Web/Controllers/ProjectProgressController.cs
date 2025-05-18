@@ -38,9 +38,9 @@ namespace SmartTask.Web.Controllers
                 // Calculate tasks status
                 var tasks = project.Tasks ?? new List<Task>();
                 int totalTasks = tasks?.Count ?? 0;
-                int completedTasks = tasks.Count(t => new[] { "Completed", "Done" }.Contains(t.Status));
-                int inProgressTasks = tasks.Count(t => t.Status == "In Progress");
-                int todoTasks = tasks.Count(t => new[] { "Todo", "Not Started" }.Contains(t.Status));
+                int completedTasks = tasks.Count(t => t.Status == Core.Models.Enums.Status.Done);
+                int inProgressTasks = tasks.Count(t => t.Status == Core.Models.Enums.Status.InProgress);
+                int todoTasks = tasks.Count(t => t.Status == Core.Models.Enums.Status.Todo);
 
 
                 // Calculate progress percentage
@@ -104,9 +104,9 @@ namespace SmartTask.Web.Controllers
             }
 
             int totalTasks = project.Tasks?.Count ?? 0;
-            int completedTasks = project.Tasks.Count(t => t.Status == "Completed" || t.Status == "Done");
-            int inProgressTasks = project.Tasks.Count(t => t.Status == "In Progress");
-            int todoTasks = project.Tasks.Count(t => t.Status == "Todo" || t.Status == "Not Started");
+            int completedTasks = project.Tasks.Count(t => t.Status == Core.Models.Enums.Status.Done);
+            int inProgressTasks = project.Tasks.Count(t => t.Status == Core.Models.Enums.Status.InProgress);
+            int todoTasks = project.Tasks.Count(t => t.Status == Core.Models.Enums.Status.Todo);
 
             // Calculate progress percentage
             int progressPercentage = totalTasks > 0 ? (completedTasks * 100) / totalTasks : 0;

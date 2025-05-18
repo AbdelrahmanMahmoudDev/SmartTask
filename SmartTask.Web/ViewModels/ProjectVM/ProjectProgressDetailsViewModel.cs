@@ -1,4 +1,5 @@
 ﻿using SmartTask.Core.Models;
+using SmartTask.Core.Models.Enums;
 using Task = SmartTask.Core.Models.Task;
 
 namespace SmartTask.Web.ViewModels.ProjectVM
@@ -37,9 +38,9 @@ namespace SmartTask.Web.ViewModels.ProjectVM
         }
 
         // count tasks by status
-        public int CountTasksByStatus(string status)
+        public int CountTasksByStatus(Status status)
         {
-            return Tasks.Count(t => t.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            return Tasks.Count(t => t.Status==status);
             //بتاخد التاسك وتشوف هل ال status بتاعه يساوي ال status اللي انت عايز تشوفه ولا لا
         }
     }

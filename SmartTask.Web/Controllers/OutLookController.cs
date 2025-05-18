@@ -65,7 +65,7 @@ namespace SmartTask.Web.Controllers
             }
 
 
-            return RedirectToAction("Cal");
+            return RedirectToAction("syncoutlook");
         }
 
 
@@ -175,8 +175,8 @@ namespace SmartTask.Web.Controllers
             var model = new AddEventAsTaskViewModel
             {
                 EventId = eventId,
-                //Start=theEvent.Start,
-                //End=theEvent.End,
+                Start=DateTime.Now,
+                End=DateTime.Now,
                 Projects = projects.Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Name }).ToList()
             };
             return PartialView("_AddTaskPartial", model);

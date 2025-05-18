@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SmartTask.Core.Models.Enums;
-using SmartTask.Web.CustomeValidations;
 using System.ComponentModel.DataAnnotations;
 
 namespace SmartTask.Web.ViewModels

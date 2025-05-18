@@ -79,7 +79,7 @@ namespace SmartTask.Web
             builder.Services.AddScoped(typeof(IPaginatedService<>), typeof(PaginatedService<>));
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddSession();
-
+            #endregion
             // IUser service
             builder.Services.AddScoped<IUserService, UserService>();
             // extendProjectDeadline Based ON Task Service
