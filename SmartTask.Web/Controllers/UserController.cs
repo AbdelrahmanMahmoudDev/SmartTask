@@ -91,11 +91,12 @@ namespace SmartTask.Web.Controllers
 
             return RedirectToAction("WithoutDepartment");
         }
+
+        [Authorize(Policy = "CanEditUser")]
         public async Task<IActionResult> Edit(string id)
         {
             var user = await _userService.GetByIdAsync(id);
             if (user == null) return NotFound();
-
             var departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.Departments = new SelectList(departments, "Id", "Name");
             return View(user);
@@ -103,18 +104,16 @@ namespace SmartTask.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CanEditUser")]
         public async Task<IActionResult> Edit(string id, ApplicationUser user)
         {
             if (id != user.Id) return NotFound();
-
             if (ModelState.IsValid)
             {
                 var success = await _userService.UpdateAsync(user);
                 if (!success) return NotFound();
-
                 return RedirectToAction(nameof(GetAll));
             }
-
             var departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.Departments = new SelectList(departments, "Id", "Name");
             return View(user);

@@ -11,12 +11,15 @@ using SmartTask.DataAccess.Data;
 using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
 using SmartTask.Bl.Hubs;
-using SmartTask.Core.IExternalServices;
 using SmartTask.Bl.IServices;
-using SmartTask.Bl.Services;
-
+using Microsoft.AspNetCore.Identity;
 using System;
 using task=System.Threading.Tasks.Task;
+using Microsoft.AspNetCore.Authorization;
+using SmartTask.Web.Authorization.Handlers;
+using SmartTask.Web.Authorization.Requirements;
+using SmartTask.Web.Authorization;
+
 namespace SmartTask.Web
 {
     public class Program
@@ -54,6 +57,21 @@ namespace SmartTask.Web
             // Database & Identity
             //builder.Services.AddDbContext<SmartTaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            // Authorizing Users
+            builder.Services.AddAuthorization(options =>
+            {
+                AuthorizationPolicyConfiguration.ConfigureAuthorizationPolicies(options);
+            });
+
+            // HttpContextAccessor (required for the authorization handler)
+            builder.Services.AddHttpContextAccessor();
+
+            // Register authorization handlers
+            AuthorizationPolicyConfiguration.RegisterAuthorizationHandlers(builder.Services);
+
+            // Register the authorization handler
+            builder.Services.AddScoped<IAuthorizationHandler, EditUserAuthorizationHandler>();
+
             // Database context configuration
             builder.Services.AddDbContext<SmartTaskContext>(options =>
                 options.UseSqlServer(
@@ -61,7 +79,9 @@ namespace SmartTask.Web
                     sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<SmartTaskContext>();
+     .AddEntityFrameworkStores<SmartTaskContext>()
+     .AddDefaultTokenProviders();
+
 
             // Dependency Injection
             RegisterRepositories(builder.Services);
@@ -89,12 +109,22 @@ namespace SmartTask.Web
                 var logger = loggerFactory.CreateLogger<Program>();
                 logger.LogError(ex, "An error occurred while migrating the database.");
             }
+
             // Error Handling
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
+            // Handling UnAuthorized Access
+            app.UseStatusCodePages(async context =>
+            {
+                if (context.HttpContext.Response.StatusCode == 403)
+                {
+                    context.HttpContext.Response.Redirect("/Error/AccessDenied");
+                }
+            });
 
             // Middleware Pipeline
             app.UseHttpsRedirection();

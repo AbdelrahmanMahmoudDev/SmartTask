@@ -257,7 +257,7 @@
             .task-item:hover {
                 transform: translateX(5px);
                 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            }
+        }
 
         .badge {
             border-radius: 50px;
@@ -330,12 +330,16 @@
             .btn-outline-primary:hover {
                 background-color: var(--primary-color);
                 color: white;
-            }
+        }
 
         .btn-sm {
             padding: 0.3rem 0.8rem;
             border-radius: 50px;
             font-size: 0.8rem;
+        }
+        /* Add to your existing CSS */
+        .bg-light-info {
+            background-color: rgba(23, 162, 184, 0.1);
         }
 
         .view-all {
@@ -351,7 +355,7 @@
             .view-all:hover {
                 color: var(--secondary-color);
                 transform: translateX(3px);
-            }
+        }
 
         .widget-section {
             opacity: 1;
@@ -363,7 +367,7 @@
                 opacity: 0;
                 transform: translateY(20px);
                 display: none;
-            }
+        }
 
         .sort-btn:hover {
             background-color: rgba(67, 97, 238, 0.1);
@@ -398,7 +402,11 @@
             gap: 4px;
         }
 
-       
+        .sorting {
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
     </style>
 </head>
 <body>
@@ -415,7 +423,7 @@
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
-        </div>
+            </div>
 
         <!-- Stats Cards (Project Status Summary) -->
         <div data-widget-container="project-status" style="display: @(showProjectStatus ? "block" : "none")">
@@ -426,8 +434,10 @@
                         <div class="stat-figure">@totalProjects</div>
                         <p class="mb-0 opacity-75">Across all departments</p>
                         <i class="fas fa-project-diagram icon"></i>
-                    </div>
-                </div>
+                        </div>
+                        <div class="bg-light-info p-3 rounded-circle">
+                            <i class="fas fa-sync-alt text-info fa-2x"></i>
+                        </div>
                 <div class="col-md-3 col-sm-6">
                     <div class="card stat-card bg-gradient-success">
                         <div class="stat-label">Completed</div>
@@ -442,19 +452,48 @@
                         <div class="stat-figure">@inProgressProjects</div>
                         <p class="mb-0 opacity-75">@(inProgressProjects > 0 ? $"{Math.Round((double)inProgressProjects / totalProjects * 100)}% of total projects" : "No projects in progress")</p>
                         <i class="fas fa-spinner icon"></i>
-                    </div>
-                </div>
+            </div>
+
+            <!-- Pending -->
+            <div class="col-md">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted">PENDING</h6>
+                            <h3 class="mb-0">@pendingprojects</h3>
+                            <small class="text-muted">
+                                <span class="text-warning fw-bold">@((pendingprojects * 100 / totalProjects).ToString("0"))%</span> awaiting start
+                            </small>
+                        </div>
                 <div class="col-md-3 col-sm-6">
                     <div class="card stat-card bg-gradient-info">
                         <div class="stat-label">Total Tasks</div>
                         <div class="stat-figure">@totalTasks</div>
                         <p class="mb-0 opacity-75">Across all projects</p>
                         <i class="fas fa-tasks icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Tasks -->
+            <div class="col-md">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted">TOTAL TASKS</h6>
+                            <h3 class="mb-0">@totalTasks</h3>
+                            <small class="text-muted">
+                                <span class="text-purple fw-bold">@((totalTasks * 100 / totalProjects).ToString("0"))%</span> task coverage
+                            </small>
+                        </div>
+                        <div class="bg-light-purple p-3 rounded-circle">
+                            <i class="fas fa-tasks text-purple fa-2x"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="row">
             <!-- Projects Section (Recent Projects) -->
             <div class="col-md-7 mb-4" data-widget-container="recent-projects" style="display: @(showRecentProjects ? "block" : "none")">
@@ -513,11 +552,20 @@
                                             <p class="text-muted mb-2">
                                                 @(project.Description?.Length > 100 ? project.Description.Substring(0, 100) + "..." : project.Description)
                                             </p>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-light text-dark me-2">
+                                                    <i class="fas fa-tasks me-1"></i> @totalProjectTasks Tasks
+                                                </span>
+                                                <span class="badge bg-light text-dark">
+                                                    <i class="fas fa-check-circle me-1 text-success"></i> @completedTasks Completed
+                                                </span>
+                                            </div>
                                         </div>
-                                        <span class="badge bg-@statusClass">
-                                            @project.Status
-                                        </span>
-                                    </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-@statusClass">
+                                                @project.Status
+                                            </span>
+                                        </div>
 
                                     <div class="d-flex align-items-center mb-3 gap-2">
                                         <span class="badge bg-light text-dark">
@@ -588,13 +636,15 @@
                     </div>
                 </div>
             </div>
+
+
         </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
+        <script>
         document.addEventListener('DOMContentLoaded', function() {
             const resetBtn = document.getElementById('resetBtn');
             const saveBtn = document.getElementById('saveBtn');
@@ -631,8 +681,11 @@
 
                 // Set default sort (newest first)
                 $('.sort-btn[data-sort="date-desc"]').addClass('active');
+                });
             });
-        });
-    </script>
+                        $container.addClass('sorting');
+            setTimeout(() => $container.removeClass('sorting'), 300);
+        </script>
+    }
 </body>
 </html>

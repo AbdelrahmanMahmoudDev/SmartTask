@@ -23,7 +23,7 @@
 </div>
 <div class="container">
     <div class="form-container">
-        <form asp-action="Register">
+        <form asp-action="Register" method="post" enctype="multipart/form-data">
             <h2 class="form-title">Register</h2>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="mb-3">
@@ -56,6 +56,12 @@
                 <input asp-for="PhoneNumber" class="form-control" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
+            <div class="mb-3">
+                <label asp-for="UserImage" class="control-label"></label>
+                <input asp-for="UserImage" type="file" class="form-control" accept="image/*" />
+                <span asp-validation-for="UserImage" class="text-danger"></span>
+                <small class="form-text text-muted">Maximum file size: 1MB</small>
+            </div>
             <div class="mb-3 text-center">
                 <input type="submit" value="Register" class="btn btn-primary w-50" />
             </div>
@@ -66,4 +72,21 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function() {
+            $('input[type="file"]').on('change', function() {
+                // Check if file is selected
+                if (this.files && this.files[0]) {
+                    // File size validation on client side
+                    var fileSize = this.files[0].size / 1024 / 1024; // in MB
+                    if (fileSize > 1) {
+                        alert('File size exceeds 1 MB. Please select a smaller file.');
+                        $(this).val(''); // Clear the file input
+                        return;
+                    }
+                }
+            });
+        });
+    </script>
 }

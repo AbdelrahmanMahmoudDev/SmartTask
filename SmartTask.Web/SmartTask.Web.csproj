@@ -23,5 +23,10 @@
 		<ProjectReference Include="..\SmartTask.Bl\SmartTask.BL.csproj" />
 	</ItemGroup>
 
+  
+	<ItemGroup>
+	  <Folder Include="wwwroot\assets\img\user-img\" />
+	</ItemGroup>
+
 
 </Project>

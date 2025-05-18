@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartTask.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
-    partial class SmartTaskContextModelSnapshot : ModelSnapshot
+    [Migration("20250511185634_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -741,54 +744,6 @@ namespace SmartTask.DataAccess.Migrations
                     b.ToTable("TaskDependencies");
                 });
 
-            modelBuilder.Entity("SmartTask.Core.Models.UserDashboardPreference", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("LastLoginDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PreferredView")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("RecentProjectsCount")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("ShowActivityChart")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("ShowProjectStatus")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("ShowRecentProjects")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("ShowUpcomingTasks")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserDashboardPreferences");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("SmartTask.Core.Models.BasePermission.ApplicationRole", null)
@@ -1100,17 +1055,6 @@ namespace SmartTask.DataAccess.Migrations
                     b.Navigation("Predecessor");
 
                     b.Navigation("Successor");
-                });
-
-            modelBuilder.Entity("SmartTask.Core.Models.UserDashboardPreference", b =>
-                {
-                    b.HasOne("SmartTask.Core.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SmartTask.Core.Models.ApplicationUser", b =>

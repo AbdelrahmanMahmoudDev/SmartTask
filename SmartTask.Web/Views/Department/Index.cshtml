@@ -1,76 +1,7 @@
-﻿@using SmartTask.Web.ViewModels.DepartmentVM
+﻿﻿@using SmartTask.Web.ViewModels.DepartmentVM
 <!-- Views/Department/Index.cshtml -->
 @model DepartmentIndexViewModel
 
-<h1>Departments</h1>
-
-<secure-content asp-area="" asp-controller="Department" asp-action="Create">
-    <a asp-action="Create" class="btn btn-success">Create New</a>
-</secure-content>
-
-<form asp-action="Index" method="get">
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" name="searchString" value="@Model.SearchString"
-               placeholder="Search departments...">
-        <button class="btn btn-outline-secondary" type="submit">Search</button>
-    </div>
-</form>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Manager</th>
-            <th>Department</th>
-            <secure-content asp-area="" asp-controller="Department" asp-action="Edit">
-
-                <th>Edit</th>
-            </secure-content>
-
-            <secure-content asp-area="" asp-controller="Department" asp-action="Delete">
-
-                <th>Delete</th>
-            </secure-content>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var department in Model.Departments)
-        {
-            <tr>
-                <td>@department.Name</td>
-                <td>@department.Manager?.FullName</td>
-              
-                <td><a href="/department/details/@department.Id" class="btn btn-primary">Details</a></td>
-                    <secure-content asp-area="" asp-controller="Branch" asp-action="Edit">
-
-                        <td><a href="/Department/edit/@department.Id" class="btn btn-primary">Edit</a></td>
-                    </secure-content>
-                    <secure-content asp-area="" asp-controller="Department" asp-action="Delete">
-                        <td><a href="/Department/Delete/@department.Id" onclick="return confirm('Are you sure?')" class="btn btn-danger">Delete</a></td>
-
-                    </secure-content>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@{
-    var prevDisabled = !Model.Departments.HasPreviousPage ? "disabled" : "";
-    var nextDisabled = !Model.Departments.HasNextPage ? "disabled" : "";
-}
-
-<a asp-action="Index"
-   asp-route-page="@(Model.Departments.PageIndex - 1)"
-   asp-route-searchString="@Model.SearchString"
-   class="btn btn-primary @prevDisabled">
-    Previous
-</a>
-<a asp-action="Index"
-   asp-route-page="@(Model.Departments.PageIndex + 1)"
-   asp-route-searchString="@Model.SearchString"
-   class="btn btn-primary @nextDisabled">
-    Next
-</a>
 
 @{
     ViewData["Title"] = "Department Table";
@@ -744,22 +675,21 @@
     }
 
     /* .view-btn { */
-    /*     background-color: #17a2b8; /* أزرق سماوي */ */
+    /*     background-color: #17a2b8; /* أزرق سماوي */
     /* } */
 
     /* .edit-btn { */
-    /*     background-color: #007bff; /* أزرق */ */
+    /*     background-color: #007bff; /* أزرق */
     /* } */
 
     /* .delete-btn { */
-    /*     background-color: #dc3545; /* أحمر */ */
+    /*     background-color: #dc3545; /* أحمر */
     /* } */
 
-    .create-btn {
-        background-color: #007bfa; /* أصفر */
-        color: #fff;
-    }
-
+    /* .create-btn { */
+    /*     background-color: #007bfa; /* أصفر */ 
+    /*     color: #fff; */
+    /* } */
 
 </style>
 
@@ -778,8 +708,25 @@
             <h5 class="mb-0"><i class="fas fa-table me-2"></i>Departments</h5>
         </div>
 
-        
+
+
         <div class="card-body">
+            @**@
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="filterName" class="form-label">Department Name</label>
+                    <input type="text" id="filterName" class="form-control" placeholder="Enter department name">
+                </div>
+                <div class="col-md-4">
+                    <label for="filterManager" class="form-label">Manager</label>
+                    <input type="text" id="filterManager" class="form-control" placeholder="Enter manager name">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button id="btnClearFilters" class="btn btn-secondary me-2">Clear Filters</button>
+                </div>
+            </div>
+
+            @**@
             <div class="table-responsive">
                 <secure-content asp-controller="Department" asp-action="Create">
                     <a href="/Department/Create" class="action-btn create-btn mb-3">
@@ -790,7 +737,7 @@
                 <table id="tblDepartments" class="table table-striped table-bordered nowrap" style="width:100%">
                     <thead>
                         <tr>
-                            
+
                             <th>Name</th>
                             <th>Manager</th>
                             <th>Actions</th>
@@ -803,6 +750,7 @@
                                 <td>@department.Name</td>
                                 <td>@department.Manager?.FullName</td>
                                 <td>
+
                                     <!-- View Button -->
                                     <a href="/Department/Details/@department.Id" class="action-btn view-btn me-1 text-white">
                                         <i class="fas fa-eye"></i>
@@ -821,7 +769,7 @@
 
                             </tr>
                         }
-                        
+
                     </tbody>
                 </table>
             </div>
@@ -836,23 +784,33 @@
 <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
 
 <script>
-    $(document).ready(function () {
-        $('#tblDepartments').DataTable({
-            responsive: true,
-            language: {
-                search: "<i class='fas fa-search'></i>",
-                searchPlaceholder: "Search departments...",
-                lengthMenu: "Show _MENU_ entries",
-                info: "Showing <span class='highlight-info'>_START_</span> to <span class='highlight-info'>_END_</span> of <span class='highlight-info'>_TOTAL_</span> entries",
-                paginate: {
-                    previous: "<i class='fas fa-chevron-left'></i>",
-                    next: "<i class='fas fa-chevron-right'></i>"
-                }
+        var table = $('#tblDepartments').DataTable({
+        responsive: true,
+        language: {
+            search: "<i class='fas fa-search'></i>",
+            searchPlaceholder: "Search departments...",
+            lengthMenu: "Show _MENU_ entries",
+            info: "Showing <span class='highlight-info'>_START_</span> to <span class='highlight-info'>_END_</span> of <span class='highlight-info'>_TOTAL_</span> entries",
+            paginate: {
+                previous: "<i class='fas fa-chevron-left'></i>",
+                next: "<i class='fas fa-chevron-right'></i>"
             }
-        });
+        }
     });
+
+    // Custom filtering
+    $('#filterName').on('keyup change', function () {
+        table.column(0).search(this.value).draw();
+    });
+
+    $('#filterManager').on('keyup change', function () {
+        table.column(1).search(this.value).draw();
+    });
+
+    $('#btnClearFilters').click(function () {
+        $('#filterName').val('');
+        $('#filterManager').val('');
+        table.columns().search('').draw();
+    });
+
 </script>
-
-
-
-

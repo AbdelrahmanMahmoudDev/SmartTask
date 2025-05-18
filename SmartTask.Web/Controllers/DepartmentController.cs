@@ -170,22 +170,24 @@ namespace SmartTask.Web.Controllers
         }
 
 
-            private IEnumerable<Department> GetDepartments()
-            {
-                return new List<Department>
-        {
-            new Department { Id = 1, Name = "IT Department" },
-            new Department { Id = 2, Name = "HR Department" },
-            new Department { Id = 3, Name = "Finance Department" },
-            new Department { Id = 4, Name = "Marketing Department" },
-            new Department { Id = 5, Name = "Sales Department" }
-        };
-            }
+
 
 
 
         //GetDepartments method is returning the IEnumerable Departments from database
+        [HttpGet]
+        private IEnumerable<Department> GetDepartments()
+        {
+            return new List<Department>
+            {
+                new Department
+        {
+            Name = "Department1",
 
+        },
+
+            };
+        }
         [HttpGet]
         public ActionResult GetData()
         {
@@ -204,19 +206,27 @@ namespace SmartTask.Web.Controllers
 
 
             // Advanced filter parameters
-            var location = Request.Query["location"].FirstOrDefault();
-            var position = Request.Query["position"].FirstOrDefault();
-            var startDateStr = Request.Query["startDate"].FirstOrDefault();
-            var endDateStr = Request.Query["endDate"].FirstOrDefault();
-            var minSalaryStr = Request.Query["minSalary"].FirstOrDefault();
-            var maxSalaryStr = Request.Query["maxSalary"].FirstOrDefault();
-            var minAgeStr = Request.Query["minAge"].FirstOrDefault();
-            var maxAgeStr = Request.Query["maxAge"].FirstOrDefault();
+            var name = Request.Query["name"].FirstOrDefault();
+            var manager = Request.Query["manager"].FirstOrDefault();
+            //var startDateStr = Request.Query["startDate"].FirstOrDefault();
+            //var endDateStr = Request.Query["endDate"].FirstOrDefault();
+            //var minSalaryStr = Request.Query["minSalary"].FirstOrDefault();
+            //var maxSalaryStr = Request.Query["maxSalary"].FirstOrDefault();
+            //var minAgeStr = Request.Query["minAge"].FirstOrDefault();
+            //var maxAgeStr = Request.Query["maxAge"].FirstOrDefault();
 
             var branches = GetDepartments();
             int totalRecords = branches.Count();
 
+            if (!string.IsNullOrEmpty(name))
+            {
+                branches = branches.Where(x => x.Name == name).ToList();
+            }
 
+            if (!string.IsNullOrEmpty(manager))
+            {
+                branches = branches.Where(x => x.ManagerId == manager).ToList();
+            }
 
             //Filter(Search)
             if (!string.IsNullOrEmpty(searchValue))
@@ -274,4 +284,3 @@ namespace SmartTask.Web.Controllers
 }
 
 
-  

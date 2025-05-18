@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using SmartTask.BL.Services;
+using SmartTask.Core.Models.BasePermission;
 
 namespace SmartTask.Web.Controllers
 {
@@ -29,11 +31,11 @@ namespace SmartTask.Web.Controllers
        
 
         public DashboardController(
-            IProjectService projectService,
+           IProjectService projectService,
             IDashboardService dashboardService,
-            UserManager<ApplicationUser> userManager,
-            RoleManager<ApplicationRole> roleManager,
-            IDepartmentService departmentService)
+           UserManager<ApplicationUser> userManager,
+           RoleManager<ApplicationRole> roleManager,
+           IDepartmentService departmentService)
         {
             _projectService = projectService;
             _dashboardService = dashboardService;
@@ -68,13 +70,16 @@ namespace SmartTask.Web.Controllers
             // Get projects based on authorization
             if (User.IsInRole("Admin"))
             {
+                // Admin sees all projects with pagination and filtering
                 var projects = await _projectService.GetFilteredProjectsAsync(searchString, departmentId, page, PageSize);
                 return View(projects);
             }
             else
             {
+                // Regular users and Project Managers see their own projects
                 var userProjects = await _projectService.GetUserProjectsAsync(currentUser.Id);
 
+                // Apply filters
                 if (!string.IsNullOrEmpty(searchString))
                 {
                     userProjects = userProjects
@@ -89,6 +94,7 @@ namespace SmartTask.Web.Controllers
                         .ToList();
                 }
 
+                // Manual pagination for filtered user projects
                 var totalCount = userProjects.Count;
                 var totalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
                 var paginatedProjects = userProjects
@@ -520,7 +526,7 @@ namespace SmartTask.Web.Controllers
             {
                 return Json(new { success = false, message = "Invalid count value" });
             }
-
+        
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
             {
