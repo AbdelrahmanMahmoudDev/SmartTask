@@ -1,0 +1,103 @@
+﻿@model SmartTask.Web.ViewModels.DashboardVM.RecentProjectsViewModel
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Projects</h5>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="recentProjectsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="recentProjectsDropdown">
+                <li><button class="dropdown-item toggle-widget" data-widget="recent-projects">Hide</button></li>
+                <li><button class="dropdown-item refresh-widget" data-widget="recent-projects">Refresh</button></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#recentProjectsSettingsModal">Settings</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (Model.Projects != null && Model.Projects.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var project in Model.Projects)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="@Url.Action("Details", "Projects", new { id = project.Id })">
+                                        @project.Name
+                                    </a>
+                                </td>
+                                <td>
+                                    @{
+                                        var statusClass = project.Status?.ToLower() switch
+                                        {
+                                            "pending" => "bg-warning",
+                                            "in progress" => "bg-info",
+                                            "completed" => "bg-success",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @statusClass">@project.Status</span>
+                                </td>
+                                <td>@project.StartDate?.ToString("MM/dd/yyyy")</td>
+                                <td>
+                                    @if (project.EndDate.HasValue)
+                                    {
+                                        var isOverdue = project.EndDate.Value < DateTime.Now && project.Status?.ToLower() != "completed";
+                                        <span class="@(isOverdue ? "text-danger" : "")">
+                                            @project.EndDate.Value.ToString("MM/dd/yyyy")
+                                            @if (isOverdue)
+                                            {
+                                                <i class="fas fa-exclamation-circle" title="Overdue"></i>
+                                            }
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                No recent projects found.
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal fade" id="recentProjectsSettingsModal" tabindex="-1" aria-labelledby="recentProjectsSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recentProjectsSettingsModalLabel">Recent Projects Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="recentProjectsSettingsForm">
+                    <div class="mb-3">
+                        <label for="projectCount" class="form-label">Number of projects to display:</label>
+                        <input type="number" class="form-control" id="projectCount" name="projectCount" value="@Model.Count" min="1" max="20">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveRecentProjectsSettings">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>

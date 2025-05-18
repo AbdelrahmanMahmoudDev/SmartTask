@@ -1,0 +1,436 @@
+﻿@model SmartTask.Core.Models.UserDashboardPreference
+
+@{
+    ViewData["Title"] = "Dashboard Settings";
+}
+
+<div class="container-fluid py-5">
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-4 fw-bold">Dashboard Settings</h1>
+            <p class="lead text-muted">Personalize your workspace experience</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="widgets-tab" data-bs-toggle="tab" data-bs-target="#widgets" type="button" role="tab" aria-controls="widgets" aria-selected="true">
+                                <i class="bi bi-grid-3x3-gap me-2"></i>Widgets
+                            </button>
+                        </li>
+                        @* <li class="nav-item" role="presentation"> *@
+                        @*     <button class="nav-link" id="display-tab" data-bs-toggle="tab" data-bs-target="#display" type="button" role="tab" aria-controls="display" aria-selected="false"> *@
+                        @*         <i class="bi bi-laptop me-2"></i>Display *@
+                        @*     </button> *@
+                        @* </li> *@
+                    </ul>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="Settings" method="post" id="settingsForm">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="UserId" />
+                        <input type="hidden" asp-for="CreatedAt" />
+                        <input type="hidden" asp-for="UpdatedAt" />
+                        <input type="hidden" asp-for="LastLoginDate" />
+
+                        <div class="tab-content" id="settingsTabContent">
+                            <!-- Widgets Tab -->
+                            <div class="tab-pane fade show active" id="widgets" role="tabpanel" aria-labelledby="widgets-tab">
+                                <p class="text-muted mb-4">Choose which widgets to display on your dashboard</p>
+
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border widget-card">
+                                            <div class="card-body d-flex align-items-center p-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" asp-for="ShowRecentProjects" id="showRecentProjects">
+                                                </div>
+                                                <div class="ms-3">
+                                                    <h5 class="mb-1">Recent Projects</h5>
+                                                    <p class="text-muted mb-0 small">Quick access to your latest work</p>
+                                                </div>
+                                                <div class="ms-auto text-muted">
+                                                    <i class="bi bi-folder-fill fs-3"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border widget-card">
+                                            <div class="card-body d-flex align-items-center p-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" asp-for="ShowProjectStatus" id="showProjectStatus">
+                                                </div>
+                                                <div class="ms-3">
+                                                    <h5 class="mb-1">Project Status</h5>
+                                                    <p class="text-muted mb-0 small">Overview of all project progress</p>
+                                                </div>
+                                                <div class="ms-auto text-muted">
+                                                    <i class="bi bi-pie-chart-fill fs-3"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border widget-card">
+                                            <div class="card-body d-flex align-items-center p-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" asp-for="ShowUpcomingTasks" id="showUpcomingTasks">
+                                                </div>
+                                                <div class="ms-3">
+                                                    <h5 class="mb-1">Upcoming Tasks</h5>
+                                                    <p class="text-muted mb-0 small">Tasks due in the next 7 days</p>
+                                                </div>
+                                                <div class="ms-auto text-muted">
+                                                    <i class="bi bi-calendar-check-fill fs-3"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border widget-card">
+                                            <div class="card-body d-flex align-items-center p-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="showActivityChart" name="ShowActivityChart">
+                                                </div>
+                                                <div class="ms-3">
+                                                    <h5 class="mb-1">Activity Chart</h5>
+                                                    <p class="text-muted mb-0 small">Visual representation of your activity</p>
+                                                </div>
+                                                <div class="ms-auto text-muted">
+                                                    <i class="bi bi-bar-chart-fill fs-3"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Display Tab -->
+                            @* <div class="tab-pane fade" id="display" role="tabpanel" aria-labelledby="display-tab"> *@
+                            @*     <p class="text-muted mb-4">Customize how information is displayed</p> *@
+
+                            @*     <div class="mb-4"> *@
+                            @*         <label for="RecentProjectsCount" class="form-label d-flex justify-content-between"> *@
+                            @*             <span>Recent Projects to Display</span> *@
+                            @*             <span class="badge bg-primary rounded-pill" id="projectCountValue">@Model.RecentProjectsCount</span> *@
+                            @*         </label> *@
+                            @*         <input type="range" class="form-range" id="RecentProjectsCount" asp-for="RecentProjectsCount" min="1" max="20" *@
+                            @*                oninput="document.getElementById('projectCountValue').textContent = this.value"> *@
+                            @*         <div class="d-flex justify-content-between small text-muted"> *@
+                            @*             <span>1</span> *@
+                            @*             <span>10</span> *@
+                            @*             <span>20</span> *@
+                            @*         </div> *@
+                            @*     </div> *@
+
+                            @*     <div class="mb-4"> *@
+                            @*         <label class="form-label">Layout View</label> *@
+                            @*         <div class="row g-2"> *@
+                            @*             <div class="col-6"> *@
+                            @*                 <div class="custom-option border rounded p-3 @(Model.PreferredView == "grid" ? "active-option" : "")"> *@
+                            @*                     <input class="form-check-input" type="radio" name="PreferredView" id="gridView" value="grid" @(Model.PreferredView == "grid" ? "checked" : "")> *@
+                            @*                     <label class="form-check-label w-100" for="gridView"> *@
+                            @*                         <div class="text-center mb-2"> *@
+                            @*                             <i class="bi bi-grid-3x3-gap fs-4"></i> *@
+                            @*                         </div> *@
+                            @*                         <strong>Grid View</strong> *@
+                            @*                         <p class="small text-muted mb-0">Compact, multiple columns</p> *@
+                            @*                     </label> *@
+                            @*                 </div> *@
+                            @*             </div> *@
+                            @*             <div class="col-6"> *@
+                            @*                 <div class="custom-option border rounded p-3 @(Model.PreferredView == "list" ? "active-option" : "")"> *@
+                            @*                     <input class="form-check-input" type="radio" name="PreferredView" id="listView" value="list" @(Model.PreferredView == "list" ? "checked" : "")> *@
+                            @*                     <label class="form-check-label w-100" for="listView"> *@
+                            @*                         <div class="text-center mb-2"> *@
+                            @*                             <i class="bi bi-list-ul fs-4"></i> *@
+                            @*                         </div> *@
+                            @*                         <strong>List View</strong> *@
+                            @*                         <p class="small text-muted mb-0">Full-width, single column</p> *@
+                            @*                     </label> *@
+                            @*                 </div> *@
+                            @*             </div> *@
+                            @*         </div> *@
+                            @*     </div> *@
+                            @* </div> *@
+                        </div>
+
+                        <div class="d-flex justify-content-between pt-4 border-top mt-4">
+                            <button type="button" class="btn btn-outline-danger" id="resetDefaultsBtn">
+                                <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Defaults
+                            </button>
+                            <div>
+                                <a asp-action="Index" class="btn btn-light me-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary px-4" id="saveChangesBtn">
+                                    <i class="bi bi-check2 me-2"></i>Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#projectCountValue').text($('#RecentProjectsCount').val());
+
+            const originalValues = {
+                recentProjectsCount: $('#RecentProjectsCount').val(),
+                preferredView: $('input[name="PreferredView"]:checked').val(),
+                showRecentProjects: $('#showRecentProjects').is(':checked'),
+                showProjectStatus: $('#showProjectStatus').is(':checked'),
+                showUpcomingTasks: $('#showUpcomingTasks').is(':checked'),
+                showActivityChart: $('#showActivityChart').is(':checked')
+            };
+
+            $('input[name="PreferredView"]').change(function() {
+                $('.custom-option').removeClass('active-option');
+                $(this).closest('.custom-option').addClass('active-option');
+                changeViewType($(this).val());
+            });
+
+           
+            $('#RecentProjectsCount').on('input', function() {
+                const count = parseInt($(this).val());
+                $('#projectCountValue').text(count);
+            });
+
+            $('#RecentProjectsCount').on('change', function() {
+                const count = parseInt($(this).val());
+                if (!isNaN(count) && count >= 1 && count <= 20) {
+                    $(this).attr('value', count);
+                    updateRecentProjectsCount(count);
+                }
+            });
+
+            $('#showRecentProjects').change(function() {
+                updateWidgetVisibility('recent-projects', $(this).is(':checked'));
+            });
+
+            $('#showProjectStatus').change(function() {
+                updateWidgetVisibility('project-status', $(this).is(':checked'));
+            });
+
+            $('#showUpcomingTasks').change(function() {
+                updateWidgetVisibility('upcoming-tasks', $(this).is(':checked'));
+            });
+
+            $('#showActivityChart').change(function() {
+                updateWidgetVisibility('activity-chart', $(this).is(':checked'));
+            });
+
+            // Form submission handler
+            $('#settingsForm').submit(function(e) {
+                const projectsCount = parseInt($('#RecentProjectsCount').val());
+                if (isNaN(projectsCount) || projectsCount < 1 || projectsCount > 20) {
+                    e.preventDefault();
+                    //alert('Recent projects count must be between 1 and 20.');
+                    return false;
+                }
+
+                $('#RecentProjectsCount').attr('value', projectsCount);
+
+                return true;
+            });
+
+            $('#resetDefaultsBtn').click(function() {
+                if (confirm('Are you sure you want to reset all dashboard settings to defaults?')) {
+                    $('#showRecentProjects').prop('checked', true);
+                    $('#showProjectStatus').prop('checked', true);
+                    $('#showUpcomingTasks').prop('checked', true);
+                    $('#showActivityChart').prop('checked', true);
+                    $('#RecentProjectsCount').val(5);
+                    $('#RecentProjectsCount').attr('value', 5); // Update the value attribute
+                    $('#projectCountValue').text('5');
+                    $('#gridView').prop('checked', true);
+                    $('.custom-option').removeClass('active-option');
+                    $('#gridView').closest('.custom-option').addClass('active-option');
+
+                    updateWidgetVisibility('recent-projects', true);
+                    updateWidgetVisibility('project-status', true);
+                    updateWidgetVisibility('upcoming-tasks', true);
+                    updateWidgetVisibility('activity-chart', true);
+
+                    updateRecentProjectsCount(5);
+
+                    changeViewType('grid');
+                }
+            });
+
+            $('form').submit(function(e) {
+                const projectsCount = parseInt($('#RecentProjectsCount').val());
+                if (isNaN(projectsCount) || projectsCount < 1 || projectsCount > 20) {
+                    e.preventDefault();
+                    //alert('Recent projects count must be between 1 and 20.');
+                    return false;
+                }
+                return true;
+            });
+
+            // Handle real-time widget visibility updates
+            $('#showRecentProjects').change(function() {
+                updateWidgetVisibility('recent-projects', $(this).is(':checked'));
+            });
+
+            $('#showProjectStatus').change(function() {
+                updateWidgetVisibility('project-status', $(this).is(':checked'));
+            });
+
+            $('#showUpcomingTasks').change(function() {
+                updateWidgetVisibility('upcoming-tasks', $(this).is(':checked'));
+            });
+
+            $('#showActivityChart').change(function() {
+                updateWidgetVisibility('activity-chart', $(this).is(':checked'));
+            });
+
+            // Handle real-time view changes
+            $('input[name="PreferredView"]').change(function() {
+                changeViewType($(this).val());
+            });
+
+            // Handle real-time project count changes
+            $('#RecentProjectsCount').change(function() {
+                const count = parseInt($(this).val());
+                if (!isNaN(count) && count >= 1 && count <= 20) {
+                    updateRecentProjectsCount(count);
+                }
+            });
+
+            // Function to update widget visibility
+            function updateWidgetVisibility(widgetType, isVisible) {
+                $.ajax({
+                    url: '/Dashboard/UpdateLayout',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        widgetType: widgetType,
+                        isVisible: isVisible
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            console.log('Widget visibility updated: ' + widgetType + ' - ' + isVisible);
+                        } else {
+                            console.error('Failed to update widget visibility');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error updating widget visibility:', error);
+                    }
+                });
+            }
+
+            // Function to change view type
+            function changeViewType(viewType) {
+                $.ajax({
+                    url: '/Dashboard/ChangeView',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        viewType: viewType
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            console.log('View type changed to: ' + viewType);
+                        } else {
+                            console.error('Failed to change view type');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error changing view type:', error);
+                    }
+                });
+            }
+
+            // Function to update recent projects count
+            function updateRecentProjectsCount(count) {
+                $.ajax({
+                    url: '/Dashboard/UpdateRecentProjectsCount',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        count: count
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            console.log('Recent projects count updated to: ' + count);
+                        } else {
+                            console.error('Failed to update recent projects count');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error updating recent projects count:', error);
+                    }
+                });
+            }
+        });
+    </script>
+
+    <style>
+        /* Custom styles for the settings page */
+        .widget-card {
+            transition: all 0.2s ease;
+        }
+
+            .widget-card:hover {
+                border-color: #0d6efd !important;
+                box-shadow: 0 0.125rem 0.25rem rgba(13, 110, 253, 0.15) !important;
+            }
+
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .form-switch .form-check-input {
+            width: 2.5em;
+            height: 1.25em;
+        }
+
+        .custom-option {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+            .custom-option:hover {
+                border-color: #0d6efd !important;
+            }
+
+            .custom-option.active-option {
+                border-color: #0d6efd !important;
+                background-color: rgba(13, 110, 253, 0.05);
+            }
+
+            .custom-option input[type="radio"] {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+            }
+
+        .accordion-button:not(.collapsed) {
+            background-color: rgba(13, 110, 253, 0.05);
+            color: #0d6efd;
+        }
+
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: rgba(13, 110, 253, 0.25);
+        }
+    </style>
+}

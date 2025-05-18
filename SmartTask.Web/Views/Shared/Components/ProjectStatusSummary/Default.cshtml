@@ -1,0 +1,93 @@
+﻿@model SmartTask.Web.ViewModels.DashboardVM.ProjectStatusSummaryViewModel
+
+<div class="row mb-4 g-3" id="summary-widget">
+    <!-- Total Projects -->
+    <div class="col-md">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted">TOTAL PROJECTS</h6>
+                    <h3 class="mb-0">@Model.TotalProjects</h3>
+                    <small class="text-muted">
+                        <span class="text-danger fw-bold">100%</span> of all work
+                    </small>
+                </div>
+                <div class="bg-light-red p-3 rounded-circle">
+                    <i class="fas fa-project-diagram text-danger fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed -->
+    <div class="col-md">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted">COMPLETED</h6>
+                    <h3 class="mb-0">@Model.CompletedProjects</h3>
+                    <small class="text-muted">
+                        <span class="text-success fw-bold">@Model.CompletionPercentage.ToString("0")%</span> completion rate
+                    </small>
+                </div>
+                <div class="bg-light-success p-3 rounded-circle">
+                    <i class="fas fa-check-circle text-success fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- In Progress -->
+    <div class="col-md">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted">IN PROGRESS</h6>
+                    <h3 class="mb-0">@Model.InProgressProjects</h3>
+                    <small class="text-muted">
+                        <span class="text-info fw-bold">@Model.InProgressPercentage.ToString("0")%</span> in development
+                    </small>
+                </div>
+                <div class="bg-light-info p-3 rounded-circle">
+                    <i class="fas fa-sync-alt text-info fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending -->
+    <div class="col-md">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted">PENDING</h6>
+                    <h3 class="mb-0">@Model.PendingProjects</h3>
+                    <small class="text-muted">
+                        <span class="text-warning fw-bold">@Model.PendingPercentage.ToString("0")%</span> awaiting start
+                    </small>
+                </div>
+                <div class="bg-light-warning p-3 rounded-circle">
+                    <i class="fas fa-clock text-warning fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Tasks -->
+    <div class="col-md">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted">TOTAL TASKS</h6>
+                    <h3 class="mb-0">@Model.TotalTasks</h3>
+                    <small class="text-muted">
+                        <span class="text-purple fw-bold">@Model.TaskPerProject.ToString("0")%</span> task coverage
+                    </small>
+                </div>
+                <div class="bg-light-purple p-3 rounded-circle">
+                    <i class="fas fa-tasks text-purple fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
