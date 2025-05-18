@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SmartTask.DataAccess.Data;
 using SmartTask.Core.IRepositories;
 using Project = SmartTask.Core.Models.Project;
+using SmartTask.Core.Models;
 
 
 namespace SmartTask.DataAccess.Repositories
@@ -23,6 +24,11 @@ namespace SmartTask.DataAccess.Repositories
             return await _context.Projects
                 .Include(p => p.Owner)
                 .Include(p => p.CreatedBy)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Project>> GetAllAsyncWithoutInclude()
+        {
+            return await _context.Projects
                 .ToListAsync();
         }
 
@@ -44,7 +50,15 @@ namespace SmartTask.DataAccess.Repositories
                 .Include(p => p.Tasks)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
-
+        public  List<ApplicationUser> GetMembers(int id)
+        {
+            return  _context.Projects
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(pm => pm.User)
+                    .Where(p => p.Id == id)
+                    .Select(p => p.ProjectMembers.Select(pm => pm.User).ToList())
+                    .FirstOrDefault();
+        }
         public async Task<IEnumerable<Project>> GetByOwnerIdAsync(string ownerId)
         {
             return await _context.Projects
@@ -75,13 +89,13 @@ namespace SmartTask.DataAccess.Repositories
             return project;
         }
 
-        public async Task UpdateAsync(Project project)
+        public async System.Threading.Tasks.Task UpdateAsync(Project project)
         {
             _context.Entry(project).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async System.Threading.Tasks.Task DeleteAsync(int id)
         {
             var project = await _context.Projects.FindAsync(id);
             if (project != null)

@@ -1,76 +1,82 @@
-﻿@model SmartTask.Core.Models.Task
-@{
-                                string status = Model.Status?.ToLower();
-                                bool isCancelled = status == "cancel";
-                                int filledSegments = status switch
-                                {
-                                    "to do" => 1,
-                                    "in progress" or "cancel" => 2,
-                                    "done" => 3,
-                                    _ => 0
-                                };
-                                string barColor = status switch
-                                {
-                                    "to do" => "bg-primary",
-                                    "in progress" => "bg-warning",
-                                    "cancel" => "bg-danger",
-                                    "done" => "bg-success",
-                                    _ => "bg-secondary"
-                                };
-                                string textClass = isCancelled ? "text-decoration-line-through text-muted" : "";
-                            
-}
+﻿@using System.Security.Claims
+@using SmartTask.Core.Models.Enums
+@model SmartTask.Core.Models.Task
 
+@{
+    Status status = Model.Status;
+    bool isCancelled = status == Status.Cancelled;
+    int filledSegments = status switch
+    {
+        Status.Todo => 1,
+        Status.Cancelled or Status.InProgress => 2,
+        Status.Done => 3,
+        _ => 0
+    };
+    string barColor = status switch
+    {
+        Status.Todo => "bg-primary",
+        Status.InProgress => "bg-warning",
+        Status.Cancelled => "bg-danger",
+        Status.Done => "bg-success",
+        _ => "bg-secondary"
+    };
+    string textClass = isCancelled ? "text-decoration-line-through text-muted" : "";
+    string userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+}
 
 <div class="modal-header">
     <h5 class="modal-title">Task Details: @Model.Title</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
+
 <div class="modal-body">
     <div class="row">
+
         <div class="col-md-6">
-            <div class="mb-3">
-                <h6 class="text-muted">Basic Information</h6>
-                <hr />
-                <p><strong>Task ID:</strong> #@Model.Id</p>
-                <p><strong>Title:</strong> @Model.Title</p>
-                <p>
-                    <strong>Priority:</strong>
-                    <span class="badge @(Model.Priority == "High" ? "bg-danger" : Model.Priority == "Medium" ? "bg-warning text-dark" : "bg-success")">
-                        @Model.Priority
-                    </span>
-                </p>
-                <p>
-                    <strong>Status:</strong>
-                    <span class="badge @barColor">@Model.Status</span>
-                </p>
-            </div>
+            <h6 class="text-muted">Basic Information</h6>
+            <hr />
+            <p><strong>Task ID:</strong> #@Model.Id</p>
+            <p class="@textClass"><strong>Title:</strong> @Model.Title</p>
+            <p>
+                <strong>Priority:</strong>
+                <span class="badge @(Model.Priority == Priority.High ? "bg-danger" : Model.Priority == Priority.Medium ? "bg-warning text-dark" : "bg-success")">
+                    @Model.Priority
+                </span>
+            </p>
+            <p>
+                <strong>Status:</strong>
+                <span class="badge @barColor">@Model.Status</span>
+            </p>
         </div>
+
         <div class="col-md-6">
-            <div class="mb-3">
-                <h6 class="text-muted">Progress Details</h6>
-                <hr />
-                <p class="mb-1"><strong>Current Progress:</strong> @Model.Status</p>
-                <div class="d-flex align-items-center flex-column mb-3">
-                    <div class="d-flex flex-row w-100" style="gap: 2px;">
-
-                        @for (int i = 1; i <= 3; i++)
-                        {
-                            <div class="flex-fill rounded" style="height: 8px; background-color: #e0e0e0;">
-                                @if (i <= filledSegments)
-                                {
-                                    <div class="@barColor h-100 w-100 rounded"></div>
-                                }
-                            </div>
-                        }
-                    </div>
-
+            <h6 class="text-muted">Progress Details</h6>
+            <hr />
+            <p class="mb-1"><strong>Current Progress:</strong> @Model.Status</p>
+            <div class="d-flex flex-column align-items-start mb-3">
+                <div class="d-flex w-100" style="gap: 2px;">
+                    @for (int i = 1; i <= 3; i++)
+                    {
+                        <div class="flex-fill rounded" style="height: 8px; background-color: #e0e0e0;">
+                            @if (i <= filledSegments)
+                            {
+                                <div class="@barColor h-100 w-100 rounded"></div>
+                            }
+                        </div>
+                    }
                 </div>
-                <p ><strong>Start Date:</strong> @Model.StartDate?.Date.ToString("dd-MM-yyyy")</p>
-                <p><strong>Time Remaining:</strong> @((Model.EndDate?.Day - DateTime.Now.Day < 0 ? 0 : Model.EndDate?.Day - DateTime.Now.Day)) days</p>
             </div>
+            <p><strong>Start Date:</strong> @Model.StartDate?.ToString("dd-MM-yyyy")</p>
+            <p>
+                <strong>Time Remaining:</strong>
+                @{
+                    var daysRemaining = (Model.EndDate - DateTime.Now)?.Days ?? 0;
+                    <span>@(daysRemaining < 0 ? 0 : daysRemaining) days</span>
+                }
+            </p>
         </div>
     </div>
+
     <div class="row mt-3">
         <div class="col-12">
             <h6 class="text-muted">Description</h6>
@@ -78,7 +84,118 @@
             <p>@Model.Description</p>
         </div>
     </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <h6 class="text-muted">Comments</h6>
+            <hr />
+
+            <div id="comments">
+
+            @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedAt))
+            {
+                <div class="mb-2">
+                    <p><strong>@comment.Author?.UserName:</strong> @comment.Content</p>
+                    <small class="text-muted">@comment.CreatedAt.ToString("dd-MM-yyyy HH:mm")</small>
+                </div>
+            }
+            </div>
+            <form id="commentForm" method="post" action="@Url.Action("AddComment", "Task")">
+                <input type="hidden" name="taskId" value="@Model.Id" />
+                <input type="hidden" name="authorId" value="@userId" />
+                <div class="mb-3">
+                    <label for="commentContent" class="form-label">Add Comment</label>
+                    <textarea id="commentContent" name="content" class="form-control" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-secondary">Add Comment</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <h6 class="text-muted">Attachments</h6>
+            <hr />
+            @foreach (var attachment in Model.Attachments.OrderByDescending(a => a.CreatedAt))
+            {
+                <div class="mb-2">
+                    <a href="@attachment.FilePath" class="btn btn-link" target="_blank">@attachment.FileName</a>
+                    <small class="text-muted">@attachment.CreatedAt.ToString("dd-MM-yyyy HH:mm")</small>
+                </div>
+            }
+
+            <form id="attachmentForm" method="post" enctype="multipart/form-data" action="@Url.Action("AddAttachment", "Task")">
+                <input type="hidden" name="taskId" value="@Model.Id" />
+                <div class="mb-3">
+                    <label for="attachmentFile" class="form-label">Add Attachment</label>
+                    <input type="file" id="attachmentFile" name="file" class="form-control" required />
+                </div>
+                <button type="submit" class="btn btn-secondary">Add Attachment</button>
+            </form>
+        </div>
+    </div>
 </div>
+
 <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 </div>
+
+
+
+<script>
+    $(document).ready(function () {
+        $('#commentForm').on('submit', function (e) {
+            e.preventDefault(); 
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                success: function (response) {
+                    $('#commentForm')[0].reset();
+                    const newComment = `
+                        <div class="mb-2">
+                            <p><strong>${response.author}:</strong> ${response.content}</p>
+                            <small class="text-muted">${response.createdAt}</small>
+                        </div>
+                    `;
+
+                    $('#comments').prepend(newComment);
+                },
+                error: function (xhr) {
+                    alert('Failed to add comment: ' + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#attachmentForm').on('submit', function (e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    $('#attachmentForm')[0].reset();
+                    const newAttachment = `
+                        <div class="mb-2">
+                            <a href="${response.filePath}" class="btn btn-link" target="_blank">${response.fileName}</a>
+                            <small class="text-muted">${response.createdAt}</small>
+                        </div>
+                    `;
+                     $('#attachmentForm').prepend(newAttachment);
+                },
+                error: function (xhr) {
+                    alert('Failed to upload file: ' + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>

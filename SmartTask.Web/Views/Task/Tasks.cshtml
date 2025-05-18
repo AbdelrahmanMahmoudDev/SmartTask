@@ -1,4 +1,5 @@
-﻿@model List<SmartTask.Core.Models.Task>
+﻿@using SmartTask.Core.Models.Enums
+@model List<SmartTask.Core.Models.Task>
 
 @{
     ViewData["Title"] = "Tasks";
@@ -45,7 +46,7 @@
     }
 </style>
 
-<div class="container mt-5">
+<div class="container my-5">
     <h2 class="mb-4 text-center fw-bold">Task List Overview</h2>
 
     <div class="table-responsive">
@@ -84,21 +85,21 @@
                             @*     </div> *@
                             @* </div> *@
                             @{
-                                string status = task.Status?.ToLower();
-                                bool isCancelled = status == "cancel";
+                                Status status = task.Status;
+                                bool isCancelled = status == Status.Cancelled;
                                 int filledSegments = status switch
                                 {
-                                    "to do" => 1,
-                                    "in progress" or "cancel" => 2,
-                                    "done" => 3,
+                                    Status.Todo => 1,
+                                    Status.Cancelled or Status.InProgress => 2,
+                                    Status.Done => 3,
                                     _ => 0
                                 };
                                 string barColor = status switch
                                 {
-                                    "to do" => "bg-primary",
-                                    "in progress" => "bg-warning",
-                                    "cancel" => "bg-danger",
-                                    "done" => "bg-success",
+                                    Status.Todo => "bg-primary",
+                                    Status.InProgress => "bg-warning",
+                                    Status.Cancelled => "bg-danger",
+                                    Status.Done=> "bg-success",
                                     _ => "bg-secondary"
                                 };
                                 string textClass = isCancelled ? "text-decoration-line-through text-muted" : "";
@@ -125,20 +126,22 @@
 
 
                                 <!-- Details Button (opens modal) -->
+                                <secure-content asp-area="" asp-controller="Task" asp-action="Details">
                                 <button class="btn btn-info btn-action" id="openPopup"
                                         onclick="loadTaskDetails(@task.Id)">
                                     <i class="bi bi-eye"></i>
                                 </button>
-                                
+
+                                </secure-content>
                                 <!-- Assign to User Button -->
-                                <secure-content asp-area="" asp-controller="" asp-action="">
+                                <secure-content asp-area="" asp-controller="Task" asp-action="">
                                 <button class="btn btn-warning btn-action" title="Assign Task"
                                         data-bs-toggle="modal" data-bs-target="#assignModal"
                                         data-id="@task.Id">
                                     <i class="bi bi-person-plus"></i>
                                 </button>
                                 </secure-content>
-                                <secure-content asp-area="" asp-controller="" asp-action="">
+                                <secure-content asp-area="" asp-controller="Task" asp-action="">
                                 <button class="btn btn-primary btn-action">
                                     <i class="bi bi-pencil"></i>
                                 </button>
@@ -149,7 +152,11 @@
                                     <i class="bi bi-trash"></i>
                                 </button>
                                 </secure-content>
-
+                                <secure-content asp-area="" asp-controller="Task" asp-action="Loadnodes">
+                                <button class="btn btn-secondary openPopup" data-task-id="@task.Id">
+                                    <i class="bi bi-diagram-3"></i>
+                                </button>
+                                </secure-content>
                             </div>
                         </td>
                     </tr>
@@ -158,6 +165,33 @@
         </table>
     </div>
 </div>
+
+
+<div class="modal fade" id="popupModal" tabindex="-1" aria-labelledby="popupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title" id="popupModalLabel">Edit Task Dependencies</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="dependencyForm">
+                <div class="modal-body" id="popupContent">
+                    <!-- The partial view content will be loaded here -->
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-secondary">Save Dependencies</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="taskDetailsModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content shadow" id="taskDetailsContent">
@@ -191,16 +225,53 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script>
+    // Handle opening the popup and loading partial view
+    $(document).on('click', '.openPopup', function () {
+        const taskId = $(this).data("task-id");
+       
+        $.ajax({
+            url: '/Task/LoadNodes/' + taskId, // Your action for loading dependencies form
+            type: 'GET',
+            success: function (response) {
+                $('#popupContent').html(response);
+                $('#SelectedTaskId').val(taskId);
+                $('#popupModal').modal('show');
+            },
+            error: function () {
+                alert('Failed to load task dependencies.');
+            }
+        });
+    });
 
+    // Handle form submission
+        $('#dependencyForm').submit(function (e) {
+        e.preventDefault();
+        const formData = $(this).serialize();
+
+        $.ajax({
+            url: '/Task/SaveSelectedTasks', // Your POST action
+            type: 'POST',
+            data: formData,
+            success: function (e) {
+                alert(e);
+                $('#popupModal').modal('hide');
+            },
+            error: function () {
+                alert('Failed to save dependencies.');
+            }
+        });
+    });
+</script>
 @functions {
 
-    string GetPriorityColor(string priority)
+    string GetPriorityColor(Priority priority)
     {
         return priority switch
         {
-            "High" => "danger",
-            "Medium" => "warning",
-            "Low" => "success",
+            Priority.High => "danger",
+            Priority.Medium => "warning",
+            Priority.Low=> "success",
             _ => "secondary"
         };
     }
@@ -232,7 +303,7 @@
             type: 'GET',
             data: { taskid: taskId },
             success: function(x) {
-                            document.getElementById('depend').innerText='this task depend on :'+x+' Tasks';
+                            document.getElementById('depend').innerText='this task has '+x+' Tasks depends on it';
                         },
             error: function(xhr) {
                             alert('Error: ' + xhr.responseText);
@@ -251,7 +322,7 @@ function deleteTask(b) {
         type: 'DELETE',
             data: { taskid: a },
         success: function() {
-                        alert('Task deleted successfully!');
+                        @* alert('Task deleted successfully!'); *@
                                 document.getElementById(`row ${a}`).remove();
                     },
         error: function(xhr) {

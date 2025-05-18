@@ -5,6 +5,11 @@ using System.Threading.Tasks;
 using SmartTask.DataAccess.Data;
 using SmartTask.Core.IRepositories;
 using AssignTask = SmartTask.Core.Models.AssignTask;
+using System.Security.Claims;
+using SmartTask.Core.Models;
+using TaskModel = SmartTask.Core.Models.Task;
+using Task = System.Threading.Tasks.Task;
+using System.Collections;
 
 
 
@@ -60,6 +65,13 @@ namespace SmartTask.DataAccess.Repositories
 
         public async Task<AssignTask> AddAsync(AssignTask assignTask)
         {
+            var oldAssignedTask = await _context.AssignTasks
+                .FirstOrDefaultAsync(a => a.TaskId == assignTask.TaskId && a.UserId == assignTask.UserId);
+            if (oldAssignedTask != null)
+            {
+                _context.AssignTasks.Remove(oldAssignedTask);
+                await _context.SaveChangesAsync();
+            }
             _context.AssignTasks.Add(assignTask);
             await _context.SaveChangesAsync();
             return assignTask;
@@ -86,6 +98,57 @@ namespace SmartTask.DataAccess.Repositories
             return await _context.AssignTasks
                 .AnyAsync(a => a.TaskId == taskId && a.UserId == userId);
         }
+        public async Task<List<AssignTask>> FindTasksAssignedToUserByIds(List<string> ids)
+        {
+            return _context.AssignTasks
+                .Where(a => ids.Contains(a.UserId))
+                .ToList();
+        }
+        public async Task AssignTasksToUserByIds(List<string> ids, TaskModel task, ClaimsPrincipal user)
+        {
+            //var assignedTasks = new List<AssignTask>();
+            AssignTask assignedTask ;
 
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            foreach (var id in ids)
+            {
+                assignedTask = new AssignTask
+                {
+                    UserId = id,
+                    TaskId = task.Id,
+                    AssignedAt = DateTime.UtcNow,
+                    AssignedById = userId,
+                    Status = task.Status,
+                    Comments = ""
+                };
+                _context.AssignTasks.Add(assignedTask);
+
+            }
+            //_context.AssignTasks.AddRange(assignedTasks);
+            await _context.SaveChangesAsync();
+        }
+        public async Task ModifyTasksToUserByIds(string userId, TaskModel _task, List<string> assignments)
+        {
+            
+            _task.CreatedById = userId;
+            _task.CreatedAt = DateTime.Now;
+            _task.UpdatedAt = DateTime.Now;
+            _context.AssignTasks.RemoveRange(_task.Assignments);
+            await _context.SaveChangesAsync();
+
+            foreach (var assignedUserId in assignments)
+            {
+                _context.AssignTasks.Add(new AssignTask
+                {
+                    UserId = assignedUserId,
+                    TaskId = _task.Id,
+                    AssignedAt = DateTime.UtcNow,
+                    AssignedById = userId,
+                    Status = _task.Status,
+                    Comments = ""
+                });
+            }
+            await _context.SaveChangesAsync();
+        }
     }
 }
