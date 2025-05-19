@@ -1,0 +1,140 @@
+﻿
+@section Styles {
+    <style>
+
+        body {
+            margin: 40px 10px;
+            padding: 0;
+            font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+
+        #calendar {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+    </style>
+}
+
+<div id='calendar'></div>
+
+
+
+@section Scripts {
+    <script src="~/js/index.global.js"></script>
+    <script src="~/js/index.global.min.js"></script>
+    <script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+          },
+          initialDate: '2023-01-12',
+          navLinks: true, // can click day/week names to navigate views
+          nowIndicator: true,
+
+          weekNumbers: true,
+          weekNumberCalculation: 'ISO',
+
+          editable: true,
+          selectable: true,
+          dayMaxEvents: true, // allow "more" link when too many events
+          events: [
+            {
+              id:1,
+              title: 'All Day Event',
+              start: '2023-01-01'
+            },
+            {
+              title: 'Long Event',
+              start: '2023-01-07',
+              end: '2023-01-10'
+            },
+            {
+              groupId: 999,
+              title: 'Repeating Event',
+              start: '2023-01-09T16:00:00'
+            },
+            {
+              groupId: 999,
+              title: 'Repeating Event',
+              start: '2023-01-16T16:00:00'
+            },
+            {
+              title: 'Conference',
+              start: '2023-01-11',
+              end: '2023-01-13'
+            },
+            {
+              title: 'Meeting',
+              start: '2023-01-12T10:30:00',
+              end: '2023-01-12T12:30:00'
+            },
+            {
+              title: 'Lunch',
+              start: '2023-01-12T12:00:00'
+            },
+            {
+              title: 'Meeting',
+              start: '2023-01-12T14:30:00'
+            },
+            {
+              title: 'Happy Hour',
+              start: '2023-01-12T17:30:00'
+            },
+            {
+              title: 'Dinner',
+              start: '2023-01-12T20:00:00'
+            },
+            {
+              title: 'Birthday Party',
+              start: '2023-01-13T07:00:00'
+            },
+            {
+              title: 'Click for Google',
+              url: 'http://google.com/',
+              start: '2023-01-28'
+            }
+          ],
+          eventClick: function(info) {
+          var eventObj = info.event;
+
+          if (eventObj.url) {
+            alert(
+              'Clicked ' + eventObj.title + '.\n' +
+              'Will open ' + eventObj.url + ' in a new tab'
+            );
+
+            window.open(eventObj.url);
+
+            info.jsEvent.preventDefault(); // prevents browser from following link in current tab.
+          } else {
+            alert('Clicked ' + eventObj.title);
+          }
+        },
+        eventDrop: function(info) {
+          updateEvent(info.event);
+        },
+
+        
+        eventResize: function(info) {
+          updateEvent(info.event);
+        }
+        });
+
+        calendar.render();
+      });
+      var e;
+         function updateEvent(event){
+               e =event;
+             console.log(event._def.publicId);
+               console.log(event._instance.range);
+        }
+    </script>
+}

@@ -12,8 +12,8 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
-    [Migration("20250508172239_CreateTBLs")]
-    partial class CreateTBLs
+    [Migration("20250510074811_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -262,16 +262,8 @@ namespace SmartTask.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("Date");
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("Date");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("TaskId", "UserId");
 
@@ -595,6 +587,10 @@ namespace SmartTask.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Sender");
@@ -708,7 +704,7 @@ namespace SmartTask.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AssignedToId")
+                    b.Property<string>("ApplicationUserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -728,10 +724,8 @@ namespace SmartTask.DataAccess.Migrations
                     b.Property<int?>("ParentTaskId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Priority")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
@@ -739,10 +733,8 @@ namespace SmartTask.DataAccess.Migrations
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("Date");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -757,7 +749,7 @@ namespace SmartTask.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssignedToId");
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("CreatedById");
 
@@ -1068,10 +1060,9 @@ namespace SmartTask.DataAccess.Migrations
 
             modelBuilder.Entity("SmartTask.Core.Models.Task", b =>
                 {
-                    b.HasOne("SmartTask.Core.Models.ApplicationUser", "AssignedTo")
+                    b.HasOne("SmartTask.Core.Models.ApplicationUser", null)
                         .WithMany("AssignedTasks")
-                        .HasForeignKey("AssignedToId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ApplicationUserId");
 
                     b.HasOne("SmartTask.Core.Models.ApplicationUser", "CreatedBy")
                         .WithMany("CreatedTasks")
@@ -1094,8 +1085,6 @@ namespace SmartTask.DataAccess.Migrations
                         .WithMany("UpdatedTasks")
                         .HasForeignKey("UpdatedById")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("AssignedTo");
 
                     b.Navigation("CreatedBy");
 
