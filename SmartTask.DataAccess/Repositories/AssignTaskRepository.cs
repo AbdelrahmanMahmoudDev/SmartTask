@@ -63,6 +63,14 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
+        public List<string> GetUsersIdByTaskId(int taskId)
+        {
+            return _context.AssignTasks
+                .Where(a => a.TaskId == taskId)
+                .Select(a => a.UserId)
+                .ToList();
+        }
+
         public async Task<AssignTask> AddAsync(AssignTask assignTask)
         {
             var oldAssignedTask = await _context.AssignTasks

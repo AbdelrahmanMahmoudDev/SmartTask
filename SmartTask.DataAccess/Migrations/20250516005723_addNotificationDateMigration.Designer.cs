@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartTask.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
-    partial class SmartTaskContextModelSnapshot : ModelSnapshot
+    [Migration("20250516005723_addNotificationDateMigration")]
+    partial class addNotificationDateMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -166,9 +169,6 @@ namespace SmartTask.DataAccess.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<int?>("BranchId")
-                        .HasColumnType("int");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -185,9 +185,6 @@ namespace SmartTask.DataAccess.Migrations
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -230,8 +227,6 @@ namespace SmartTask.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("DepartmentId");
 
@@ -529,7 +524,7 @@ namespace SmartTask.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("End")
@@ -539,10 +534,6 @@ namespace SmartTask.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("OutLooktTaskId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("Start")
                         .HasColumnType("datetime2");
 
@@ -551,7 +542,7 @@ namespace SmartTask.DataAccess.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int?>("TaskId")
+                    b.Property<int>("TaskId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -588,11 +579,8 @@ namespace SmartTask.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime?>("Date")
                         .HasColumnType("Date");
-
-                    b.Property<bool?>("IsRead")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -606,9 +594,6 @@ namespace SmartTask.DataAccess.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("link")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -658,18 +643,12 @@ namespace SmartTask.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("BranchId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedById")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("DepartmentId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -700,11 +679,7 @@ namespace SmartTask.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BranchId");
-
                     b.HasIndex("CreatedById");
-
-                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("OwnerId");
 
@@ -881,17 +856,9 @@ namespace SmartTask.DataAccess.Migrations
 
             modelBuilder.Entity("SmartTask.Core.Models.ApplicationUser", b =>
                 {
-                    b.HasOne("SmartTask.Core.Models.Branch", "Branch")
-                        .WithMany("Users")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("SmartTask.Core.Models.Department", "Department")
                         .WithMany("Users")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Branch");
+                        .HasForeignKey("DepartmentId");
 
                     b.Navigation("Department");
                 });
@@ -1010,7 +977,9 @@ namespace SmartTask.DataAccess.Migrations
 
                     b.HasOne("SmartTask.Core.Models.Task", "Task")
                         .WithMany("Events")
-                        .HasForeignKey("TaskId");
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ImportedBy");
 
@@ -1064,21 +1033,11 @@ namespace SmartTask.DataAccess.Migrations
 
             modelBuilder.Entity("SmartTask.Core.Models.Project", b =>
                 {
-                    b.HasOne("SmartTask.Core.Models.Branch", "Branch")
-                        .WithMany("Projects")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("SmartTask.Core.Models.ApplicationUser", "CreatedBy")
                         .WithMany("CreatedProjects")
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("SmartTask.Core.Models.Department", "Department")
-                        .WithMany("Projects")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SmartTask.Core.Models.ApplicationUser", "Owner")
                         .WithMany("OwnedProjects")
@@ -1086,11 +1045,7 @@ namespace SmartTask.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Branch");
-
                     b.Navigation("CreatedBy");
-
-                    b.Navigation("Department");
 
                     b.Navigation("Owner");
                 });
@@ -1202,17 +1157,11 @@ namespace SmartTask.DataAccess.Migrations
             modelBuilder.Entity("SmartTask.Core.Models.Branch", b =>
                 {
                     b.Navigation("BranchDepartments");
-
-                    b.Navigation("Projects");
-
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("SmartTask.Core.Models.Department", b =>
                 {
                     b.Navigation("BranchDepartments");
-
-                    b.Navigation("Projects");
 
                     b.Navigation("Users");
                 });

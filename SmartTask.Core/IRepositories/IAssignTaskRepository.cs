@@ -12,6 +12,7 @@ namespace SmartTask.Core.IRepositories
         Task<AssignTask> GetByIdAsync(int taskId, string userId);
         Task<IEnumerable<AssignTask>> GetByTaskIdAsync(int taskId);
         Task<IEnumerable<AssignTask>> GetByUserIdAsync(string userId);
+        List<string> GetUsersIdByTaskId(int taskId);
         Task<AssignTask> AddAsync(AssignTask assignTask);
         Task UpdateAsync(AssignTask assignTask);
         Task DeleteAsync(int taskId, string userId);
