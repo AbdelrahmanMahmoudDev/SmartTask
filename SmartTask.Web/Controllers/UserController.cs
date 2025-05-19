@@ -39,9 +39,8 @@ namespace SmartTask.Web.Controllers
 
         public async Task<IActionResult> WithoutDepartment(int page = 1, int pageSize = 10)
         {
-            Expression<Func<ApplicationUser, bool>> filter = u => u.DepartmentId == null;
 
-            var users = await _userService.GetFilteredAsync(null, page, pageSize);
+            var users = await _userService.GetUsersWithoutDepartemnt(page,pageSize);
 
             var departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.Departments = departments;

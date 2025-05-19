@@ -21,5 +21,7 @@ namespace SmartTask.BL.IServices
         Task<bool> AssignUserToDepartmentAsync(string userId, int departmentId);
 
         Task< PaginatedList<ApplicationUser>> GetFilteredAsync(string searchString, int page, int pageSize);
+
+        Task<PaginatedList<ApplicationUser>> GetUsersWithoutDepartemnt(int page, int pageSize);
     }
 }

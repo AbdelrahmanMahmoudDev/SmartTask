@@ -18,6 +18,7 @@ using SmartTask.Bl.Services;
 using System;
 using task=System.Threading.Tasks.Task;
 using SmartTask.BL.Service.Hubs;
+using System.Text.Json.Serialization;
 namespace SmartTask.Web
 {
     public class Program
@@ -62,6 +63,11 @@ namespace SmartTask.Web
             builder.Services.AddScoped<IUserService, UserService>();
             // extendProjectDeadline Based ON Task Service
             builder.Services.AddScoped<IProjectDeadlineExtendService, ProjectDeadlineExtendService>();
+
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
 
             var app = builder.Build();
             using var scope = app.Services.CreateScope();
@@ -135,6 +141,8 @@ namespace SmartTask.Web
             services.AddScoped<IAuditRepository, AuditRepository>();
             services.AddScoped<IDepartmentService, DepartmentService>();
             services.AddScoped<IProjectService, ProjectService>();
+            services.AddScoped<IUserColumnPreferenceRepository, UserColumnPreferenceRepository>();
+            services.AddScoped<IUserColumnPreferenceService, UserColumnPreferenceService>();
            
 
 

@@ -44,6 +44,7 @@ namespace SmartTask.DataAccess.Data
         public virtual DbSet<UserGroups> UserGroups { get; set; }
         public virtual DbSet<UserConnection> UserConnections { get; set; }
         public virtual DbSet<Groups> Groups { get; set; }
+        public DbSet<UserColumnPreference> UserColumnPreferences { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -168,6 +169,13 @@ namespace SmartTask.DataAccess.Data
             // Map User entity to a custom table if needed
             //modelBuilder.Entity<User>()
             //    .ToTable("Users");
+
+
+            modelBuilder.Entity<UserColumnPreference>()
+                         .HasOne<ApplicationUser>()
+                         .WithMany()
+                         .HasForeignKey(u => u.UserId)
+                         .OnDelete(DeleteBehavior.NoAction);
         }
 
         //Auditing 

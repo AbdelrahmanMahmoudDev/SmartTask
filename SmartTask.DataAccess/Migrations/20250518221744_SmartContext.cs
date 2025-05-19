@@ -6,11 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmartTask.DataAccess.Migrations
 {
     /// <inheritdoc />
-<<<<<<<< HEAD:SmartTask.DataAccess/Migrations/20250508185512_AB.cs
-    public partial class AB : Migration
-========
-    public partial class overridedsavechanges : Migration
->>>>>>>> origin/MK:SmartTask.DataAccess/Migrations/20250504042923_overrided savechanges.cs
+    public partial class SmartContext : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,6 +44,19 @@ namespace SmartTask.DataAccess.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Audits", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Groups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Groups", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -157,9 +166,11 @@ namespace SmartTask.DataAccess.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     createdAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     updatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DepartmentId = table.Column<int>(type: "int", nullable: true),
+                    BranchId = table.Column<int>(type: "int", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -241,36 +252,92 @@ namespace SmartTask.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Projects",
+                name: "Notifications",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    OwnerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "Date", nullable: true),
-                    EndDate = table.Column<DateTime>(type: "Date", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SenderId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ReceiverId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Projects", x => x.Id);
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Projects_AspNetUsers_CreatedById",
-                        column: x => x.CreatedById,
+                        name: "FK_Notifications_AspNetUsers_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Notifications_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserColumnPreferences",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Order = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserColumnPreferences", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserColumnPreferences_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserConnections",
+                columns: table => new
+                {
+                    UserID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    connectionID = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserConnections", x => new { x.connectionID, x.UserID });
+                    table.ForeignKey(
+                        name: "FK_UserConnections_AspNetUsers_UserID",
+                        column: x => x.UserID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserGroups",
+                columns: table => new
+                {
+                    UserID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    GroupID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserGroups", x => new { x.UserID, x.GroupID });
                     table.ForeignKey(
-                        name: "FK_Projects_AspNetUsers_OwnerId",
-                        column: x => x.OwnerId,
+                        name: "FK_UserGroups_AspNetUsers_UserID",
+                        column: x => x.UserID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserGroups_Groups_GroupID",
+                        column: x => x.GroupID,
+                        principalTable: "Groups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -295,6 +362,53 @@ namespace SmartTask.DataAccess.Migrations
                         principalTable: "Departments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OwnerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "Date", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "Date", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DepartmentId = table.Column<int>(type: "int", nullable: true),
+                    BranchId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Projects_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Projects_AspNetUsers_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Projects_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Projects_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -328,28 +442,27 @@ namespace SmartTask.DataAccess.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProjectId = table.Column<int>(type: "int", nullable: false),
-                    AssignedToId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ParentTaskId = table.Column<int>(type: "int", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StartDate = table.Column<DateTime>(type: "Date", nullable: true),
                     EndDate = table.Column<DateTime>(type: "Date", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Priority = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Priority = table.Column<int>(type: "int", nullable: false),
                     CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tasks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tasks_AspNetUsers_AssignedToId",
-                        column: x => x.AssignedToId,
+                        name: "FK_Tasks_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Tasks_AspNetUsers_CreatedById",
                         column: x => x.CreatedById,
@@ -384,9 +497,7 @@ namespace SmartTask.DataAccess.Migrations
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     AssignedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     AssignedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "Date", nullable: true),
-                    EndDate = table.Column<DateTime>(type: "Date", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     Comments = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -564,6 +675,11 @@ namespace SmartTask.DataAccess.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_BranchId",
+                table: "AspNetUsers",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_DepartmentId",
                 table: "AspNetUsers",
                 column: "DepartmentId");
@@ -631,14 +747,34 @@ namespace SmartTask.DataAccess.Migrations
                 column: "TaskId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Notifications_ReceiverId",
+                table: "Notifications",
+                column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_SenderId",
+                table: "Notifications",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProjectMembers_UserId",
                 table: "ProjectMembers",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Projects_BranchId",
+                table: "Projects",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Projects_CreatedById",
                 table: "Projects",
                 column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_DepartmentId",
+                table: "Projects",
+                column: "DepartmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Projects_OwnerId",
@@ -656,9 +792,9 @@ namespace SmartTask.DataAccess.Migrations
                 column: "SuccessorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tasks_AssignedToId",
+                name: "IX_Tasks_ApplicationUserId",
                 table: "Tasks",
-                column: "AssignedToId");
+                column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tasks_CreatedById",
@@ -679,6 +815,21 @@ namespace SmartTask.DataAccess.Migrations
                 name: "IX_Tasks_UpdatedById",
                 table: "Tasks",
                 column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserColumnPreferences_UserId",
+                table: "UserColumnPreferences",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserConnections_UserID",
+                table: "UserConnections",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserGroups_GroupID",
+                table: "UserGroups",
+                column: "GroupID");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_AISuggestions_Tasks_TaskId",
@@ -713,16 +864,29 @@ namespace SmartTask.DataAccess.Migrations
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUsers_Branches_BranchId",
+                table: "AspNetUsers",
+                column: "BranchId",
+                principalTable: "Branches",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_AspNetUsers_Departments_DepartmentId",
                 table: "AspNetUsers",
                 column: "DepartmentId",
                 principalTable: "Departments",
-                principalColumn: "Id");
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Branches_AspNetUsers_ManagerId",
+                table: "Branches");
+
             migrationBuilder.DropForeignKey(
                 name: "FK_Departments_AspNetUsers_ManagerId",
                 table: "Departments");
@@ -764,10 +928,22 @@ namespace SmartTask.DataAccess.Migrations
                 name: "Events");
 
             migrationBuilder.DropTable(
+                name: "Notifications");
+
+            migrationBuilder.DropTable(
                 name: "ProjectMembers");
 
             migrationBuilder.DropTable(
                 name: "TaskDependencies");
+
+            migrationBuilder.DropTable(
+                name: "UserColumnPreferences");
+
+            migrationBuilder.DropTable(
+                name: "UserConnections");
+
+            migrationBuilder.DropTable(
+                name: "UserGroups");
 
             migrationBuilder.DropTable(
                 name: "UserLoginHistories");
@@ -776,16 +952,19 @@ namespace SmartTask.DataAccess.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Branches");
+                name: "Tasks");
 
             migrationBuilder.DropTable(
-                name: "Tasks");
+                name: "Groups");
 
             migrationBuilder.DropTable(
                 name: "Projects");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Branches");
 
             migrationBuilder.DropTable(
                 name: "Departments");

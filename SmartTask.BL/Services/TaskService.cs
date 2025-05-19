@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
+using SmartTask.Core.Models.Enums;
 using SmartTask.Core.Models.ServiceDto;
 using SmartTask.DataAccess.Repositories;
 using System;

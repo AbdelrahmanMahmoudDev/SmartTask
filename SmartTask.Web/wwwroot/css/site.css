@@ -29,3 +29,78 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+.kanban-tasks {
+    min-height: 150px;
+    border: 2px dashed #ccc;
+    padding: 15px;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+    .kanban-tasks:hover {
+        background-color: #e6f7ff;
+        border-color: #80bdff;
+    }
+
+.kanban-task {
+    margin-bottom: 10px;
+    cursor: grab;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+    .kanban-task.dragging {
+        transform: rotate(3deg) scale(1.02);
+        opacity: 0.8;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+.ui-state-highlight {
+    height: 60px;
+    background-color: #e3f2fd;
+    border: 2px dashed #2196F3;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.kanban-column {
+    transition: all 0.3s ease;
+}
+
+
+.kanban-task.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    filter: grayscale(100%);
+    pointer-events: none;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.ui-state-highlight-column {
+    background-color: #f8f9fa;
+    border: 2px dashed #007bff;
+    height: 100%;
+    min-height: 200px;
+}

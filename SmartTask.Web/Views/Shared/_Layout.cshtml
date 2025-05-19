@@ -690,6 +690,10 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Department" asp-action="Index">Departments</a>
                         </li>
+
+						<li class="nav-item">
+							<a class="nav-link" asp-controller="Project" asp-action="Index">Projects</a>
+						</li>
                     </ul>
                 </div>
             </div>
@@ -762,7 +766,8 @@
 	<script>
 			initializeNotifications();
 	</script>
-    // <script src="~/js/site.js" asp-append-version="true"></script>
+	<script src="~/js/jquery-ui.js" asp-append-version="true"></script>
+	<script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

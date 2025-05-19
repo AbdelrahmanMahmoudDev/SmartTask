@@ -8,11 +8,15 @@ using SmartTask.BL.Service.Hubs;
 using SmartTask.BL.Services;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
+using SmartTask.Core.Models.Enums;
 using SmartTask.Core.Models.Notification;
 using SmartTask.Core.ViewModels;
 using SmartTask.DataAccess.Data;
+using SmartTask.Web.Models;
+
 //using SmartTask.Web.Models;
 using SmartTask.Web.ViewModels;
+using SmartTask.Web.ViewModels.KanbanVM;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -32,11 +36,15 @@ namespace SmartTask.Web.Controllers
         private readonly IHubContext<NotificationHub> _hub;
         private readonly TaskService _taskService;
         private readonly IWebHostEnvironment _environment;
+        private readonly IUserColumnPreferenceService _userColumnPreferenceService;
+
         public TaskController(ITaskRepository taskRepository, IProjectRepository projectRepository,
             UserManager<ApplicationUser> usermanager, SmartTaskContext context, 
             IAssignTaskRepository assignTaskRepository,INotificationRepository notificationRepository,
             IHubContext<NotificationHub> hub, TaskService taskService
-            , IWebHostEnvironment environment)
+            , IWebHostEnvironment environment
+            , IUserColumnPreferenceService userColumnPreferenceService
+            )
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
@@ -47,6 +55,7 @@ namespace SmartTask.Web.Controllers
             _hub = hub;
             _taskService = taskService;
             _environment = environment;
+            _userColumnPreferenceService = userColumnPreferenceService;
         }
 
         public async Task<IActionResult> Details(int id)
@@ -482,5 +491,179 @@ namespace SmartTask.Web.Controllers
 
             return PartialView("PartialViews/_TaskTable", taskViewModels);
         }
+
+
+
+        //[HttpGet]
+        //public async Task<IActionResult> KanbanForProject(int projectId)
+        //{
+        //    string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var tasks = await _taskService.TasksForUserInProject(projectId, userId);
+
+        //    return View("KanbanBoard", tasks);
+        //}
+
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateColumnOrder([FromBody] List<ColumnOrderUpdate> columnOrder)
+        {
+            try
+            {
+                if (columnOrder == null || !columnOrder.Any())
+                {
+                    Console.WriteLine("Received empty or null column order.");
+                    return BadRequest(new
+                    {
+                        Title = "Invalid Column Order",
+                        Detail = "No columns were provided to update."
+                    });
+                }
+
+                Console.WriteLine("Received column order:");
+                foreach (var column in columnOrder)
+                {
+                    Console.WriteLine($"Status: {column.Status}, Order: {column.Order}");
+                }
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var preferences = await _userColumnPreferenceService.GetUserColumns(userId);
+                foreach (var update in columnOrder)
+                {
+
+                    if (!Enum.IsDefined(typeof(Status), update.Status))
+                    {
+                        return BadRequest(new
+                        {
+                            Title = "Invalid Column Order",
+                            Detail = $"Status '{update.Status}' is not valid."
+                        });
+                    }
+
+                    var preference = preferences.FirstOrDefault(p => p.Status == update.Status);
+                    if (preference == null)
+                    {
+                        return BadRequest(new
+                        {
+                            Title = "Failed to Update Column Order",
+                            Detail = $"Column with Status '{update.Status}' not found for user ID '{userId}'."
+                        });
+                    }
+
+                    preference.Order = update.Order;
+                }
+
+                var result = await _userColumnPreferenceService.UpdateColumnOrder(userId, columnOrder);
+
+                if (!result)
+                {
+                    return BadRequest(new
+                    {
+                        Title = "Failed to Update Column Order",
+                        Detail = "One or more column preferences could not be updated."
+                    });
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UpdateColumnOrder: {ex.Message}");
+                return StatusCode(500, new
+                {
+                    Title = "Server Error",
+                    Detail = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateColumnDisplayName([FromBody] ColumnDisplayNameUpdate model)
+        {
+            try
+            {
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var result = await _userColumnPreferenceService.UpdateDisplayName(userId, model.Status, model.DisplayName);
+                return result ? Ok() : BadRequest(new { title = "Preference not found" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { title = "Server error", details = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> KanbanForProject(int projectId)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var tasks = await _taskService.TasksForUserInProject(projectId, userId);
+
+            var columns = await _userColumnPreferenceService.GetUserColumns(userId);
+
+            if (columns.Count == 0)
+            {
+                await _userColumnPreferenceService.InitializeDefaultColumns(userId);
+                columns = await _userColumnPreferenceService.GetUserColumns(userId);
+            }
+
+            var viewModel = new KanbanViewModel
+            {
+                Tasks = tasks,
+                Columns = columns.OrderBy(c => c.Order).ToList()
+            };
+
+            return View("KanbanBoard", viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> KanbanForUser()
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var tasks = await _taskService.TasksForUser(userId);
+
+            return View("KanbanBoard", tasks);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatus(int id, Status status)
+        {
+            var task = await _taskRepository.GetByIdAsync(id);
+            if (task == null) return NotFound();
+
+            task.Status = status;
+            await _taskRepository.UpdateAsync(task);
+            return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTask(int id)
+        {
+            var task = await _taskRepository.GetByIdAsync(id);
+            if (task == null) return NotFound();
+
+            return Json(new
+            {
+                id = task.Id,
+                title = task.Title,
+                priority = task.Priority.ToString(),
+                status = task.Status.ToString()
+            });
+        }
+
+  
+        [HttpPost]
+        public async Task<IActionResult> UpdateTask(int id, Status status)
+        {
+            var task = await _taskRepository.GetByIdAsync(id);
+            if (task == null) return NotFound();
+
+            task.Status = status;
+            await _taskRepository.UpdateAsync(task);
+            return Ok();
+        }
+
+
     }
 }
