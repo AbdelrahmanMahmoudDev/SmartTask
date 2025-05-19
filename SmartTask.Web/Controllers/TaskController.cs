@@ -503,77 +503,74 @@ namespace SmartTask.Web.Controllers
         //    return View("KanbanBoard", tasks);
         //}
 
+        //[HttpGet]
+        //public async Task<IActionResult> KanbanForUser()
+        //{
+        //    string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var tasks = await _taskService.TasksForUser(userId);
+
+        //    return View("KanbanBoard", tasks);
+        //}
+
 
         [HttpPost]
         public async Task<IActionResult> UpdateColumnOrder([FromBody] List<ColumnOrderUpdate> columnOrder)
         {
             try
             {
-                if (columnOrder == null || !columnOrder.Any())
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
                 {
-                    Console.WriteLine("Received empty or null column order.");
-                    return BadRequest(new
-                    {
-                        Title = "Invalid Column Order",
-                        Detail = "No columns were provided to update."
-                    });
+                    return Unauthorized(new { title = "Unauthorized", detail = "User is not authenticated." });
                 }
 
-                Console.WriteLine("Received column order:");
-                foreach (var column in columnOrder)
+                var strategy = _context.Database.CreateExecutionStrategy();
+
+                var result = await strategy.ExecuteAsync(async () =>
                 {
-                    Console.WriteLine($"Status: {column.Status}, Order: {column.Order}");
-                }
-
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                var preferences = await _userColumnPreferenceService.GetUserColumns(userId);
-                foreach (var update in columnOrder)
-                {
-
-                    if (!Enum.IsDefined(typeof(Status), update.Status))
+                    using var transaction = await _context.Database.BeginTransactionAsync();
+                    try
                     {
-                        return BadRequest(new
+                        var preferences = await _context.UserColumnPreferences
+                            .Where(u => u.UserId == userId)
+                            .ToListAsync();
+
+                        foreach (var update in columnOrder)
                         {
-                            Title = "Invalid Column Order",
-                            Detail = $"Status '{update.Status}' is not valid."
-                        });
-                    }
+                            var preference = preferences.FirstOrDefault(p => p.Id == update.ColumnId);
+                            if (preference == null)
+                            {
+                                Console.WriteLine($"❌ Column {update.ColumnId} not found in database");
+                                return false;
+                            }
 
-                    var preference = preferences.FirstOrDefault(p => p.Status == update.Status);
-                    if (preference == null)
+                            Console.WriteLine($"Updating column {update.ColumnId} to order {update.Order}");
+                            preference.Order = update.Order;
+                        }
+
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        return true;
+                    }
+                    catch (Exception ex)
                     {
-                        return BadRequest(new
-                        {
-                            Title = "Failed to Update Column Order",
-                            Detail = $"Column with Status '{update.Status}' not found for user ID '{userId}'."
-                        });
+                        await transaction.RollbackAsync();
+                        Console.WriteLine($"❌ Error: {ex.Message}");
+                        return false;
                     }
-
-                    preference.Order = update.Order;
-                }
-
-                var result = await _userColumnPreferenceService.UpdateColumnOrder(userId, columnOrder);
+                });
 
                 if (!result)
                 {
-                    return BadRequest(new
-                    {
-                        Title = "Failed to Update Column Order",
-                        Detail = "One or more column preferences could not be updated."
-                    });
+                    return BadRequest(new { title = "Update Failed", detail = "Unable to update column order." });
                 }
 
-                return Ok();
+                return Ok(new { title = "Success", detail = "Column order updated successfully." });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in UpdateColumnOrder: {ex.Message}");
-                return StatusCode(500, new
-                {
-                    Title = "Server Error",
-                    Detail = ex.Message
-                });
+                Console.WriteLine($"❌ Exception in UpdateColumnOrder: {ex.Message}");
+                return StatusCode(500, new { title = "Server Error", detail = ex.Message });
             }
         }
 
@@ -601,7 +598,7 @@ namespace SmartTask.Web.Controllers
 
             var columns = await _userColumnPreferenceService.GetUserColumns(userId);
 
-            if (columns.Count == 0)
+            if (!columns.Any())
             {
                 await _userColumnPreferenceService.InitializeDefaultColumns(userId);
                 columns = await _userColumnPreferenceService.GetUserColumns(userId);
@@ -619,10 +616,38 @@ namespace SmartTask.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> KanbanForUser()
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var tasks = await _taskService.TasksForUser(userId);
+            try
+            {
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            return View("KanbanBoard", tasks);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { title = "Unauthorized", detail = "User is not authenticated." });
+                }
+
+                var tasks = await _taskService.TasksForUser(userId);
+
+                var columns = await _userColumnPreferenceService.GetUserColumns(userId);
+
+                if (!columns.Any())
+                {
+                    await _userColumnPreferenceService.InitializeDefaultColumns(userId);
+                    columns = await _userColumnPreferenceService.GetUserColumns(userId);
+                }
+
+                var viewModel = new KanbanViewModel
+                {
+                    Tasks = tasks,
+                    Columns = columns.OrderBy(c => c.Order).ToList()
+                };
+
+                return View("KanbanBoard", viewModel);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Exception in KanbanForUser: {ex.Message}");
+                return StatusCode(500, new { title = "Server Error", detail = ex.Message });
+            }
         }
 
 
@@ -663,7 +688,6 @@ namespace SmartTask.Web.Controllers
             await _taskRepository.UpdateAsync(task);
             return Ok();
         }
-
 
     }
 }

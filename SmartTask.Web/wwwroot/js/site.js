@@ -148,28 +148,6 @@ function filterTasks() {
     });
 }
 
-
-//$(document).ready(function () {
-//    initializeSortable();
-
-//    $("#priorityFilter, #statusFilter").on("change", filterTasks);
-//});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
  //Initialize column sorting
 function initializeColumnSortable() {
     $("#kanban-board").sortable({
@@ -181,38 +159,22 @@ function initializeColumnSortable() {
         tolerance: "pointer",
 
         update: function (event, ui) {
-            const statusEnum = {
-                "Todo": 1,
-                "InProgress": 2,
-                "Done": 3
-            };
-            const columnOrder = [];
-            $("#kanban-board .col-md-3").each(function (index) {
-                const status = $(this).find(".kanban-column").data("status").toString();
-                columnOrder.push({
-                    Status: statusEnum[status],
+            const newOrder = [];
+            $(".kanban-column").each(function (index) {
+                newOrder.push({
+                    ColumnId: $(this).data("column-id"),
                     Order: index
                 });
             });
 
-            console.log("Column Order to send:", columnOrder);
-
+            console.log("New Order Data:", newOrder);
             $.ajax({
                 url: "/Task/UpdateColumnOrder",
                 type: "POST",
                 contentType: "application/json",
-                data: JSON.stringify(columnOrder),
-                success: () => {
-                    console.log("Order updated successfully");
-                },
-                error: (xhr) => {
-                    const error = xhr.responseJSON || { title: "Unknown Error", detail: xhr.statusText };
-                    console.error("Full Error:", xhr);
-                    alert(`Error ${xhr.status}: ${error.title}\n${error.detail || error.message}`);
-
-
-                    $('#kanban-board').sortable('cancel');
-                }
+                data: JSON.stringify(newOrder),
+                success: () => { console.log("Order updated"); },
+                error: (xhr) => console.error("Error updating order:", xhr.responseText)
             });
         }
     });

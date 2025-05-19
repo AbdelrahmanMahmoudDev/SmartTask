@@ -26,7 +26,29 @@ namespace SmartTask.BL.Services
 
         public async Task<List<UserColumnPreference>> GetUserColumns(string userId)
         {
-            return await _userColumnPreferenceRepository.GetByUserId(userId);
+            var preferences = await _userColumnPreferenceRepository.GetByUserId(userId);
+
+            await _context.SaveChangesAsync();
+            Console.WriteLine("Changes saved to database successfully.");
+
+            preferences = await _context.UserColumnPreferences
+                .Where(u => u.UserId == userId)
+                .ToListAsync();
+
+            Console.WriteLine("Reloaded preferences from database:");
+            foreach (var preference in preferences)
+            {
+                Console.WriteLine($"Column ID: {preference.Id}, Order: {preference.Order}");
+            }
+           
+
+            if (preferences == null || !preferences.Any())
+            {
+                Console.WriteLine($"No preferences found for user ID '{userId}'.");
+                return new List<UserColumnPreference>();
+            }
+
+            return preferences;
         }
 
         public async Task<bool> UpdateColumnOrder(string userId, List<ColumnOrderUpdate> columnOrder)
@@ -34,30 +56,37 @@ namespace SmartTask.BL.Services
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                Console.WriteLine($"Updating order for user: {userId}");
+
                 var preferences = await _context.UserColumnPreferences
                     .Where(u => u.UserId == userId)
                     .ToListAsync();
 
+                Console.WriteLine($"Found {preferences.Count} preferences for user: {userId}");
+
                 foreach (var update in columnOrder)
                 {
-                    var preference = preferences.FirstOrDefault(p => p.Status == update.Status);
+                    var preference = preferences.FirstOrDefault(p => p.Id == update.ColumnId);
                     if (preference == null)
                     {
-                        Console.WriteLine($"❌ Column {update.Status} not found in database");
+                        Console.WriteLine($"❌ Column ID {update.ColumnId} not found for user {userId}");
                         return false;
                     }
 
+                    Console.WriteLine($"Updating column ID {preference.Id} (Status: {preference.Status}) to order {update.Order}");
                     preference.Order = update.Order;
                 }
 
+                Console.WriteLine("Saving changes to database...");
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+                Console.WriteLine("Transaction committed successfully.");
                 return true;
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                Console.WriteLine($"❌ Error: {ex.Message}");
+                Console.WriteLine($"❌ Error in UpdateColumnOrder: {ex.Message}");
                 return false;
             }
         }
@@ -72,18 +101,21 @@ namespace SmartTask.BL.Services
             return true;
         }
 
-       public async Task InitializeDefaultColumns(string userId)
-{
-    var defaultColumns = new List<UserColumnPreference>
-    {
-        new() { UserId = userId, Status = Status.Todo, DisplayName = "Todo", Order = 0 },
-        new() { UserId = userId, Status = Status.InProgress, DisplayName = "In Progress", Order = 1 },
-        new() { UserId = userId, Status = Status.Done, DisplayName = "Done", Order = 2 },
-        new() { UserId = userId, Status = Status.Cancelled, DisplayName = "Cancelled", Order = 3 }
-    };
+        public async Task InitializeDefaultColumns(string userId)
+        {
+            if (await _context.UserColumnPreferences.AnyAsync(u => u.UserId == userId))
+                return;
 
-    await _userColumnPreferenceRepository.AddRangeAsync(defaultColumns);
-}
+            var defaultColumns = new List<UserColumnPreference>
+            {
+                new() { UserId = userId, Status = Status.Todo, DisplayName = "Todo", Order = 0 },
+                new() { UserId = userId, Status = Status.InProgress, DisplayName = "In Progress", Order = 1 },
+                new() { UserId = userId, Status = Status.Done, DisplayName = "Done", Order = 2 }
+            };
+
+            await _context.UserColumnPreferences.AddRangeAsync(defaultColumns);
+            await _context.SaveChangesAsync();
+        }
     }
 
 }

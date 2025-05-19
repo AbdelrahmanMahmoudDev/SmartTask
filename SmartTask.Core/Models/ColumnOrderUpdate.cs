@@ -9,7 +9,7 @@ namespace SmartTask.Core.Models
 {
     public class ColumnOrderUpdate
     {
-        public Status Status { get; set; }
+        public int ColumnId { get; set; }
         public int Order { get; set; }
     }
 }
