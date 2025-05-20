@@ -12,8 +12,8 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
-    [Migration("20250518153245_smarttaskdbcontext")]
-    partial class smarttaskdbcontext
+    [Migration("20250519090118_mergeMigration")]
+    partial class mergeMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -591,6 +591,12 @@ namespace SmartTask.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("Date");
+
+                    b.Property<bool?>("IsRead")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -603,6 +609,9 @@ namespace SmartTask.DataAccess.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("link")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

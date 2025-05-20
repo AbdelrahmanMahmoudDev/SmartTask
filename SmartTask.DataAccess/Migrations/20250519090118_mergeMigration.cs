@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmartTask.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class smarttaskdbcontext : Migration
+    public partial class mergeMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -259,6 +259,9 @@ namespace SmartTask.DataAccess.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "Date", nullable: true),
+                    IsRead = table.Column<bool>(type: "bit", nullable: true),
+                    link = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SenderId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ReceiverId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
