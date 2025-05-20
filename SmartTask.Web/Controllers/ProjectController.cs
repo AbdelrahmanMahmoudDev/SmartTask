@@ -170,7 +170,16 @@ namespace SmartTask.Web.Controllers
             var currentUserIds = project.ProjectMembers.Select(pm => pm.UserId).ToList();
 
             var allUsers = await _userManager.Users.ToListAsync();
+
+            ViewBag.AllUsers = allUsers.Select(u => new SelectListItem
+            {
+                Value = u.Id,
+                Text = u.FullName,
+                Selected = currentUserIds.Contains(u.Id)
+            }).ToList();
+
             var nonAssignedUsers = allUsers.Where(u => !currentUserIds.Contains(u.Id)).ToList();
+
            
             ViewBag.NonAssignedUsers = new SelectList(nonAssignedUsers, "Id", "FullName");
 

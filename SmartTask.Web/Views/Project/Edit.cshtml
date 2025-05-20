@@ -66,7 +66,7 @@
                     <span asp-validation-for="Status" class="text-danger"></span>
                 </div>
 
-                <h4>Assigned Users</h4>
+               @* <h4>Assigned Users</h4>
                 <div class="form-group">
                     <div id="assignedUsersContainer">
                         @if (Model.AssignedUsers != null && Model.AssignedUsers.Any())
@@ -88,16 +88,18 @@
                             <p>No assigned users.</p>
                         }
                     </div>
-                </div>
+                </div>*@
 
                 <h4>Add Users</h4>
                 <div class="form-group">
                     <label for="userDropdown">Add User</label>
-                    <select id="userDropdown" class="form-select">
-                        <option selected disabled>Choose a user...</option>
-                        @foreach (var user in ViewBag.NonAssignedUsers as SelectList)
+                    
+                    <select id="userDropdown" name="AssignedUserIds" class="form-select select2" multiple="multiple"
+                            data-placeholder="-- Select users --">
+                        @* <option selected disabled>Choose a user...</option> *@
+                        @foreach (var user in ViewBag.AllUsers as List<SelectListItem>)
                         {
-                            <option value="@user.Value">@user.Text</option>
+                            <option value="@user.Value" selected="@(user.Selected ? "selected" : null)" >@user.Text</option>
                         }
                     </select>
                 </div>
@@ -109,7 +111,25 @@
     </div>
 </div>
 
-<script>
+
+<script src="~/lib/jquery/jquery.min.js"></script>
+<script src="~/lib/select2/js/select2.min.js"></script>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#userDropdown').select2({
+                tags: true,
+                placeholder: "-- Select Users --",
+                allowClear: true,
+                width: '100%',
+            });
+        });
+    </script>
+}
+
+@*<script>
     const userDropdown = document.getElementById("userDropdown");
     const assignedUsersContainer = document.getElementById("assignedUsersContainer");
 
@@ -139,4 +159,4 @@
             assignedUsersContainer.appendChild(div);
         }
     });
-</script>
+</script>*@

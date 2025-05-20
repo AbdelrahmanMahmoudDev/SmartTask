@@ -11,8 +11,9 @@
 
         <div class="mb-3">
             <label for="userDropdown" class="form-label">Select User</label>
-            <select id="userDropdown" class="form-select">
-                <option selected disabled>Choose a user...</option>
+            <select id="userDropdown" name="selectedUserIds" class="form-select select2" multiple="multiple"
+                    data-placeholder="-- Select users --">
+                @* <option selected disabled>Choose a user...</option> *@
                 @foreach (var user in ViewBag.Users as SelectList)
                 {
                     <option value="@user.Value">@user.Text</option>
@@ -30,6 +31,23 @@
         <button type="submit" class="btn btn-primary">Save Changes</button>
     </form>
 </div>
+
+<script src="~/lib/jquery/jquery.min.js"></script>
+<script src="~/lib/select2/js/select2.min.js"></script>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#userDropdown').select2({
+                tags: true,
+                placeholder: "-- Select Users --",
+                allowClear: true,
+                width: '100%',
+            });
+        });
+    </script>
+}
 
 <script>
  
@@ -70,4 +88,5 @@
             container.remove();
         }
     });
+
 </script>

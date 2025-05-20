@@ -2,6 +2,7 @@
 @using SmartTask.Web.ViewModels.DepartmentVM
 @model DepartmentFormViewModel
 
+<link rel="stylesheet" href="~/lib/select2/css/select2.min.css" />
 <h1>Create New Department</h1>
 
 <form asp-action="Create">
@@ -13,7 +14,7 @@
 
     <div class="form-group">
         <label asp-for="ManagerId"></label>
-        <select asp-for="ManagerId" asp-items="@ViewBag.Managers" class="form-control">
+        <select asp-for="ManagerId" asp-items="@ViewBag.Managers" class="form-select">
             <option value="">-- Select Manager --</option>
         </select>
         <span asp-validation-for="ManagerId" class="text-danger"></span>
@@ -22,45 +23,61 @@
   
     <div class="form-group">
         <label>Select User to Assign:</label>
-        <select id="userDropdown" class="form-control">
-            <option value="">-- Select User --</option>
+        <select id="userDropdown" name="SelectedUserIds" class="form-select select2" multiple="multiple"
+                data-placeholder="-- Select users --">
+            @* <option value="">-- Select User --</option > *@
             @foreach (var user in ViewBag.AllUsers)
             {
-                <option value="@user.Id" data-name="@user.FullName">@user.FullName</option>
+                @* <option value="@user.Id" data-name="@user.FullName">@user.FullName</option> *@
+
+                <option value="@user.Id">@user.FullName</option>
             }
         </select>
     </div>
 
-    <div class="form-group">
-        <label>Assigned Users:</label>
-        <div id="assignedUsersContainer"></div>
-    </div>
+   @* <div class="form-group"> 
+         <label>Assigned Users:</label> 
+         <div id="assignedUsersContainer"></div> 
+     </div>*@
 
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
 
+<script src="~/lib/jquery/jquery.min.js"></script>
+<script src="~/lib/select2/js/select2.min.js"></script>
 
 @section Scripts {
     <script>
-        document.getElementById('userDropdown').addEventListener('change', function () {
-            const selectedOption = this.options[this.selectedIndex];
-            const userId = selectedOption.value;
-            const userName = selectedOption.dataset.name;
-
-            if (!userId) return;
-
-            // Check if already added
-            if (document.getElementById('user_' + userId)) return;
-
-            // Create checkbox
-            const container = document.getElementById('assignedUsersContainer');
-            const div = document.createElement('div');
-            div.className = 'form-check';
-            div.innerHTML = `
-                <input class="form-check-input" type="checkbox" name="SelectedUserIds" value="${userId}" id="user_${userId}" checked>
-                <label class="form-check-label" for="user_${userId}">${userName}</label>
-            `;
-            container.appendChild(div);
+        $(document).ready(function () {
+            $('#userDropdown').select2({
+                tags: true,
+                placeholder: "-- Select Users --",
+                allowClear: true,
+				width: '100%',
+            });
         });
+
+        // document.getElementById('userDropdown').addEventListener('change', function () {
+        //     const selectedOption = this.options[this.selectedIndex];
+        //     const userId = selectedOption.value;
+        //     const userName = selectedOption.dataset.name;
+
+        //     if (!userId) return;
+
+        //     Check if already added
+        //     if (document.getElementById('user_' + userId)) return;
+
+        //     Create checkbox
+        //     const container = document.getElementById('assignedUsersContainer');
+        //     const div = document.createElement('div');
+        //     div.className = 'form-check';
+        //     div.innerHTML = `
+        //         <input class="form-check-input" type="checkbox" name="SelectedUserIds" value="${userId}" id="user_${userId}" checked>
+        //         <label class="form-check-label" for="user_${userId}">${userName}</label>
+        //     `;
+        //     container.appendChild(div);
+        // });
+
+          
     </script>
 }

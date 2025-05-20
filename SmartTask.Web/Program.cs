@@ -85,6 +85,11 @@ namespace SmartTask.Web
             // extendProjectDeadline Based ON Task Service
             builder.Services.AddScoped<IProjectDeadlineExtendService, ProjectDeadlineExtendService>();
 
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
+
             var app = builder.Build();
 
             #region Session and Migration
@@ -172,7 +177,14 @@ namespace SmartTask.Web
             services.AddScoped<IAuditRepository, AuditRepository>();
             services.AddScoped<IDepartmentService, DepartmentService>();
             services.AddScoped<IProjectService, ProjectService>();
+            services.AddScoped<IUserColumnPreferenceRepository, UserColumnPreferenceRepository>();
+            services.AddScoped<IUserColumnPreferenceService, UserColumnPreferenceService>();
+           
+
+
             services.AddScoped<INotificationRepository, NotificationRepository>();
+            
+>>>>>>>>> Temporary merge branch 2
         }
     }
 }

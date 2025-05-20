@@ -61,6 +61,16 @@ namespace SmartTask.Web.Controllers
 
             if (model.SelectedUserIds != null && model.SelectedUserIds.Any())
             {
+                //foreach (var userId in model.SelectedUserIds)
+                //{
+                //    var user = await _userManager.FindByIdAsync(userId);
+                //    if (user != null)
+                //    {
+                //        user.DepartmentId = department.Id;
+                //        await _userManager.UpdateAsync(user);
+                //    }
+                //}
+
                 department.Users = await _userManager.Users
                     .Where(u => model.SelectedUserIds.Contains(u.Id))
                     .ToListAsync();

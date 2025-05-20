@@ -2,6 +2,7 @@
 using SmartTask.BL.IServices;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
+using SmartTask.Core.Models.Enums;
 using SmartTask.Core.Models.ServiceDto;
 
 namespace SmartTask.BL.Services
