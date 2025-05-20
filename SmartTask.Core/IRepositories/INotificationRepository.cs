@@ -5,13 +5,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
 
 namespace SmartTask.Core.IRepositories
 {
     public interface INotificationRepository
     {
-        Task<Notification> AddAsync(Notification notification);
+        Notification AddAsync(Notification notification);
 
-        Task<IEnumerable<Notification>> GetAllWithReceiverIdAsync(string id);
+        Task<List<Notification>> GetAllWithReceiverIdAsync(string id);
+
+        Task MarkAllAsReadAsync(string id);
+        Task MarkAsReadAsync(int id);
     }
 }

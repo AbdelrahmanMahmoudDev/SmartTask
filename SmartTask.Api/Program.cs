@@ -66,10 +66,27 @@ namespace SmartTask.Api
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes("sdfljsdlfj9o4oieurwew//cv??fdssdrer///???430958dlsjfkjdssdfl||dsf"))
                 };
+            }).AddMicrosoftAccount("Outlook", options =>
+            {
+                options.ClientId = builder.Configuration["AzureAd:ClientId"];
+                options.ClientSecret = builder.Configuration["AzureAd:ClientSecret"];
+                options.CallbackPath = builder.Configuration["AzureAd:CallbackPath"];
+                options.SaveTokens = true;
+                options.Scope.Add("offline_access");
+                options.Scope.Add("User.Read");
+                options.Scope.Add("Calendars.Read");
+            }); ;
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    policy =>
+                    {
+                        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                    });
             });
-            #endregion
-
-            #region Swagger
+            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+            builder.Services.AddOpenApi();
+            //builder.Services.AddSwaggerGen();
             builder.Services.AddSwaggerGen(swagger =>
             {
                 swagger.SwaggerDoc("v1", new OpenApiInfo
@@ -142,6 +159,12 @@ namespace SmartTask.Api
             {
                 DefaultAdminUser = "aelashry@outlook.com"
             });
+            builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+            builder.Services.AddScoped<IEventRepository, EventRepository>();
+            builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+            builder.Services.AddScoped<IAssignTaskRepository, AssignTaskRepository>();
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession();
 
             #endregion
 
@@ -174,6 +197,8 @@ namespace SmartTask.Api
             }
 
             #region Middleware
+            app.UseSession();
+            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

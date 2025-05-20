@@ -157,6 +157,7 @@ namespace SmartTask.Web
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ITaskService, TaskService>();
+            //services.AddScoped<ITaskService, TaskService>();
 
             // Repositories
             services.AddScoped<IAISuggestionRepository, AISuggestionRepository>();

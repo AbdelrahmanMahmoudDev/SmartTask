@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models;
+using SmartTask.BL.IServices;
 using SmartTask.BL.IServices;
 using SmartTask.BL.Service.Hubs;
 using SmartTask.BL.Services;
@@ -18,6 +20,7 @@ using SmartTask.Web.Models;
 //using SmartTask.Web.Models;
 using SmartTask.Web.ViewModels;
 using SmartTask.Web.ViewModels.KanbanVM;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -39,11 +42,13 @@ namespace SmartTask.Web.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly IUserColumnPreferenceService _userColumnPreferenceService;
 
+        private readonly INotificationService _notificationService;
+
         public TaskController(ITaskRepository taskRepository, IProjectRepository projectRepository,
             UserManager<ApplicationUser> usermanager, SmartTaskContext context, 
             IAssignTaskRepository assignTaskRepository,INotificationRepository notificationRepository,
             IHubContext<NotificationHub> hub, ITaskService taskService
-            , IWebHostEnvironment environment
+            , IWebHostEnvironment environment, INotificationService notificationService
             , IUserColumnPreferenceService userColumnPreferenceService)
         {
             _taskRepository = taskRepository;
@@ -56,6 +61,7 @@ namespace SmartTask.Web.Controllers
             _taskService = taskService;
             _environment = environment;
             _userColumnPreferenceService = userColumnPreferenceService;
+            _notificationService = notificationService;
         }
 
         public async Task<IActionResult> Details(int id)
@@ -84,23 +90,13 @@ namespace SmartTask.Web.Controllers
             IEnumerable<AssignTask> taskUsers = await _assignTaskRepository.GetByTaskIdAsync(comment.TaskId);
             
             //SignalR Part
-            Notification notification;
+            
             var user = await _userManager.GetUserAsync(User);
-            string NotificationMessage = $"{user.FullName} Commented on : {comment.Task.Title}";
-            foreach (var receiverID in taskUsers)
-            {
-                notification = new Notification
-                {
-                    Message = NotificationMessage,
-                    Type = "Comment",
-                    SenderId = user.Id,
-                    ReceiverId = receiverID.UserId
-                };
-
-                await _hub.Clients.User(receiverID.UserId).SendAsync("assignedtask", notification);
-                //save to db
-                await _notificationRepository.AddAsync(notification);
-            }
+            var users = _assignTaskRepository.GetUsersIdByTaskId(comment.TaskId);
+            string notificationMessage = $"{user.FullName} Commented on : {comment.Task.Title}";
+            string notificationType = "Comment";
+            _notificationService.sendSignalRNotificationAsync(users, user.Id, notificationType, notificationMessage);
+            
 
                 return Json(new
                 {
@@ -130,23 +126,12 @@ namespace SmartTask.Web.Controllers
             }
 
             //SignalR Part
-            Notification notification;
-            IEnumerable<AssignTask> taskUsers = await _assignTaskRepository.GetByTaskIdAsync(attachment.TaskId);
-            string NotificationMessage = $"{user.FullName} Added Attachment on : {attachment.Task.Title}";
-            foreach (var receiverID in taskUsers)
-            {
-                notification = new Notification
-                {
-                    Message = NotificationMessage,
-                    Type = "Attachment",
-                    SenderId = user.Id,
-                    ReceiverId = receiverID.UserId
-                };
-
-                await _hub.Clients.User(receiverID.UserId).SendAsync("assignedtask", notification);
-                //save to db
-                await _notificationRepository.AddAsync(notification);
-            }
+            
+            var users = _assignTaskRepository.GetUsersIdByTaskId(attachment.TaskId);
+            string notificationMessage = $"{user.FullName} Added Attachment on : {attachment.Task.Title}";
+            string notificationType = "Attachment";
+            _notificationService.sendSignalRNotificationAsync(users, user.Id, notificationType, notificationMessage);
+            
 
             return Json(new
             {
@@ -197,27 +182,13 @@ namespace SmartTask.Web.Controllers
             }
 
             //SignalR Part
-            Notification notification;
-
-            var assignedUsers = await _assignTaskRepository.GetByTaskIdAsync(taskid);
-
+            
+            var users = _assignTaskRepository.GetUsersIdByTaskId(taskid);
+            string type = "Delete";
             var user = await _userManager.GetUserAsync(User);
             string NotificationMessage = $"{user.FullName} Deleted Task : {task.Title}";
-            foreach (var receiverID in assignedUsers)
-            {
-
-                notification = new Notification
-                {
-                    Message = NotificationMessage,
-                    Type = "Delete",
-                    SenderId = user.Id,
-                    ReceiverId = receiverID.UserId
-                };
-
-                await _hub.Clients.User(receiverID.UserId).SendAsync("assignedtask", notification);
-                //save to db
-                await _notificationRepository.AddAsync(notification);
-            }
+            _notificationService.sendSignalRNotificationAsync(users, user.Id, type, NotificationMessage);
+            
 
             //Delete Task
             await _taskService.DeleteDepend(taskid);
@@ -291,9 +262,8 @@ namespace SmartTask.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TaskViewModel taskVM)
         {
-            // Notification for signalR
-            Notification notification ;
-            string NotificationMessage = "NA";
+            
+            
             var userId = User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier).Value;
             taskVM.CreatedById = userId;
             if (!ModelState.IsValid)
@@ -325,22 +295,12 @@ namespace SmartTask.Web.Controllers
             //SignalR Part
 
             var user = await _userManager.GetUserAsync(User);
-            NotificationMessage = $"{user.FullName} Assigned new Task : {taskVM.Title}";
-            foreach (var receiverID in taskVM.AssignedToId)
-            {
-                notification = new Notification
-                {
-                    Message = NotificationMessage,
-                    Type = "NewTask",
-                    SenderId = userId,
-                    ReceiverId = receiverID
-                };
-
-                await _hub.Clients.User(receiverID).SendAsync("assignedtask", notification);
-                //save to db
-                //_context.ChangeTracker.Clear();
-                await _notificationRepository.AddAsync(notification);
-            }
+            string NotificationMessage = $"{user.FullName} Assigned new Task : {taskVM.Title}";
+            string notificationType = "NewTask";
+            _notificationService.sendSignalRNotificationAsync(taskVM.AssignedToId, userId, notificationType, NotificationMessage);
+            
+            
+           
             return RedirectToAction(nameof(Index));
         }
 
@@ -400,25 +360,13 @@ namespace SmartTask.Web.Controllers
                     await _taskRepository.UpdateAsync(_task);
 
                     //SignalR Part
-                    Notification notification;
-                    string NotificationMessage = "NA";
+                    //Notification notification;
+                     
                     var user = await _userManager.GetUserAsync(User);
-                    NotificationMessage = $"{user.FullName} Updated Assigned Task : {taskVM.Title}";
-                    foreach (var receiverID in taskVM.AssignedToId)
-                    {
-                        notification = new Notification
-                        {
-                            Message = NotificationMessage,
-                            Type = "UpdateTask",
-                            SenderId = userId,
-                            ReceiverId = receiverID
-                        };
-
-                        await _hub.Clients.User(receiverID).SendAsync("assignedtask", notification);
-
-                        //save to db
-                        await _notificationRepository.AddAsync(notification);
-                    }
+                    string NotificationMessage = $"{user.FullName} Updated Assigned Task : {taskVM.Title}";
+                    string type = "UpdateTask";
+                    _notificationService.sendSignalRNotificationAsync(taskVM.AssignedToId, userId, type, NotificationMessage);
+                    
                     return RedirectToAction(nameof(Index));
                 }
             }

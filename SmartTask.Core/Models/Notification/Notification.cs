@@ -10,6 +10,13 @@ namespace SmartTask.Core.Models.Notification
 
         public string Type { get; set; }
 
+        [Column(TypeName = "datetime2")]
+        public DateTime? CreatedAt { get; set; }
+
+        public bool? IsRead { get; set; }
+
+        public string? link { get; set; }
+
 
         public string? SenderId { get; set; }
         [ForeignKey("SenderId")]

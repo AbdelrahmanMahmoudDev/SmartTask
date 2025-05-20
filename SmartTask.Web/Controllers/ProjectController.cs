@@ -16,19 +16,20 @@ namespace SmartTask.Web.Controllers
     {
         private readonly IProjectService _projectService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly INotificationService _notificationService;
         private readonly IDepartmentService _departmentService;
         private readonly IBranchService _branchService;
 
         public ProjectController(
-            IProjectService projectService,
-             IDepartmentService departmentService,
-               IBranchService branchService,
-            UserManager<ApplicationUser> userManager)
+            IProjectService projectService, IDepartmentService departmentService,
+            IBranchService branchService, UserManager<ApplicationUser> userManager,
+            INotificationService notificationService)
         {
             _projectService = projectService;
             _departmentService = departmentService;
             _branchService = branchService;
             _userManager = userManager;
+            _notificationService = notificationService;
         }
 
         public async Task<IActionResult> Index(string searchString, int? selectedDepartmentId, int? selectedBranchId, int page = 1, int pageSize = 10)
@@ -83,7 +84,9 @@ namespace SmartTask.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            //var admins = await _userManager.GetUsersInRoleAsync("Admin");
+
+            var admins = await _userManager.GetUsersInRoleAsync("Project Manager");
             ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
             ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.branches = await _branchService.GetAllAsync();
@@ -95,7 +98,8 @@ namespace SmartTask.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(ProjectFormViewModel model)
         {
-            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            //var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            var admins = await _userManager.GetUsersInRoleAsync("Project Manager");
             ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
             ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.branches = await _branchService.GetAllAsync();
@@ -125,6 +129,13 @@ namespace SmartTask.Web.Controllers
             };
 
             await _projectService.AddProjectAsync(project);
+
+            //SignalR Part
+            string notificationType = "newproject";
+            string notificationMessage = $"You have been assigned as the owner of a new project by {currentUser.FullName}: {project.Name}.";
+            List<string> user = new List<string>() { model.OwnerId};
+            await _notificationService.sendSignalRNotificationAsync(user, model.OwnerId, notificationType, notificationMessage);
+
             return RedirectToAction("Index");
         }
 
@@ -137,6 +148,14 @@ namespace SmartTask.Web.Controllers
                 return View("NotFound");
             }
 
+            //SignalR Part
+            var currentUser = await _userManager.GetUserAsync(User);
+            string notificationType = "deleteproject";
+            string notificationMessage = $"The project You have been assigned as the owner was deleted by {currentUser.FullName}: {project.Name}.";
+            List<string> user = new List<string>() { project.OwnerId };
+            await _notificationService.sendSignalRNotificationAsync(user, project.OwnerId, notificationType, notificationMessage);
+            
+            // remove from db
             await _projectService.DeleteProjectAsync(id);
             return RedirectToAction("Index");
         }
@@ -159,7 +178,8 @@ namespace SmartTask.Web.Controllers
             var project = await _projectService.GetProjectByIdAsync(id);
             ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.branches = await _branchService.GetAllAsync();
-            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            //var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            var admins = await _userManager.GetUsersInRoleAsync("Project Manager");
             ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
 
             if (project == null)
@@ -217,7 +237,9 @@ namespace SmartTask.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                var admins = await _userManager.GetUsersInRoleAsync("Admin");
+                //var admins = await _userManager.GetUsersInRoleAsync("Admin");
+
+                var admins = await _userManager.GetUsersInRoleAsync("Project Manager");
                 ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
                 return View(model);
             }
@@ -250,6 +272,14 @@ namespace SmartTask.Web.Controllers
             }
 
             await _projectService.UpdateProjectAsync(project);
+
+            //SignalR
+            var currentUser = await _userManager.GetUserAsync(User);
+            string notificationType = "updateproject";
+            string notificationMessage = $"The project You have been assigned as the owner was updated by {currentUser.FullName}: {project.Name}.";
+            List<string> user = new List<string>() { project.OwnerId };
+            await _notificationService.sendSignalRNotificationAsync(user, project.OwnerId, notificationType, notificationMessage);
+
             return RedirectToAction("Index");
         }
 
