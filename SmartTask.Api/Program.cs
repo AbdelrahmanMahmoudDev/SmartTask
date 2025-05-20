@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
 using SmartTask.Core.Models.BasePermission;
 using SmartTask.DataAccess.Data;
+using SmartTask.DataAccess.Repositories;
 
 namespace SmartTask.Api
 {
@@ -49,7 +51,16 @@ namespace SmartTask.Api
                     //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT : SecurityKey"]))
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sdfljsdlfj9o4oieurwew//cv??fdssdrer///???430958dlsjfkjdssdfl||dsf"))
                 };
-            });
+            }).AddMicrosoftAccount("Outlook", options =>
+            {
+                options.ClientId = builder.Configuration["AzureAd:ClientId"];
+                options.ClientSecret = builder.Configuration["AzureAd:ClientSecret"];
+                options.CallbackPath = builder.Configuration["AzureAd:CallbackPath"];
+                options.SaveTokens = true;
+                options.Scope.Add("offline_access");
+                options.Scope.Add("User.Read");
+                options.Scope.Add("Calendars.Read");
+            }); ;
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
@@ -95,10 +106,17 @@ namespace SmartTask.Api
                     }
                     });
             });
+            builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+            builder.Services.AddScoped<IEventRepository, EventRepository>();
+            builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+            builder.Services.AddScoped<IAssignTaskRepository, AssignTaskRepository>();
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession();
+
             #endregion
 
             var app = builder.Build();
-
+            app.UseSession();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
