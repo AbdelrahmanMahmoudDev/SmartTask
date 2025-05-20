@@ -37,7 +37,7 @@ namespace SmartTask.Bl.Services
             await _emailSender.SendEmailAsync(message);
         }
 
-        private string GenerateNotificationLink(string notificationType)
+        private string GenerateNotificationLink(string notificationType,int id)
         {
             // Generate links based on notification type
             switch (notificationType.ToLower())
@@ -47,9 +47,9 @@ namespace SmartTask.Bl.Services
                 case "updatetask":                          
                     return $"/Task";
                 case "updateproject":
-                    return $"/Project";
+                    return $"/Project/Details/{id}";
                 case "newproject":
-                    return $"/Project";
+                    return $"/Project/Details/{id}";
                 case "comment":
                     return $"/Task/Details/{notificationType}#comment-section";
                 case "delete":
@@ -60,11 +60,11 @@ namespace SmartTask.Bl.Services
         }
 
         public async Task sendSignalRNotificationAsync(List<string>receivers,string sender,
-            string notificationType, string notificationMessage)
+            string notificationType, string notificationMessage, int notifyForID)
         {
             Notification notification;
             bool flag = true;
-            string url = GenerateNotificationLink(notificationType);
+            string url = GenerateNotificationLink(notificationType, notifyForID);
             foreach (var receiver in receivers)
             {
                 notification = new Notification
