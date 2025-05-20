@@ -234,7 +234,12 @@ $(document).on('click', '.notification-link', function (e) {
     e.preventDefault();
     const notificationItem = $(this).closest('.notification-item');
     const notificationId = notificationItem.data('id');
+    // Extract taskId from href, assuming URL format: /Task/Details/123
     const notificationLink = $(this).attr('href');
+    const taskId = notificationLink.split('/').pop();
+
+    // Validate
+    if (!taskId || isNaN(taskId)) return;
 
     // Don't process if it's a delete notification or invalid link
     if (notificationLink === '#') {
@@ -268,13 +273,13 @@ $(document).on('click', '.notification-link', function (e) {
                 }
 
                 // Navigate to the notification target page
-                window.location.href = notificationLink;
+                loadTaskDetails(taskId);
             }
         },
         error: function (xhr, status, error) {
             console.error('Error marking notification as read:', error);
             // Still navigate even if marking as read fails
-            window.location.href = notificationLink;
+            loadTaskDetails(taskId);
         }
     });
 });

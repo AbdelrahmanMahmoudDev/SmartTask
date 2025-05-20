@@ -19,6 +19,8 @@
 	<!-- Bootstrap CSS -->
 	<link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
 
 	<!-- Feather CSS -->
@@ -591,6 +593,13 @@
 	@*         &copy; 2025 - SmartTask.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
 	@*     </div> *@
 	@* </footer> *@
+	<div class="modal fade" id="taskDetailsModal" tabindex="-1">
+		<div class="modal-dialog modal-lg modal-dialog-centered">
+			<div class="modal-content shadow" id="taskDetailsContent">
+				<!-- Content will be loaded here -->
+			</div>
+		</div>
+	</div>
 	<!-- jQuery -->
 	<script data-cfasync="false" src="~/assets/js/email-decode.min.js"></script>
 	<script src="~/assets/js/jquery-3.7.1.min.js"></script>
@@ -641,6 +650,21 @@
 	<script src="~/js/notification.js"></script>
 	<script>
 		initializeNotifications();
+				function loadTaskDetails(taskId) {
+			$.ajax({
+				url: '@Url.Action("Details", "Task")/' + taskId,
+				type: 'GET',
+				success: function (response) {
+					$('#taskDetailsContent').html(response);
+					var detailsModal = new bootstrap.Modal(document.getElementById('taskDetailsModal'));
+					detailsModal.show();
+				},
+				error: function (error) {
+					console.log('Error loading task details:', error);
+					alert('Failed to load task details. Please try again.');
+				}
+			});
+		}
 	</script>
 	//
 	<script src="~/js/site.js" asp-append-version="true"></script>
