@@ -23,6 +23,8 @@
     string textClass = isCancelled ? "text-decoration-line-through text-muted" : "";
     string userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
 }
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
 <div class="modal-header">
     <h5 class="modal-title">Task Details: @Model.Title</h5>
