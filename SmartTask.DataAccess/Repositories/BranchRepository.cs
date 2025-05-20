@@ -75,5 +75,18 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Branches.AnyAsync(b => b.Id == id);
         }
+
+        public IQueryable<Branch> GetQueryable()
+        {
+            return _context.Branches.Include(b => b.Manager)
+                                   .Include(b => b.BranchDepartments)
+                                   .ThenInclude(bd => bd.Department)
+                                   .AsQueryable();
+        }
+
+        public async Task<Branch> GetBranchWithDepartmentsAsync(int id)
+        {
+            return await _context.Branches.Include(b => b.BranchDepartments).FirstOrDefaultAsync(b => b.Id == id);
+        }
     }
 }

@@ -8,8 +8,8 @@ namespace SmartTask.Core.Models
     {
         [Key]
         public int Id { get; set; }
-
-        public int TaskId { get; set; }
+        public string OutLooktTaskId {  get; set; }
+        public int? TaskId { get; set; }
 
         [Required]
         public DateTime Start { get; set; }
@@ -24,8 +24,7 @@ namespace SmartTask.Core.Models
 
         public string ImportedById { get; set; }
 
-        [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         // Navigation properties
         [ForeignKey("TaskId")]

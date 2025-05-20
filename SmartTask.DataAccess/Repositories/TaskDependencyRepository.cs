@@ -66,7 +66,12 @@ namespace SmartTask.DataAccess.Repositories
                 await _context.SaveChangesAsync();
             }
         }
-
+        public async Task DeleteRangeAsync(List<TaskDependency> td)
+        {
+            _context.TaskDependencies.RemoveRange(td);
+            await _context.SaveChangesAsync();
+            
+        }
         public async Task<bool> ExistsAsync(int id)
         {
             return await _context.TaskDependencies.AnyAsync(td => td.Id == id);

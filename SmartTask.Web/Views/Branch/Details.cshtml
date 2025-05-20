@@ -1,0 +1,48 @@
+﻿@model SmartTask.Core.Models.Branch
+
+@{
+    ViewData["Title"] = "Branch Details";
+}
+
+<div class="container mt-5">
+    <h2>Branch Details</h2>
+    <hr />
+
+    <dl class="row">
+        <dt class="col-sm-3">Branch Name:</dt>
+        <dd class="col-sm-9">@Model.Name</dd>
+
+        <dt class="col-sm-3">Branch Manager:</dt>
+        <dd class="col-sm-9">
+            @if (Model.Manager != null)
+            {
+                <span>@Model.Manager.FullName (@Model.Manager.UserName)</span>
+            }
+            else
+            {
+                <span class="text-muted">No manager assigned</span>
+            }
+        </dd>
+    </dl>
+
+    <div class="mt-4">
+        <h4>Branch Departments</h4>
+        @if (Model.BranchDepartments != null && Model.BranchDepartments.Any())
+        {
+            <ul class="list-group">
+                @foreach (var bd in Model.BranchDepartments)
+                {
+                    <li class="list-group-item">@bd.Department.Name</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-muted">No departments assigned to this branch.</p>
+        }
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

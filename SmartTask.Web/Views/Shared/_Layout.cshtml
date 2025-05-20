@@ -61,11 +61,11 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <link rel="stylesheet" href="~/css/notification.css"/>
-	@await RenderSectionAsync("Styles",required:false)
-
+	@RenderSection("Styles", required: false)
 </head>
 @RenderSection("Header", required: false)
 <body>
+
     <div id="global-loader" style="display: none;">
         <div class="page-loader"></div>
     </div>
@@ -617,7 +617,41 @@
 		</div>
 		
 
-	</div>
+	</div> 
+    <header> 
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SmartTask.Web</a> 
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"  asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                         <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Account" asp-action="AddRole">Add Role</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Account" asp-action="ManageUserRoles">Manage Roles</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
     @* <header> *@
     @*     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"> *@
     @*         <div class="container-fluid"> *@
@@ -631,9 +665,11 @@
     @*                     <li class="nav-item"> *@
     @*                         <a class="nav-link text-dark"  asp-controller="Home" asp-action="Index">Home</a> *@
     @*                     </li> *@
+    @*                     <secure-content asp-area="" asp-controller="Home" asp-action="Privacy"> *@
     @*                     <li class="nav-item"> *@
     @*                         <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
     @*                     </li> *@
+    @*                     </secure-content> *@
     @*                      <li class="nav-item"> *@
     @*                         <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a> *@
     @*                     </li> *@
@@ -646,21 +682,35 @@
     @*                     <li class="nav-item"> *@
     @*                         <a class="nav-link text-dark" asp-controller="Account" asp-action="ManageUserRoles">Manage Roles</a> *@
     @*                     </li> *@
+    @*                     <li class="nav-item"> *@
+    @*                         <a class="nav-link text-dark" asp-controller="Notification" asp-action="Index">Notification</a> *@
+    @*                     </li> *@
+    @*                         <li class="nav-item"> *@
+    @*                             <a class="nav-link text-dark" asp-controller="Branch" asp-action="Index">Branch</a> *@
+    @*                         </li> *@
+    @*                     <li class="nav-item"> *@
+    @*                         <a class="nav-link" asp-controller="Department" asp-action="Index">Departments</a> *@
+    @*                     </li> *@
     @*                 </ul> *@
     @*             </div> *@
     @*         </div> *@
     @*     </nav> *@
     @* </header> *@
-    <div class="container">
-        <main role="main" class="pb-3">
-          
-        </main>
-    </div>
+	<div class="container">
+		<main role="main" class="pb-3">
+			@RenderBody()
+		</main>
+	</div>
 
-    @* <footer class="border-top footer text-muted"> *@
-    @*     <div class="container"> *@
-    @*         &copy; 2025 - SmartTask.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
-    @*     </div> *@
+	<footer class="border-top footer text-muted">
+		<div class="container">
+			&copy; 2025 - SmartTask.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+		</div>
+	</footer>
+    @* <footer class="border-top footer text-muted">
+    @*     <div class="container">
+    @*         &copy; 2025 - SmartTask.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    @*     </div>
     @* </footer> *@
     <!-- jQuery -->
     <script data-cfasync="false" src="~/assets/js/email-decode.min.js"></script>
@@ -701,16 +751,19 @@
     <script src="~/assets/js/theme-colorpicker.js"></script>
     <script src="~/assets/js/script.js"></script>
 
-    @* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
-    @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
-    @* <script src="~/js/site.js" asp-append-version="true"></script> *@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script> 
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
    
   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
-    <script src="~/js/notification.js">
-    // <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="~/js/notification.js"></script>
+	<script>
+			initializeNotifications();
+	</script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -6,7 +6,7 @@ using SmartTask.DataAccess.Data;
 //using SignalRProject.ViewModels;
 using System.Security.Claims;
 
-namespace SignalRProject.Service.Hubs
+namespace SmartTask.BL.Service.Hubs
 {
     
     public class NotificationHub : Hub
@@ -48,7 +48,7 @@ namespace SignalRProject.Service.Hubs
                                 .Where(ug => ug.UserID == userId)
                                 .Select( ug => ug.groups.Name)
                                 .ToList();
-
+            
             // Add connection to all groups
             foreach (var groupName in groupNames)
             {

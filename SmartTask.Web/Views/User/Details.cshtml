@@ -1,0 +1,22 @@
+﻿@model SmartTask.Core.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<h2>User Details</h2>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Full Name</dt>
+        <dd class="col-sm-10">@Model.FullName</dd>
+
+        <dt class="col-sm-2">Email</dt>
+        <dd class="col-sm-10">@Model.Email</dd>
+
+        <dt class="col-sm-2">Department</dt>
+        <dd class="col-sm-10">@Model.Department?.Name</dd>
+    </dl>
+
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
