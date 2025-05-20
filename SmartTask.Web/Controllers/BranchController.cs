@@ -36,7 +36,10 @@ namespace SmartTask.Web.Controllers
             var branches = await branchService.GetFiltered(searchString, null, page, pageSize);
 
             var managers = await userManager.GetUsersInRoleAsync("BranchManager");
-            
+
+            var user = await userManager.GetUserAsync(User);
+
+            var roles = await userManager.GetRolesAsync(user);
 
             var viewModel = new BranchIndexViewModel
             {
@@ -66,6 +69,7 @@ namespace SmartTask.Web.Controllers
 
         [Authorize]
         [HttpPost]
+        
         public async Task<IActionResult> AddBranch(BranchFormViewModel model)
         {
             if (!ModelState.IsValid)

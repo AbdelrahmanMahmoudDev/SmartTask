@@ -83,7 +83,9 @@ namespace SmartTask.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            //var admins = await _userManager.GetUsersInRoleAsync("Admin");
+
+            var admins = await _userManager.GetUsersInRoleAsync("Project Manager");
             ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
             ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.branches = await _branchService.GetAllAsync();
@@ -95,7 +97,8 @@ namespace SmartTask.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(ProjectFormViewModel model)
         {
-            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            //var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            var admins = await _userManager.GetUsersInRoleAsync("Project Manager");
             ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
             ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.branches = await _branchService.GetAllAsync();
@@ -159,7 +162,8 @@ namespace SmartTask.Web.Controllers
             var project = await _projectService.GetProjectByIdAsync(id);
             ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.branches = await _branchService.GetAllAsync();
-            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            //var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            var admins = await _userManager.GetUsersInRoleAsync("Project Manager");
             ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
 
             if (project == null)
@@ -208,7 +212,9 @@ namespace SmartTask.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                var admins = await _userManager.GetUsersInRoleAsync("Admin");
+                //var admins = await _userManager.GetUsersInRoleAsync("Admin");
+
+                var admins = await _userManager.GetUsersInRoleAsync("Project Manager");
                 ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
                 return View(model);
             }

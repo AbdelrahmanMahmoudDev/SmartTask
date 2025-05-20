@@ -41,10 +41,9 @@ namespace SmartTask.Web.Controllers
         public TaskController(ITaskRepository taskRepository, IProjectRepository projectRepository,
             UserManager<ApplicationUser> usermanager, SmartTaskContext context, 
             IAssignTaskRepository assignTaskRepository,INotificationRepository notificationRepository,
-            IHubContext<NotificationHub> hub, TaskService taskService
-            , IWebHostEnvironment environment, INotificationService notificationService)
-            IHubContext<NotificationHub> hub, ITaskService taskService
-            , IWebHostEnvironment environment)
+            IHubContext<NotificationHub> hub
+            , IWebHostEnvironment environment, INotificationService notificationService,
+             ITaskService taskService)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
@@ -294,22 +293,7 @@ namespace SmartTask.Web.Controllers
             _notificationService.sendSignalRNotificationAsync(taskVM.AssignedToId, userId, notificationType, NotificationMessage);
             
             
-            NotificationMessage = $"{user.FullName} Assigned new Task : {taskVM.Title}";
-            foreach (var receiverID in taskVM.AssignedToId)
-            {
-                notification = new Notification
-                {
-                    Message = NotificationMessage,
-                    Type = "NewTask",
-                    SenderId = userId,
-                    ReceiverId = receiverID
-                };
-
-                await _hub.Clients.User(receiverID).SendAsync("assignedtask", notification);
-                //save to db
-                //_context.ChangeTracker.Clear();
-                await _notificationRepository.AddAsync(notification);
-            }
+           
             return RedirectToAction(nameof(Index));
         }
 
