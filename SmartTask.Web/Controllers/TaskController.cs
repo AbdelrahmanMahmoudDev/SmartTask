@@ -630,7 +630,7 @@ namespace SmartTask.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> UpdateStatus(int id, Status status)
+        public async Task<IActionResult> UpdateStatus(int id, Core.Models.Enums.Status status)
         {
             var task = await _taskRepository.GetByIdAsync(id);
             if (task == null) return NotFound();
@@ -657,7 +657,7 @@ namespace SmartTask.Web.Controllers
 
   
         [HttpPost]
-        public async Task<IActionResult> UpdateTask(int id, Status status)
+        public async Task<IActionResult> UpdateTask(int id, Core.Models.Enums.Status status)
         {
             var task = await _taskRepository.GetByIdAsync(id);
             if (task == null) return NotFound();
