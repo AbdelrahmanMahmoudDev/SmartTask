@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmartTask.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class smarttaskdbcontext : Migration
+    public partial class smarttaskdbconteext : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -273,6 +273,27 @@ namespace SmartTask.DataAccess.Migrations
                     table.ForeignKey(
                         name: "FK_Notifications_AspNetUsers_SenderId",
                         column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserColumnPreferences",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Order = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserColumnPreferences", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserColumnPreferences_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
@@ -796,6 +817,11 @@ namespace SmartTask.DataAccess.Migrations
                 column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserColumnPreferences_UserId",
+                table: "UserColumnPreferences",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserConnections_UserID",
                 table: "UserConnections",
                 column: "UserID");
@@ -909,6 +935,9 @@ namespace SmartTask.DataAccess.Migrations
 
             migrationBuilder.DropTable(
                 name: "TaskDependencies");
+
+            migrationBuilder.DropTable(
+                name: "UserColumnPreferences");
 
             migrationBuilder.DropTable(
                 name: "UserConnections");

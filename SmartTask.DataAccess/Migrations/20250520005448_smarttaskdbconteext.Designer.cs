@@ -12,8 +12,8 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
-    [Migration("20250518153245_smarttaskdbcontext")]
-    partial class smarttaskdbcontext
+    [Migration("20250520005448_smarttaskdbconteext")]
+    partial class smarttaskdbconteext
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -811,6 +811,35 @@ namespace SmartTask.DataAccess.Migrations
                     b.ToTable("TaskDependencies");
                 });
 
+            modelBuilder.Entity("SmartTask.Core.Models.UserColumnPreference", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserColumnPreferences");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("SmartTask.Core.Models.BasePermission.ApplicationRole", null)
@@ -1162,6 +1191,15 @@ namespace SmartTask.DataAccess.Migrations
                     b.Navigation("Predecessor");
 
                     b.Navigation("Successor");
+                });
+
+            modelBuilder.Entity("SmartTask.Core.Models.UserColumnPreference", b =>
+                {
+                    b.HasOne("SmartTask.Core.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SmartTask.Core.Models.ApplicationUser", b =>

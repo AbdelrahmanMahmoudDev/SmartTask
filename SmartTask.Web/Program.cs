@@ -14,6 +14,7 @@ using SmartTask.DataAccess.ExternalServices;
 using SmartTask.DataAccess.Repositories;
 using SmartTask.Web.CustomFilter;
 using System;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using task = System.Threading.Tasks.Task;
 
@@ -183,8 +184,6 @@ namespace SmartTask.Web
 
 
             services.AddScoped<INotificationRepository, NotificationRepository>();
-            
->>>>>>>>> Temporary merge branch 2
         }
     }
 }

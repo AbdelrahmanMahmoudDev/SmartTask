@@ -806,8 +806,6 @@ namespace SmartTask.DataAccess.Migrations
                     b.HasIndex("SuccessorId");
 
                     b.ToTable("TaskDependencies");
-<<<<<<< HEAD
-=======
                 });
 
             modelBuilder.Entity("SmartTask.Core.Models.UserColumnPreference", b =>
@@ -837,7 +835,6 @@ namespace SmartTask.DataAccess.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserColumnPreferences");
->>>>>>> origin/LA
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
