@@ -46,10 +46,10 @@ namespace SmartTask.Bl.Services
                     return $"/Task"; // Data would contain the taskId
                 case "updatetask":                          
                     return $"/Task";
-                case "projectupdate":                       
-                    return $"/Task";
-                case "mention":
-                    return $"/Task";
+                case "updateproject":
+                    return $"/Project";
+                case "newproject":
+                    return $"/Project";
                 case "comment":
                     return $"/Task/Details/{notificationType}#comment-section";
                 case "delete":
