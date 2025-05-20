@@ -12,8 +12,8 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
-    [Migration("20250519045023_AddDependacyTypeColumn")]
-    partial class AddDependacyTypeColumn
+    [Migration("20250520070021_Init create")]
+    partial class Initcreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

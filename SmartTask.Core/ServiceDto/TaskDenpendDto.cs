@@ -11,5 +11,7 @@ namespace SmartTask.Core.Models.ServiceDto
         public int TaskId { get; set; }
         public string Name { get; set; }
         public bool IsSelected { get; set; }
+        public DependencyType DependencyType { get; set; }
+
     }
 }

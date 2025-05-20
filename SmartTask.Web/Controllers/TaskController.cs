@@ -229,7 +229,8 @@ namespace SmartTask.Web.Controllers
                 {
                     Id = n.TaskId,
                     Name = n.Name,
-                    IsSelected = n.IsSelected
+                    IsSelected = n.IsSelected,
+                    DependencyType = n.DependencyType
                 };
             }).ToList();
             return PartialView("_TaskDend", taskViewDeps);

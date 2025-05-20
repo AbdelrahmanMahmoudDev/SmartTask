@@ -226,7 +226,7 @@ namespace SmartTask.Web.ApiControllers
         [HttpPost("SaveSelectedTasks")]
         public async Task<IActionResult> SaveSelectedTasks([FromBody] SaveSelectedTasksDTO request)
         {
-            await _taskService.SaveSelectedTasks(request.SelectedTaskId, request.SelectedTaskIds);
+            await _taskService.SaveSelectedTasks(request.SelectedTaskId, request.SelectedTaskIds, request.DependencyType);
             return Ok(new { message = "Tasks saved successfully" });
         }
 

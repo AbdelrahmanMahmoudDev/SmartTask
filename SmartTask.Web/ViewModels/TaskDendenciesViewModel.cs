@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmartTask.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace SmartTask.Web.ViewModels
         public int Id { get; set; }
         public string Name { get; set; }
         public bool IsSelected { get; set; }
+        public DependencyType DependencyType { get; set; }
 
     }
 }
