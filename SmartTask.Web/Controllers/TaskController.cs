@@ -87,7 +87,7 @@ namespace SmartTask.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             var users = _assignTaskRepository.GetUsersIdByTaskId(comment.TaskId);
             string notificationMessage = $"{user.FullName} Commented on : {comment.Task.Title}";
-            string notificationType = "Comment";
+            string notificationType = "comment";
             _notificationService.sendSignalRNotificationAsync(users, user.Id, notificationType, notificationMessage, taskId);
             
 
@@ -122,7 +122,7 @@ namespace SmartTask.Web.Controllers
             
             var users = _assignTaskRepository.GetUsersIdByTaskId(attachment.TaskId);
             string notificationMessage = $"{user.FullName} Added Attachment on : {attachment.Task.Title}";
-            string notificationType = "Attachment";
+            string notificationType = "attachment";
             _notificationService.sendSignalRNotificationAsync(users, user.Id, notificationType, notificationMessage, taskId);
             
 

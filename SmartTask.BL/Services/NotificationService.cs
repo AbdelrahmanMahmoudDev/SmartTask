@@ -43,15 +43,17 @@ namespace SmartTask.Bl.Services
             switch (notificationType.ToLower())
             {
                 case "newtask":
-                    return $"/Task"; // Data would contain the taskId
+                    return $"/Task/Details/{id}"; // Data would contain the taskId
                 case "updatetask":                          
-                    return $"/Task";
+                    return $"/Task/Details/{id}";
                 case "updateproject":
                     return $"/Project/Details/{id}";
                 case "newproject":
                     return $"/Project/Details/{id}";
-                case "comment":
-                    return $"/Task/Details/{notificationType}#comment-section";
+                case "comment":     //#commentForm
+                    return $"/Task/Details/{id}";
+                case "attachment": //#attachmentForm
+                    return $"/Task/Details/{id}";
                 case "delete":
                     return "#"; // No link for delete notifications
                 default:

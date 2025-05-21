@@ -33,13 +33,13 @@
 
     connection.on("assignedtask", function (notification) {
         console.log('new assign task');
-        if (notification.type == "NewTask") {
-            toastr.success(notification.message, "Success");
+        if (notification.type == "NewTask" || notification.type == "newproject") {
+            toastr.success(notification.message, "new Assignment");
         }
-        else if (notification.type == "UpdateTask") {
-            toastr.warning(notification.message, "Warning");
+        else if (notification.type == "UpdateTask" || notification.type == "updateproject") {
+            toastr.warning(notification.message, "Updates");
         }
-        else if (notification.type == "Delete") {
+        else if (notification.type == "delete" || notification.type == "deleteproject") {
             toastr.error(notification.message, "Delete");
         }
         else {
