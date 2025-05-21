@@ -40,7 +40,7 @@ namespace SmartTask.BL.Services
                     p.Description.Contains(searchString));
             }
 
-            return await PaginatedList<Project>.CreateAsync(query, page, pageSize);
+            return PaginatedList<Project>.Create(query, page, pageSize);
         }
 
         public async Task<Project> AddProjectAsync(Project project)
@@ -190,7 +190,7 @@ namespace SmartTask.BL.Services
             }
 
 
-            return await PaginatedList<Project>.CreateAsync(query, page, pageSize);
+            return  PaginatedList<Project>.Create(query, page, pageSize);
             return PaginatedList<Project>.Create(query, page, pageSize);
         }
 
