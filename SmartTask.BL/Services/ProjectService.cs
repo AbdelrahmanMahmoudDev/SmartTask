@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SmartTask.Core.Models.Enums;
 using System.Linq;
 using System.Text;
 using Task = System.Threading.Tasks.Task;
@@ -8,6 +9,7 @@ using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
 using SmartTask.Bl.Helpers;
 using Microsoft.AspNetCore.Identity;
+
 
 namespace SmartTask.BL.Services
 {
@@ -146,13 +148,13 @@ namespace SmartTask.BL.Services
                         {
                             // If there's any error parsing, leave the description as is
                             // and default the status to Todo
-                            task.Status = Status.Todo;
+                            task.Status = Core.Models.Enums.Status.Todo;
                         }
                     }
                     else
                     {
                         // If no previous status was stored, default to Todo
-                        task.Status = Status.Todo;
+                        task.Status = Core.Models.Enums.Status.Todo;
                     }
 
                     // Update the task in the database
