@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SmartTask.Core.Models.Enums;
 using System.Linq;
 using System.Text;
 using Task = System.Threading.Tasks.Task;
@@ -9,6 +8,7 @@ using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
 using SmartTask.Bl.Helpers;
 using Microsoft.AspNetCore.Identity;
+using SmartTask.Core.Models.Enums;
 
 
 namespace SmartTask.BL.Services
@@ -97,8 +97,8 @@ namespace SmartTask.BL.Services
                 // Format: "PREV_STATUS:{status}|{originalDescription}"
                 string originalDescription = task.Description ?? string.Empty;
 
-                // Store the previous status code in the description field
-                task.Description = $"PREV_STATUS:{(int)task.Status}|{originalDescription}";
+                // Ensure task.Status is converted to its integer representation
+                task.Description = $"PREV_STATUS:{(int)Enum.Parse(typeof(Status), task.Status)}|{originalDescription}";
 
                 // Set status to Archived (Status code 5 as per enum)
                 task.Status = Status.Archived;
@@ -148,13 +148,13 @@ namespace SmartTask.BL.Services
                         {
                             // If there's any error parsing, leave the description as is
                             // and default the status to Todo
-                            task.Status = Core.Models.Enums.Status.Todo;
+                            task.Status = Status.Todo;
                         }
                     }
                     else
                     {
                         // If no previous status was stored, default to Todo
-                        task.Status = Core.Models.Enums.Status.Todo;
+                        task.Status = Status.Todo;
                     }
 
                     // Update the task in the database
