@@ -97,8 +97,8 @@ namespace SmartTask.BL.Services
                 // Format: "PREV_STATUS:{status}|{originalDescription}"
                 string originalDescription = task.Description ?? string.Empty;
 
-                // Ensure task.Status is converted to its integer representation
-                task.Description = $"PREV_STATUS:{(int)Enum.Parse(typeof(Status), task.Status)}|{originalDescription}";
+                // Store the previous status code in the description field
+                task.Description = $"PREV_STATUS:{(int)task.Status}|{originalDescription}";
 
                 // Set status to Archived (Status code 5 as per enum)
                 task.Status = Status.Archived;
