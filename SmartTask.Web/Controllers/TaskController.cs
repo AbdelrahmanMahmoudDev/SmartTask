@@ -45,8 +45,8 @@ namespace SmartTask.Web.Controllers
         private readonly INotificationService _notificationService;
 
         public TaskController(ITaskRepository taskRepository, IProjectRepository projectRepository,
-            UserManager<ApplicationUser> usermanager, SmartTaskContext context, 
-            IAssignTaskRepository assignTaskRepository,INotificationRepository notificationRepository,
+            UserManager<ApplicationUser> usermanager, SmartTaskContext context,
+            IAssignTaskRepository assignTaskRepository, INotificationRepository notificationRepository,
             IHubContext<NotificationHub> hub, ITaskService taskService
             , IWebHostEnvironment environment, INotificationService notificationService
             , IUserColumnPreferenceService userColumnPreferenceService)
@@ -81,29 +81,29 @@ namespace SmartTask.Web.Controllers
             {
                 return BadRequest("Comment content is required");
             }
-           Comment comment = await _taskService.AddComment(taskId, authorId, content);
+            Comment comment = await _taskService.AddComment(taskId, authorId, content);
             if (comment == null)
             {
                 return StatusCode(500, "Failed to add comment");
             }
 
             IEnumerable<AssignTask> taskUsers = await _assignTaskRepository.GetByTaskIdAsync(comment.TaskId);
-            
+
             //SignalR Part
-            
+
             var user = await _userManager.GetUserAsync(User);
             var users = _assignTaskRepository.GetUsersIdByTaskId(comment.TaskId);
             string notificationMessage = $"{user.FullName} Commented on : {comment.Task.Title}";
             string notificationType = "Comment";
             _notificationService.sendSignalRNotificationAsync(users, user.Id, notificationType, notificationMessage);
-            
 
-                return Json(new
-                {
+
+            return Json(new
+            {
                 author = comment.Author?.FullName,
                 content = comment.Content,
                 createdAt = comment.CreatedAt.ToString("dd-MM-yyyy HH:mm")
-                 });
+            });
 
             //return Ok();
         }
@@ -118,20 +118,20 @@ namespace SmartTask.Web.Controllers
 
             var user = await _userManager.GetUserAsync(User);
 
-            var attachment = await _taskService.AddAttachment(taskId, file,user.Id ,_environment.WebRootPath);
-           
+            var attachment = await _taskService.AddAttachment(taskId, file, user.Id, _environment.WebRootPath);
+
             if (attachment == null)
             {
                 return StatusCode(500, "Failed to upload attachment");
             }
 
             //SignalR Part
-            
+
             var users = _assignTaskRepository.GetUsersIdByTaskId(attachment.TaskId);
             string notificationMessage = $"{user.FullName} Added Attachment on : {attachment.Task.Title}";
             string notificationType = "Attachment";
             _notificationService.sendSignalRNotificationAsync(users, user.Id, notificationType, notificationMessage);
-            
+
 
             return Json(new
             {
@@ -170,7 +170,7 @@ namespace SmartTask.Web.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteTask(int taskid)
         {
-            var task = await _taskService.GetTask (taskid);
+            var task = await _taskService.GetTask(taskid);
             if (task.Status != Core.Models.Enums.Status.Todo)
             {
                 return BadRequest("Task can't be deleted because it has started.");
@@ -182,13 +182,13 @@ namespace SmartTask.Web.Controllers
             }
 
             //SignalR Part
-            
+
             var users = _assignTaskRepository.GetUsersIdByTaskId(taskid);
             string type = "Delete";
             var user = await _userManager.GetUserAsync(User);
             string NotificationMessage = $"{user.FullName} Deleted Task : {task.Title}";
             _notificationService.sendSignalRNotificationAsync(users, user.Id, type, NotificationMessage);
-            
+
 
             //Delete Task
             await _taskService.DeleteDepend(taskid);
@@ -213,7 +213,7 @@ namespace SmartTask.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveSelectedTasks(int SelectedTaskId, List<int> selectedTaskIds)
         {
-           await _taskService.SaveSelectedTasks(SelectedTaskId,selectedTaskIds);
+            await _taskService.SaveSelectedTasks(SelectedTaskId, selectedTaskIds);
             return Ok();
         }
 
@@ -247,7 +247,7 @@ namespace SmartTask.Web.Controllers
                 taskViewModels.Add(taskVM);
             }
             ViewBag.Users = await _userManager.Users.ToListAsync();
-            
+
             return View(taskViewModels);
         }
         [HttpGet]
@@ -262,8 +262,8 @@ namespace SmartTask.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TaskViewModel taskVM)
         {
-            
-            
+
+
             var userId = User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier).Value;
             taskVM.CreatedById = userId;
             if (!ModelState.IsValid)
@@ -298,9 +298,9 @@ namespace SmartTask.Web.Controllers
             string NotificationMessage = $"{user.FullName} Assigned new Task : {taskVM.Title}";
             string notificationType = "NewTask";
             _notificationService.sendSignalRNotificationAsync(taskVM.AssignedToId, userId, notificationType, NotificationMessage);
-            
-            
-           
+
+
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -361,12 +361,12 @@ namespace SmartTask.Web.Controllers
 
                     //SignalR Part
                     //Notification notification;
-                     
+
                     var user = await _userManager.GetUserAsync(User);
                     string NotificationMessage = $"{user.FullName} Updated Assigned Task : {taskVM.Title}";
                     string type = "UpdateTask";
                     _notificationService.sendSignalRNotificationAsync(taskVM.AssignedToId, userId, type, NotificationMessage);
-                    
+
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -416,12 +416,12 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> Filter(TaskFilterViewModel filter)
         {
             var query = _context.Tasks
-                .Include(t => t.Assignments).Include(t=>t.Project)
+                .Include(t => t.Assignments).Include(t => t.Project)
                 //.ThenInclude(a=>a.Branch).ThenInclude(a => a.Department)
                 .AsQueryable();
 
 
-            if (filter.Status!=0)
+            if (filter.Status != 0)
                 query = query.Where(t => t.Status == filter.Status);
 
             if (filter.StartDate.HasValue)
@@ -655,7 +655,7 @@ namespace SmartTask.Web.Controllers
             });
         }
 
-  
+
         [HttpPost]
         public async Task<IActionResult> UpdateTask(int id, Core.Models.Enums.Status status)
         {
