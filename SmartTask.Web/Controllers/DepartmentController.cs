@@ -221,6 +221,11 @@ namespace SmartTask.Web.Controllers
                 return View("NotFound");
             }
 
+            foreach (var project in department.Projects)
+            {
+                project.DepartmentId = null;
+            }
+
             await _departmentService.DeleteDepartmentAsync(id);
             return RedirectToAction("Index");
         }
@@ -235,9 +240,9 @@ namespace SmartTask.Web.Controllers
         }
 
 
-            private IEnumerable<Department> GetDepartments()
-            {
-                return new List<Department>
+        private IEnumerable<Department> GetDepartments()
+        {
+            return new List<Department>
         {
             new Department { Id = 1, Name = "IT Department" },
             new Department { Id = 2, Name = "HR Department" },
@@ -245,7 +250,7 @@ namespace SmartTask.Web.Controllers
             new Department { Id = 4, Name = "Marketing Department" },
             new Department { Id = 5, Name = "Sales Department" }
         };
-            }
+        }
 
 
 

@@ -29,24 +29,32 @@
 
     </div>
 
-    <div class="form-group">
+    @* <div class="form-group">
         <label asp-for="OwnerId"></label>
         <select asp-for="OwnerId" asp-items="@ViewBag.AdminUsers" class="form-control">
             <option value="">Choose Owner</option>
         </select>
         <span asp-validation-for="OwnerId" class="text-danger"></span>
-    </div>
+    </div> *@
     <div class="form-group">
         <label>Department</label>
         <select class="form-select" asp-for="SelectedDepartmentId" asp-items="@(new SelectList(ViewBag.Departments, "Id", "Name"))">
             <option value="">-- Select Department --</option>
         </select>
-      </div>
+    </div>
     <div class="form-group">
         <label>Branch</label>
         <select class="form-select" asp-for="SelectedBranchId" asp-items="@(new SelectList(ViewBag.Branches, "Id", "Name"))">
             <option value="">-- Select Branch --</option>
         </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="OwnerId"></label>
+        <select asp-for="OwnerId" id="ownerDropdown" class="form-control">
+            <option value="">Choose Owner</option>
+        </select>
+        <span asp-validation-for="OwnerId" class="text-danger"></span>
     </div>
 
     <button type="submit" class="btn btn-primary">Create</button>
@@ -68,6 +76,45 @@
                 e.preventDefault(); // Prevent form submission
                 errorSpan.innerText = "End date must be after start date.";
             }
+        });
+
+
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function loadOwners() {
+            var branchId = $('#SelectedBranchId').val();
+            var departmentId = $('#SelectedDepartmentId').val();
+
+            if (!branchId || !departmentId) {
+                $('#ownerDropdown').empty().append('<option value="">Choose Owner</option>');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetUsersByBranchAndDepartment", "Project")',
+                type: 'GET',
+                data: { branchId: branchId, departmentId: departmentId },
+                success: function (users) {
+                    var $dropdown = $('#ownerDropdown');
+                    $dropdown.empty();
+                    if (users.length === 0) {
+                        $dropdown.append('<option value="">No users found</option>');
+                    } else {
+                        $dropdown.append('<option value="">Choose Owner</option>');
+                        $.each(users, function (i, user) {
+                            $dropdown.append('<option value="' + user.id + '">' + user.fullName + '</option>');
+                        });
+                    }
+                }
+            });
+        }
+
+        $('#SelectedBranchId, #SelectedDepartmentId').on('change', loadOwners);
+
+        // Initial load if both are pre-selected
+        $(document).ready(function () {
+            loadOwners();
         });
     </script>
 }

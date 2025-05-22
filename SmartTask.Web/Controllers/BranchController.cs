@@ -76,7 +76,7 @@ namespace SmartTask.Web.Controllers
 
                 ViewBag.Managers = new SelectList(managers, "Id", "UserName");
                 ViewBag.Departments = new MultiSelectList(departments, "Id", "Name");
-
+                model.AllDepartments = departments;
                 return View("AddBranch", model);
             }
 
@@ -84,11 +84,19 @@ namespace SmartTask.Web.Controllers
             {
                 Name = model.Name,
                 ManagerId = model.ManagerId,
-                BranchDepartments = model.SelectedDepartmentIds?.Select(id => new BranchDepartment
+                //BranchDepartments = model.SelectedDepartmentIds?.Select(id => new BranchDepartment
+                //{
+                //    DepartmentId = id
+                //}).ToList() ?? new List<BranchDepartment>()
+            };
+
+            if (model.SelectedDepartmentIds != null && model.SelectedDepartmentIds.Any())
+            {
+                branch.BranchDepartments = model.SelectedDepartmentIds.Select(id => new BranchDepartment
                 {
                     DepartmentId = id
-                }).ToList()
-            };
+                }).ToList();
+            }
 
             await branchService.AddAsync(branch);
             return RedirectToAction("Index");

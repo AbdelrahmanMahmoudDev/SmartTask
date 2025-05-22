@@ -91,6 +91,11 @@ namespace SmartTask.BL.Services
 
         public async Task DeleteDepartmentAsync(int id)
         {
+            var department = await _departmentRepository.GetByIdAsync(id);
+
+            if (department == null)
+                throw new InvalidOperationException("Department not found");
+
             await _departmentRepository.DeleteAsync(id);
         }
 

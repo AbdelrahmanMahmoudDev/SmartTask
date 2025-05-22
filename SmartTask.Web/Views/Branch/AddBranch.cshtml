@@ -7,6 +7,7 @@
 <h1>AddBranch</h1>
 
 <hr />
+<div asp-validation-summary="All"></div>
 <div class="row">
     <div class="col-md-4">
         <form asp-action="AddBranch" method="post">
@@ -49,7 +50,7 @@
 
     <script>
             $(document).ready(function () {
-                $('#userDropdown').select2({
+            $('#SelectedDepartmentIds').select2({
                     tags: true,
                     placeholder: "-- Select Departments --",
                     allowClear: true,

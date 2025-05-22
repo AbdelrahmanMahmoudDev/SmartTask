@@ -17,11 +17,11 @@ namespace SmartTask.Web.ViewModels.BranchVM
         public string ManagerId { get; set; }
 
         [Display(Name = "Departments")]
-        public List<int> SelectedDepartmentIds { get; set; } 
+        public List<int>? SelectedDepartmentIds { get; set; } 
 
-        public IEnumerable<Department> AllDepartments { get; set; }
+        public IEnumerable<Department>? AllDepartments { get; set; }
         [Display(Name = "Assigned Users")]
-        public List<string> SelectedUserIds { get; set; } = new List<string>();
+        public List<string>? SelectedUserIds { get; set; } = new List<string>();
 
         public BranchFormViewModel()
         {

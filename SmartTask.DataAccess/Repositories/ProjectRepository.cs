@@ -45,14 +45,16 @@ namespace SmartTask.DataAccess.Repositories
             return await _context.Projects
                 .Include(p => p.Owner)
                 .Include(p => p.CreatedBy)
+                .Include(p => p.Branch)
+                .Include(p => p.Department)
                 .Include(p => p.ProjectMembers)
-                    .ThenInclude(pm => pm.User) 
+                    .ThenInclude(pm => pm.User)
                 .Include(p => p.Tasks)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
-        public  List<ApplicationUser> GetMembers(int id)
+        public List<ApplicationUser> GetMembers(int id)
         {
-            return  _context.Projects
+            return _context.Projects
                 .Include(p => p.ProjectMembers)
                     .ThenInclude(pm => pm.User)
                     .Where(p => p.Id == id)
