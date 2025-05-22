@@ -27,7 +27,7 @@
     <div class="row" id="kanban-board">
         @foreach (var column in Model.Columns.OrderBy(c => c.Order))
         {
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="kanban-column"
                      data-status="@column.Status"
                      data-column-id="@column.Id">

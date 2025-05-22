@@ -41,6 +41,10 @@ namespace SmartTask.Bl.Services
         }
         public async Task<Branch> AddAsync(Branch branch)
         {
+            if (branch.BranchDepartments == null || !branch.BranchDepartments.Any())
+            {
+                branch.BranchDepartments = new List<BranchDepartment>();
+            }
             return await branchRepository.AddAsync(branch);
         }
 

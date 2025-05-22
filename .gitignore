@@ -361,3 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsdtasks-BE
+/SmartTask.DataAccess/SmartTask.DataAccess.csproj

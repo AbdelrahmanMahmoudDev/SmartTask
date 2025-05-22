@@ -36,13 +36,13 @@
                     <span asp-validation-for="EndDate" class="text-danger"></span>
                 </div>
 
-                <div class="form-group">
+                @*  <div class="form-group">
                     <label asp-for="OwnerId"></label>
                     <select asp-for="OwnerId" asp-items="@ViewBag.AdminUsers" class="form-control">
                         <option value="">-- Select Owner --</option>
                     </select>
                     <span asp-validation-for="OwnerId" class="text-danger"></span>
-                </div>
+                </div> *@
                 <div class="form-group">
                     <label>Department</label>
                     <select class="form-select" asp-for="SelectedDepartmentId" asp-items="@(new SelectList(ViewBag.Departments, "Id", "Name"))">
@@ -57,6 +57,14 @@
                 </div>
 
                 <div class="form-group">
+                    <label asp-for="OwnerId"></label>
+                    <select asp-for="OwnerId" id="ownerDropdown" class="form-control">
+                        <option value="">-- Select Owner --</option>
+                    </select>
+                    <span asp-validation-for="OwnerId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
                     <label asp-for="Status"></label>
                     <select asp-for="Status" class="form-control">
                         <option value="Active">Active</option>
@@ -66,7 +74,7 @@
                     <span asp-validation-for="Status" class="text-danger"></span>
                 </div>
 
-               @* <h4>Assigned Users</h4>
+                @* <h4>Assigned Users</h4>
                 <div class="form-group">
                     <div id="assignedUsersContainer">
                         @if (Model.AssignedUsers != null && Model.AssignedUsers.Any())
@@ -93,13 +101,13 @@
                 <h4>Add Users</h4>
                 <div class="form-group">
                     <label for="userDropdown">Add User</label>
-                    
+
                     <select id="userDropdown" name="AssignedUserIds" class="form-select select2" multiple="multiple"
                             data-placeholder="-- Select users --">
                         @* <option selected disabled>Choose a user...</option> *@
                         @foreach (var user in ViewBag.AllUsers as List<SelectListItem>)
                         {
-                            <option value="@user.Value" selected="@(user.Selected ? "selected" : null)" >@user.Text</option>
+                            <option value="@user.Value" selected="@(user.Selected ? "selected" : null)">@user.Text</option>
                         }
                     </select>
                 </div>
@@ -117,6 +125,7 @@
 
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#userDropdown').select2({
@@ -126,7 +135,42 @@
                 width: '100%',
             });
         });
+
+        function loadOwners(selectedOwnerId) {
+            var branchId = $('#SelectedBranchId').val();
+            var departmentId = $('#SelectedDepartmentId').val();
+
+            if (!branchId || !departmentId) {
+                $('#ownerDropdown').empty().append('<option value="">-- Select Owner --</option>');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetUsersByBranchAndDepartment", "Project")',
+                type: 'GET',
+                data: { branchId: branchId, departmentId: departmentId },
+                success: function (users) {
+                    var $dropdown = $('#ownerDropdown');
+                    $dropdown.empty();
+                    $dropdown.append('<option value="">-- Select Owner --</option>');
+                    $.each(users, function (i, user) {
+                        var selected = selectedOwnerId && user.id === selectedOwnerId ? 'selected' : '';
+                        $dropdown.append('<option value="' + user.id + '" ' + selected + '>' + user.fullName + '</option>');
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $('#SelectedBranchId, #SelectedDepartmentId').on('change', function () {
+                loadOwners();
+            });
+
+            var initialOwnerId = '@Model.OwnerId';
+            loadOwners(initialOwnerId);
+        });
     </script>
+
 }
 
 @*<script>

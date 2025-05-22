@@ -151,7 +151,7 @@ function filterTasks() {
  //Initialize column sorting
 function initializeColumnSortable() {
     $("#kanban-board").sortable({
-        items: ".col-md-3",
+        items: ".col-md-4",
         handle: ".kanban-header",
         placeholder: "ui-state-highlight-column",
         cursor: "move",

@@ -65,7 +65,7 @@ namespace SmartTask.Web.Controllers
             var departments = await _departmentService.GetAllDepartmentsAsync();
             var branches = await _branchService.GetAllAsync();
 
-            var projects = await _projectService.GetFilteredByDepartmentProjectsAsync(searchString, selectedDepartmentId, selectedBranchId, page,pageSize);
+            var projects = await _projectService.GetFilteredByDepartmentProjectsAsync(searchString, selectedDepartmentId, selectedBranchId, page, pageSize);
 
             var viewModel = new ProjectIndexViewModel
             {
@@ -78,19 +78,17 @@ namespace SmartTask.Web.Controllers
             };
 
             return View(viewModel);
-          
+
         }
 
         [HttpGet]
         public async Task<IActionResult> Create()
         {
             //var admins = await _userManager.GetUsersInRoleAsync("Admin");
-
-            var admins = await _userManager.GetUsersInRoleAsync("Project Manager");
-            ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
+            //ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
             ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.branches = await _branchService.GetAllAsync();
-         
+
 
             return View();
         }
@@ -99,8 +97,7 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> Create(ProjectFormViewModel model)
         {
             //var admins = await _userManager.GetUsersInRoleAsync("Admin");
-            var admins = await _userManager.GetUsersInRoleAsync("Project Manager");
-            ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
+            //ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
             ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.branches = await _branchService.GetAllAsync();
 
@@ -128,7 +125,7 @@ namespace SmartTask.Web.Controllers
                 BranchId = model.SelectedBranchId
             };
 
-            if(model.SelectedBranchId.HasValue && model.SelectedDepartmentId.HasValue)
+            if (model.SelectedBranchId.HasValue && model.SelectedDepartmentId.HasValue)
             {
                 var usersInBranchAndDepartment = await _userManager.Users
                     .Where(u => u.BranchId == model.SelectedBranchId && u.DepartmentId == model.SelectedDepartmentId)
@@ -196,8 +193,7 @@ namespace SmartTask.Web.Controllers
             ViewBag.departments = await _departmentService.GetAllDepartmentsAsync();
             ViewBag.branches = await _branchService.GetAllAsync();
             //var admins = await _userManager.GetUsersInRoleAsync("Admin");
-            var admins = await _userManager.GetUsersInRoleAsync("Project Manager");
-            ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
+            //ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
 
             if (project == null)
             {
@@ -217,7 +213,7 @@ namespace SmartTask.Web.Controllers
 
             var nonAssignedUsers = allUsers.Where(u => !currentUserIds.Contains(u.Id)).ToList();
 
-           
+
             ViewBag.NonAssignedUsers = new SelectList(nonAssignedUsers, "Id", "FullName");
 
             var model = new ProjectEditViewModel
@@ -254,10 +250,8 @@ namespace SmartTask.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                //var admins = await _userManager.GetUsersInRoleAsync("Admin");
-
-                var admins = await _userManager.GetUsersInRoleAsync("Project Manager");
-                ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
+             //   var admins = await _userManager.GetUsersInRoleAsync("Admin");
+               // ViewBag.AdminUsers = new SelectList(admins, "Id", "FullName");
                 return View(model);
             }
 
@@ -327,6 +321,19 @@ namespace SmartTask.Web.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetUsersByBranchAndDepartment(int branchId, int departmentId)
+        {
+            var users = await _userManager.Users
+                .Where(u => u.BranchId == branchId && u.DepartmentId == departmentId)
+                .Select(u => new { u.Id, u.FullName })
+                .ToListAsync();
+
+            return Json(users);
         }
     }
 }

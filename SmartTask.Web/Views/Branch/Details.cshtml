@@ -51,7 +51,7 @@
                     <tr>
                         <th>User Name</th>
                         <th>Email</th>
-                        <th>Username</th>
+                        <th>Department</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,6 +60,16 @@
                         <tr>
                             <td>@user.FullName</td>
                             <td>@user.Email</td>
+                            <td>
+                                @if (user.Department != null)
+                                {
+                                    @user.Department.Name
+                                }
+                                else
+                                {
+                                    <span class="text-muted">N/A</span>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>
