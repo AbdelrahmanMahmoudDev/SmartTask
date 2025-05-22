@@ -133,11 +133,11 @@ namespace SmartTask.Web.Controllers
 
                 project.ProjectMembers = new List<ProjectMember>();
 
-                foreach (var user in usersInBranchAndDepartment)
+                foreach (var member in usersInBranchAndDepartment)
                 {
                     project.ProjectMembers.Add(new ProjectMember
                     {
-                        UserId = user.Id
+                        UserId = member.Id
                     });
                 }
             }
