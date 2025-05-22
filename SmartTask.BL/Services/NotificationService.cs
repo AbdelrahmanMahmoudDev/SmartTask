@@ -37,21 +37,23 @@ namespace SmartTask.Bl.Services
             await _emailSender.SendEmailAsync(message);
         }
 
-        private string GenerateNotificationLink(string notificationType)
+        private string GenerateNotificationLink(string notificationType,int id)
         {
             // Generate links based on notification type
             switch (notificationType.ToLower())
             {
                 case "newtask":
-                    return $"/Task"; // Data would contain the taskId
+                    return $"/Task/Details/{id}"; // Data would contain the taskId
                 case "updatetask":                          
-                    return $"/Task";
+                    return $"/Task/Details/{id}";
                 case "updateproject":
-                    return $"/Project";
+                    return $"/Project/Details/{id}";
                 case "newproject":
-                    return $"/Project";
-                case "comment":
-                    return $"/Task/Details/{notificationType}#comment-section";
+                    return $"/Project/Details/{id}";
+                case "comment":     //#commentForm
+                    return $"/Task/Details/{id}";
+                case "attachment": //#attachmentForm
+                    return $"/Task/Details/{id}";
                 case "delete":
                     return "#"; // No link for delete notifications
                 default:
@@ -60,11 +62,11 @@ namespace SmartTask.Bl.Services
         }
 
         public async Task sendSignalRNotificationAsync(List<string>receivers,string sender,
-            string notificationType, string notificationMessage)
+            string notificationType, string notificationMessage, int notifyForID)
         {
             Notification notification;
             bool flag = true;
-            string url = GenerateNotificationLink(notificationType);
+            string url = GenerateNotificationLink(notificationType, notifyForID);
             foreach (var receiver in receivers)
             {
                 notification = new Notification
