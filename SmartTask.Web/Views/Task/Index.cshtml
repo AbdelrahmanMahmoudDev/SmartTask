@@ -77,6 +77,14 @@
     </div>
 </div>
 
+<div class="modal fade" id="taskDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow" id="taskDetailsContent">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
+
 
 
 
@@ -105,6 +113,22 @@
                 });
             });
         });
+
+        function loadTaskDetails(taskId) {
+            $.ajax({
+                url: '@Url.Action("Details", "Task")/' + taskId,
+                type: 'GET',
+                success: function(response) {
+                    $('#taskDetailsContent').html(response);
+                    var detailsModal = new bootstrap.Modal(document.getElementById('taskDetailsModal'));
+                    detailsModal.show();
+                },
+                error: function(error) {
+                    console.log('Error loading task details:', error);
+                    alert('Failed to load task details. Please try again.');
+                }
+            });
+        }
     </script>
 }
 

@@ -134,7 +134,7 @@ namespace SmartTask.Web.Controllers
             string notificationType = "newproject";
             string notificationMessage = $"You have been assigned as the owner of a new project by {currentUser.FullName}: {project.Name}.";
             List<string> user = new List<string>() { model.OwnerId};
-            await _notificationService.sendSignalRNotificationAsync(user, model.OwnerId, notificationType, notificationMessage);
+            await _notificationService.sendSignalRNotificationAsync(user, model.OwnerId, notificationType, notificationMessage,project.Id);
 
             return RedirectToAction("Index");
         }
@@ -153,7 +153,7 @@ namespace SmartTask.Web.Controllers
             string notificationType = "deleteproject";
             string notificationMessage = $"The project You have been assigned as the owner was deleted by {currentUser.FullName}: {project.Name}.";
             List<string> user = new List<string>() { project.OwnerId };
-            await _notificationService.sendSignalRNotificationAsync(user, project.OwnerId, notificationType, notificationMessage);
+            await _notificationService.sendSignalRNotificationAsync(user, project.OwnerId, notificationType, notificationMessage,id);
             
             // remove from db
             await _projectService.DeleteProjectAsync(id);
@@ -278,7 +278,7 @@ namespace SmartTask.Web.Controllers
             string notificationType = "updateproject";
             string notificationMessage = $"The project You have been assigned as the owner was updated by {currentUser.FullName}: {project.Name}.";
             List<string> user = new List<string>() { project.OwnerId };
-            await _notificationService.sendSignalRNotificationAsync(user, project.OwnerId, notificationType, notificationMessage);
+            await _notificationService.sendSignalRNotificationAsync(user, project.OwnerId, notificationType, notificationMessage,project.Id);
 
             return RedirectToAction("Index");
         }

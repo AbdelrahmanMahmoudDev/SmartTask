@@ -94,9 +94,9 @@ namespace SmartTask.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             var users = _assignTaskRepository.GetUsersIdByTaskId(comment.TaskId);
             string notificationMessage = $"{user.FullName} Commented on : {comment.Task.Title}";
-            string notificationType = "Comment";
-            _notificationService.sendSignalRNotificationAsync(users, user.Id, notificationType, notificationMessage);
-
+            string notificationType = "comment";
+            _notificationService.sendSignalRNotificationAsync(users, user.Id, notificationType, notificationMessage, taskId);
+            
 
             return Json(new
             {
@@ -129,9 +129,9 @@ namespace SmartTask.Web.Controllers
 
             var users = _assignTaskRepository.GetUsersIdByTaskId(attachment.TaskId);
             string notificationMessage = $"{user.FullName} Added Attachment on : {attachment.Task.Title}";
-            string notificationType = "Attachment";
-            _notificationService.sendSignalRNotificationAsync(users, user.Id, notificationType, notificationMessage);
-
+            string notificationType = "attachment";
+            _notificationService.sendSignalRNotificationAsync(users, user.Id, notificationType, notificationMessage, taskId);
+            
 
             return Json(new
             {
@@ -187,8 +187,8 @@ namespace SmartTask.Web.Controllers
             string type = "Delete";
             var user = await _userManager.GetUserAsync(User);
             string NotificationMessage = $"{user.FullName} Deleted Task : {task.Title}";
-            _notificationService.sendSignalRNotificationAsync(users, user.Id, type, NotificationMessage);
-
+            _notificationService.sendSignalRNotificationAsync(users, user.Id, type, NotificationMessage, taskid);
+            
 
             //Delete Task
             await _taskService.DeleteDepend(taskid);
@@ -297,10 +297,10 @@ namespace SmartTask.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             string NotificationMessage = $"{user.FullName} Assigned new Task : {taskVM.Title}";
             string notificationType = "NewTask";
-            _notificationService.sendSignalRNotificationAsync(taskVM.AssignedToId, userId, notificationType, NotificationMessage);
-
-
-
+            _notificationService.sendSignalRNotificationAsync(taskVM.AssignedToId, userId, notificationType, NotificationMessage,task.Id);
+            
+            
+           
             return RedirectToAction(nameof(Index));
         }
 
@@ -365,8 +365,8 @@ namespace SmartTask.Web.Controllers
                     var user = await _userManager.GetUserAsync(User);
                     string NotificationMessage = $"{user.FullName} Updated Assigned Task : {taskVM.Title}";
                     string type = "UpdateTask";
-                    _notificationService.sendSignalRNotificationAsync(taskVM.AssignedToId, userId, type, NotificationMessage);
-
+                    _notificationService.sendSignalRNotificationAsync(taskVM.AssignedToId, userId, type, NotificationMessage,taskVM.Id);
+                    
                     return RedirectToAction(nameof(Index));
                 }
             }
