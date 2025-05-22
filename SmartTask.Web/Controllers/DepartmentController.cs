@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SmartTask.Bl.IServices;
 using SmartTask.BL.IServices;
+using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
 using SmartTask.Web.ViewModels.DepartmentVM;
 using Task = System.Threading.Tasks.Task;
@@ -15,13 +17,19 @@ namespace SmartTask.Web.Controllers
     {
         private readonly IDepartmentService _departmentService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IBranchService _branchService;
+        private readonly IBranchDepartmentRepository _branchDepartmentRepository;
 
         public DepartmentController(
             IDepartmentService departmentService,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IBranchService branchService,
+            IBranchDepartmentRepository branchDepartmentRepository)
         {
             _departmentService = departmentService;
             _userManager = userManager;
+            _branchService = branchService;
+            _branchDepartmentRepository = branchDepartmentRepository;
         }
 
         public async Task<IActionResult> Index(string searchString, int page = 1, int pageSize = 4)
@@ -41,6 +49,8 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> Create()
         {
             await PopulateViewBagsForDepartment();
+            var branches = await _branchService.GetAllAsync();
+            ViewBag.Branches = branches;
             return View();
         }
 
@@ -50,6 +60,7 @@ namespace SmartTask.Web.Controllers
             if (!ModelState.IsValid)
             {
                 await PopulateViewBagsForDepartment(model.ManagerId);
+                ViewBag.Branches = await _branchService.GetAllAsync();
                 return View(model);
             }
 
@@ -59,24 +70,34 @@ namespace SmartTask.Web.Controllers
                 ManagerId = model.ManagerId
             };
 
-            if (model.SelectedUserIds != null && model.SelectedUserIds.Any())
-            {
-                //foreach (var userId in model.SelectedUserIds)
-                //{
-                //    var user = await _userManager.FindByIdAsync(userId);
-                //    if (user != null)
-                //    {
-                //        user.DepartmentId = department.Id;
-                //        await _userManager.UpdateAsync(user);
-                //    }
-                //}
+            await _departmentService.AddDepartmentAsync(department);
 
-                department.Users = await _userManager.Users
-                    .Where(u => model.SelectedUserIds.Contains(u.Id))
-                    .ToListAsync();
+            if (model.SelectedBranchIds != null && model.SelectedBranchIds.Any())
+            {
+                foreach (var branchId in model.SelectedBranchIds)
+                {
+                    var branchDepartment = new BranchDepartment
+                    {
+                        BranchId = branchId,
+                        DepartmentId = department.Id
+                    };
+                    await _branchDepartmentRepository.AddAsync(branchDepartment);
+                }
             }
 
-            await _departmentService.AddDepartmentAsync(department);
+            if (model.SelectedUserIds != null && model.SelectedUserIds.Any())
+            {
+                var users = await _userManager.Users
+                    .Where(u => model.SelectedUserIds.Contains(u.Id) && u.DepartmentId == null)
+                    .ToListAsync();
+
+                foreach (var user in users)
+                {
+                    user.DepartmentId = department.Id;
+                    await _userManager.UpdateAsync(user);
+                }
+            }
+
             return RedirectToAction("Index");
         }
 
@@ -101,7 +122,12 @@ namespace SmartTask.Web.Controllers
                     FullName = u.FullName,
                     UserName = u.UserName,
                     Email = u.Email
-                }).ToList()
+                }).ToList(),
+                Branches = department.BranchDepartments?.Select(bd => new BranchViewModel
+                {
+                    Id = bd.Branch.Id,
+                    Name = bd.Branch.Name
+                }).ToList() ?? new List<BranchViewModel>()
             };
 
             return View(model);
@@ -110,20 +136,25 @@ namespace SmartTask.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var department = await _departmentService.GetDepartmentByIdAsync(id);
+            var department = await _departmentService.GetDepartmentWithDetailsAsync(id);
             if (department == null)
-            {
                 return View("NotFound");
-            }
 
-            await PopulateViewBagsForDepartment(department.ManagerId);
+            var managers = await _userManager.GetUsersInRoleAsync("DepartmentManager");
+            var allBranches = await _branchService.GetAllAsync();
+
+            ViewBag.Managers = new SelectList(managers, "Id", "FullName", department.ManagerId);
+            ViewBag.Branches = allBranches;
+
+            var selectedBranchIds = department.BranchDepartments.Select(bd => bd.BranchId).ToList();
 
             var model = new DepartmentFormViewModel
             {
                 Id = department.Id,
                 Name = department.Name,
                 ManagerId = department.ManagerId,
-                SelectedUserIds = department.Users.Select(u => u.Id).ToList()
+                SelectedUserIds = department.Users.Select(u => u.Id).ToList(),
+                SelectedBranchIds = selectedBranchIds
             };
 
             return View(model);
@@ -135,25 +166,49 @@ namespace SmartTask.Web.Controllers
             if (!ModelState.IsValid)
             {
                 await PopulateViewBagsForDepartment(model.ManagerId);
+                ViewBag.Branches = await _branchService.GetAllAsync();
                 return View(model);
             }
 
-            var existingDepartment = await _departmentService.GetDepartmentByIdAsync(model.Id);
+            var existingDepartment = await _departmentService.GetDepartmentWithDetailsAsync(model.Id);
             if (existingDepartment == null)
-            {
                 return View("NotFound");
-            }
 
             existingDepartment.Name = model.Name;
             existingDepartment.ManagerId = model.ManagerId;
 
-            var selectedUserIds = model.SelectedUserIds ?? new List<string>();
+            var existingBranchIds = existingDepartment.BranchDepartments.Select(bd => bd.BranchId).ToList();
+            var newBranchIds = model.SelectedBranchIds ?? new List<int>();
 
+            foreach (var bd in existingDepartment.BranchDepartments.ToList())
+            {
+                if (!newBranchIds.Contains(bd.BranchId))
+                    existingDepartment.BranchDepartments.Remove(bd);
+            }
+
+            foreach (var branchId in newBranchIds)
+            {
+                if (!existingBranchIds.Contains(branchId))
+                    existingDepartment.BranchDepartments.Add(new BranchDepartment { BranchId = branchId, DepartmentId = existingDepartment.Id });
+            }
+
+            var selectedUserIds = model.SelectedUserIds ?? new List<string>();
             existingDepartment.Users = await _userManager.Users
-                .Where(u => selectedUserIds.Contains(u.Id))
+                .Where(u => selectedUserIds.Contains(u.Id) && u.BranchId.HasValue && newBranchIds.Contains(u.BranchId.Value))
                 .ToListAsync();
 
-            await _departmentService.UpdateDepartmentAsync(existingDepartment);
+            try
+            {
+                await _departmentService.UpdateDepartmentAsync(existingDepartment);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                await PopulateViewBagsForDepartment(model.ManagerId);
+                ViewBag.Branches = await _branchService.GetAllAsync();
+                return View(model);
+            }
+
             return RedirectToAction("Index");
         }
 
@@ -170,13 +225,13 @@ namespace SmartTask.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        private async Task PopulateViewBagsForDepartment(string selectedManagerId = null)
+        private async Task PopulateViewBagsForDepartment(string selectedManagerId = null, Department department = null)
         {
             var managers = await _userManager.GetUsersInRoleAsync("DepartmentManager");
             var allUsers = await _userManager.Users.ToListAsync();
 
             ViewBag.Managers = new SelectList(managers, "Id", "FullName", selectedManagerId);
-            ViewBag.AllUsers = allUsers;
+            ViewBag.AllUsers = new List<ApplicationUser>();
         }
 
 
@@ -280,6 +335,28 @@ namespace SmartTask.Web.Controllers
 
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> GetUsersByBranches([FromQuery] List<int> branchIds, [FromQuery] int? departmentId = null)
+        {
+            var usersQuery = _userManager.Users
+                .Where(u => u.BranchId.HasValue && branchIds.Contains(u.BranchId.Value));
+
+            if (departmentId.HasValue)
+            {
+                usersQuery = usersQuery.Where(u => u.DepartmentId == null || u.DepartmentId == departmentId.Value);
+            }
+            else
+            {
+                usersQuery = usersQuery.Where(u => u.DepartmentId == null);
+            }
+
+            var users = await usersQuery
+                .Select(u => new { id = u.Id, fullName = u.FullName, email = u.Email })
+                .ToListAsync();
+
+            return Json(users);
+        }
     }
 }
 

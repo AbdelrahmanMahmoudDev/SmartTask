@@ -50,6 +50,7 @@ namespace SmartTask.BL.Services
         {
        
             var existingDepartment = await _departmentRepository.GetQueryable()
+                .Include(d => d.BranchDepartments)
                 .Include(d => d.Users)
                 .FirstOrDefaultAsync(d => d.Id == department.Id);
 

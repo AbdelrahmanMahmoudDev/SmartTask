@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using SmartTask.Bl.IServices;
 using SmartTask.BL.IServices;
 using SmartTask.BL.Services;
@@ -108,16 +109,23 @@ namespace SmartTask.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var branch = await branchService.GetBranchWithDetailsAsync(id); 
-            if (branch == null)
-            {
-                return View("NotFound");
-            }
+            var branch = await branchService.GetBranchWithDetailsAsync(id);
+            if (branch == null) return View("NotFound");
 
             var managers = await userManager.GetUsersInRoleAsync("BranchManager");
-            var departments = await departmentService.GetAllDepartmentsAsync();
 
-            ViewBag.Roles = new SelectList(managers, "Id", "UserName", branch.ManagerId);
+            var currentUsers = await userManager.Users
+                .Where(u => u.BranchId == id)
+                .ToListAsync();
+
+            var availableUsers = await userManager.Users
+                .Where(u => u.BranchId == null)
+                .ToListAsync();
+
+            var allUsers = currentUsers.Union(availableUsers).ToList();
+
+            ViewBag.Managers = new SelectList(managers, "Id", "FullName", branch.ManagerId);
+            ViewBag.Users = new MultiSelectList(allUsers, "Id", "FullName", currentUsers.Select(u => u.Id));
 
             var model = new BranchFormViewModel
             {
@@ -125,7 +133,8 @@ namespace SmartTask.Web.Controllers
                 Name = branch.Name,
                 ManagerId = branch.ManagerId,
                 SelectedDepartmentIds = branch.BranchDepartments.Select(bd => bd.DepartmentId).ToList(),
-                AllDepartments = departments
+                SelectedUserIds = currentUsers.Select(u => u.Id).ToList(),
+                AllDepartments = await departmentService.GetAllDepartmentsAsync()
             };
 
             return View(model);
@@ -139,10 +148,8 @@ namespace SmartTask.Web.Controllers
             {
                 var managers = await userManager.GetUsersInRoleAsync("BranchManager");
                 var departments = await departmentService.GetAllDepartmentsAsync();
-
-                ViewBag.Roles = new SelectList(managers, "Id", "UserName", model.ManagerId);
+                ViewBag.Managers = new SelectList(managers, "Id", "FullName", model.ManagerId);
                 model.AllDepartments = departments;
-
                 return View(model);
             }
 
@@ -157,11 +164,33 @@ namespace SmartTask.Web.Controllers
                     DepartmentId = id
                 }).ToList()
             };
-
             await branchService.UpdateAsync(branch);
+
+            var existingUsers = await userManager.Users
+                .Where(u => u.BranchId == model.Id)
+                .ToListAsync();
+
+            foreach (var user in existingUsers)
+            {
+                if (!model.SelectedUserIds.Contains(user.Id))
+                {
+                    user.BranchId = null;
+                    await userManager.UpdateAsync(user);
+                }
+            }
+
+            foreach (var userId in model.SelectedUserIds)
+            {
+                var user = await userManager.FindByIdAsync(userId);
+                if (user != null && user.BranchId != model.Id)
+                {
+                    user.BranchId = model.Id;
+                    await userManager.UpdateAsync(user);
+                }
+            }
+
             return RedirectToAction("Index");
         }
-
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Details(int id)
@@ -169,6 +198,11 @@ namespace SmartTask.Web.Controllers
             var branch = await branchService.GetBranchWithDetailsAsync(id);
             if (branch == null) return View("NotFound");
 
+            var usersInBranch = await userManager.Users
+                                    .Where(u => u.BranchId == id)
+                                    .ToListAsync();
+
+            ViewBag.UsersInBranch = usersInBranch;
             return View(branch);
         }
 
@@ -345,7 +379,51 @@ namespace SmartTask.Web.Controllers
             });
         }
 
-        
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> AssignUsers(int branchId)
+        {
+            var branch = await branchService.GetBranchWithDetailsAsync(branchId);
+            if (branch == null)
+                return View("NotFound");
+
+            var usersWithOutBranch = await userManager.Users
+                .Where(u => u.BranchId == null)
+                .ToListAsync();
+
+            ViewBag.Users = new MultiSelectList(usersWithOutBranch, "Id", "FullName");
+
+            var viewModel = new AssignUsersToBranchViewModel
+            {
+                BranchId = branchId,
+                SelectedUserIds = new List<string>() 
+            };
+
+            return View(viewModel);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> AssignUsers(AssignUsersToBranchViewModel model)
+        {
+            var branch = await branchService.GetBranchWithDetailsAsync(model.BranchId);
+            if (branch == null)
+                return View("NotFound");
+
+            var selectedUsers = await userManager.Users
+                .Where(u => model.SelectedUserIds.Contains(u.Id))
+                .ToListAsync();
+
+            foreach (var user in selectedUsers)
+            {
+                user.BranchId = branch.Id;
+                await userManager.UpdateAsync(user);
+            }
+
+            return RedirectToAction("Index");
+        }
+
     }
 }
 

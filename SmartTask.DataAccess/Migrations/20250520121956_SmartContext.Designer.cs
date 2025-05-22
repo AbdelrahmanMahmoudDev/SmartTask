@@ -12,8 +12,8 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
-    [Migration("20250520005448_smarttaskdbconteext")]
-    partial class smarttaskdbconteext
+    [Migration("20250520121956_SmartContext")]
+    partial class SmartContext
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

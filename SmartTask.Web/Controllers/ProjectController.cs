@@ -124,6 +124,23 @@ namespace SmartTask.Web.Controllers
                 BranchId = model.SelectedBranchId
             };
 
+            if(model.SelectedBranchId.HasValue && model.SelectedDepartmentId.HasValue)
+            {
+                var usersInBranchAndDepartment = await _userManager.Users
+                    .Where(u => u.BranchId == model.SelectedBranchId && u.DepartmentId == model.SelectedDepartmentId)
+                    .ToListAsync();
+
+                project.ProjectMembers = new List<ProjectMember>();
+
+                foreach (var user in usersInBranchAndDepartment)
+                {
+                    project.ProjectMembers.Add(new ProjectMember
+                    {
+                        UserId = user.Id
+                    });
+                }
+            }
+
             await _projectService.AddProjectAsync(project);
             return RedirectToAction("Index");
         }

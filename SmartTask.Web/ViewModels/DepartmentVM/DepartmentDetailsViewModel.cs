@@ -6,6 +6,7 @@
         public string Name { get; set; }
         public string ManagerName { get; set; }
         public List<UserViewModel> Users { get; set; }
+        public List<BranchViewModel> Branches { get; set; }
     }
 
     public class UserViewModel
@@ -14,5 +15,11 @@
         public string FullName { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
+    }
+
+    public class BranchViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }
