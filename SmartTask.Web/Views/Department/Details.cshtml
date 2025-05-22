@@ -17,6 +17,23 @@
     </dl>
 
     <div class="mt-4">
+        <h4>Branches</h4>
+        @if (Model.Branches != null && Model.Branches.Any())
+        {
+            <ul class="list-group">
+                @foreach (var branch in Model.Branches)
+                {
+                    <li class="list-group-item">@branch.Name</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <span class="text-muted">No branches assigned.</span>
+        }
+    </div>
+
+    <div class="mt-4">
         <h4>Users</h4>
         @if (Model.Users != null && Model.Users.Any())
         {

@@ -43,6 +43,35 @@
     </div>
 
     <div class="mt-4">
+        <h4>Assigned Users</h4>
+        @if (ViewBag.UsersInBranch != null && ViewBag.UsersInBranch.Count > 0)
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        <th>Email</th>
+                        <th>Username</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in ViewBag.UsersInBranch)
+                    {
+                        <tr>
+                            <td>@user.FullName</td>
+                            <td>@user.Email</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted">No users assigned to this branch.</p>
+        }
+    </div>
+
+    <div class="mt-4">
         <a asp-action="Index" class="btn btn-secondary">Back to List</a>
     </div>
 </div>

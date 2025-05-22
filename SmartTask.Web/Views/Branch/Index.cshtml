@@ -36,6 +36,11 @@
             
             <th>Delete</th>
             </secure-content>
+
+            <secure-content asp-area="" asp-controller="Branch" asp-action="AssignUsers">
+
+                <th>Assign Users</th>
+            </secure-content>
         </tr>
     </thead>
     <tbody>
@@ -52,6 +57,12 @@
                 <secure-content asp-area="" asp-controller="Branch" asp-action="Delete">
 
                 <td><a href="/branch/delete/@branch.Id" onclick="return confirm('Are you sure?')" class="btn btn-danger">Delete</a></td>
+                </secure-content>
+
+
+                <secure-content asp-area="" asp-controller="Branch" asp-action="AssignUsers">
+
+                    <td><a asp-action="AssignUsers" asp-route-branchId="@branch.Id" class="btn btn-primary">AssignUsers</a></td>
                 </secure-content>
             </tr>
         }

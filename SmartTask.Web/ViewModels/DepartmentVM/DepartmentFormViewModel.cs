@@ -14,5 +14,6 @@ namespace SmartTask.Web.ViewModels.DepartmentVM
         public string ManagerId { get; set; }
 
         public List<string> SelectedUserIds { get; set; }
+        public List<int> SelectedBranchIds { get; set; } = new List<int>();
     }
 }

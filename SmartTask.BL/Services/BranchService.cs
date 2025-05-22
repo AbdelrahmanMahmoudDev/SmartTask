@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SmartTask.Bl.Helpers;
 using SmartTask.Bl.IServices;
@@ -16,13 +17,16 @@ namespace SmartTask.Bl.Services
     {
         private readonly IBranchRepository branchRepository;
         private readonly IPaginatedService<Branch> paginatedService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public BranchService(IBranchRepository branchRepository, IPaginatedService<Branch> paginatedService,
-            IDepartmentRepository departmentRepository
+            IDepartmentRepository departmentRepository,
+            UserManager<ApplicationUser> userManager
             )
         {
             this.branchRepository = branchRepository;
             this.paginatedService = paginatedService;
+            _userManager = userManager;
         }
 
         public async Task<PaginatedList<Branch>> GetAllBranchAsync(int page, int pageSize)

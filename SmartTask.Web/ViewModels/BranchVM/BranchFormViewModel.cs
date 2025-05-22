@@ -20,6 +20,8 @@ namespace SmartTask.Web.ViewModels.BranchVM
         public List<int> SelectedDepartmentIds { get; set; } 
 
         public IEnumerable<Department> AllDepartments { get; set; }
+        [Display(Name = "Assigned Users")]
+        public List<string> SelectedUserIds { get; set; } = new List<string>();
 
         public BranchFormViewModel()
         {
