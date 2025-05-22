@@ -102,6 +102,8 @@
                 </div>
             }
             </div>
+            <secure-content asp-area="" asp-controller="Task" asp-action="AddComment">
+
             <form id="commentForm" method="post" action="@Url.Action("AddComment", "Task")">
                 <input type="hidden" name="taskId" value="@Model.Id" />
                 <input type="hidden" name="authorId" value="@userId" />
@@ -111,6 +113,7 @@
                 </div>
                 <button type="submit" class="btn btn-secondary">Add Comment</button>
             </form>
+            </secure-content>
         </div>
     </div>
 
@@ -125,15 +128,18 @@
                     <small class="text-muted">@attachment.CreatedAt.ToString("dd-MM-yyyy HH:mm")</small>
                 </div>
             }
+            <secure-content asp-area="" asp-controller="Task" asp-action="AddAttachment">
 
             <form id="attachmentForm" method="post" enctype="multipart/form-data" action="@Url.Action("AddAttachment", "Task")">
-                <input type="hidden" name="taskId" value="@Model.Id" />
+                <input type="hidden" name="taskId" value="@Model.Id"/>
                 <div class="mb-3">
                     <label for="attachmentFile" class="form-label">Add Attachment</label>
                     <input type="file" id="attachmentFile" name="file" class="form-control" required />
                 </div>
                 <button type="submit" class="btn btn-secondary">Add Attachment</button>
             </form>
+            </secure-content>
+
         </div>
     </div>
 </div>

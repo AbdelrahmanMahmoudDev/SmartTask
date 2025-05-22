@@ -20,6 +20,7 @@ using SmartTask.Web.Models;
 //using SmartTask.Web.Models;
 using SmartTask.Web.ViewModels;
 using SmartTask.Web.ViewModels.KanbanVM;
+using System.ComponentModel;
 using System.Net.Mail;
 using System.Security.Claims;
 using System.Text.Json;
@@ -29,6 +30,7 @@ using TaskModel = SmartTask.Core.Models.Task;
 namespace SmartTask.Web.Controllers
 {
     [Authorize]
+    [DisplayName("Task")]
     public class TaskController : Controller
     {
         private readonly SmartTaskContext _context;
@@ -63,7 +65,7 @@ namespace SmartTask.Web.Controllers
             _userColumnPreferenceService = userColumnPreferenceService;
             _notificationService = notificationService;
         }
-
+        [DisplayName("Task Details")]
         public async Task<IActionResult> Details(int id)
         {
             var task = await _taskService.Details(id);
@@ -73,7 +75,7 @@ namespace SmartTask.Web.Controllers
             }
             return PartialView("_DetailsPartial", task);
         }
-
+        [DisplayName("Add Comment")]
         [HttpPost]
         public async Task<IActionResult> AddComment(int taskId, string authorId, string content)
         {
@@ -108,6 +110,7 @@ namespace SmartTask.Web.Controllers
             //return Ok();
         }
 
+        [DisplayName("Add Attachment")]
         [HttpPost]
         public async Task<IActionResult> AddAttachment(int taskId, IFormFile file)
         {
@@ -140,33 +143,33 @@ namespace SmartTask.Web.Controllers
                 createdAt = attachment.CreatedAt.ToString("dd-MM-yyyy HH:mm")
             });
         }
-
+        [DisplayName("View Assigned Tasks Only In Project")]
         public async Task<IActionResult> TasksForUserInProject(int projectId)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var tasks = await _taskService.TasksForUserInProject(projectId, userId);
             return View("Tasks", tasks);
         }
-
+        [DisplayName("View All Tasks In Project")]
         public async Task<IActionResult> TasksForProject(int projectId)
         {
             var tasks = await _taskService.TasksForProject(projectId);
             return View("Tasks", tasks);
         }
-
+        [DisplayName("View All Tasks Assigned To User")]
         public async Task<IActionResult> TasksForUser()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var tasks = await _taskService.TasksForUser(userId);
             return View("Tasks", tasks);
         }
-
+        [DisplayName("Know the Num Of Dependencies On A Task")]
         [HttpGet]
         public async Task<int> Depend(int taskid)
         {
             return await _taskService.NumofDepend(taskid);
         }
-
+        [DisplayName("Delete Task")]
         [HttpDelete]
         public async Task<IActionResult> DeleteTask(int taskid)
         {
@@ -195,7 +198,7 @@ namespace SmartTask.Web.Controllers
             await _taskService.Delete(taskid);
             return Ok();
         }
-
+        [DisplayName("Load Nodes For Add Dependencies")]
         public async Task<IActionResult> Loadnodes(int id)
         {
             var taskViewDeps = (await _taskService.Loadnodes(id)).Select(n =>
@@ -209,14 +212,14 @@ namespace SmartTask.Web.Controllers
             }).ToList();
             return PartialView("_TaskDend", taskViewDeps);
         }
-
+        [DisplayName("Add Dependencies")]
         [HttpPost]
         public async Task<IActionResult> SaveSelectedTasks(int SelectedTaskId, List<int> selectedTaskIds)
         {
             await _taskService.SaveSelectedTasks(SelectedTaskId, selectedTaskIds);
             return Ok();
         }
-
+        [DisplayName("View All Tasks")]
         public async Task<IActionResult> Index()
         {
             List<TaskViewModel> taskViewModels = new List<TaskViewModel>();
@@ -251,7 +254,7 @@ namespace SmartTask.Web.Controllers
             return View(taskViewModels);
         }
         [HttpGet]
-
+        [DisplayName("Create Task")]
         public async Task<IActionResult> Create()
         {
             ViewBag.Users = await _userManager.Users.ToListAsync();
@@ -303,7 +306,7 @@ namespace SmartTask.Web.Controllers
            
             return RedirectToAction(nameof(Index));
         }
-
+        [DisplayName("Edit Task")]
         public async Task<IActionResult> Edit([FromRoute] int id)
         {
             var task = await _taskRepository.GetByIdAsync(id);
