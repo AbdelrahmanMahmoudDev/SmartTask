@@ -1,5 +1,10 @@
 ﻿@using SmartTask.Web.TagHelpers;
+@using System.Security.Claims
 @addTagHelper *, SmartTask.Web.TagHelpers
+@{
+	var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+}
 <!DOCTYPE html>
 <html lang="en" data-color="lavared">
 <head>
@@ -451,12 +456,14 @@
 										<i class="ti ti-smart-home"></i><span>Dashboard</span><span class="badge badge-danger fs-10 fw-medium text-white p-1">Hot</span><span class="menu-arrow"></span>
 									</a>
 									<ul>
-										<li>
-											<a asp-controller="Home" asp-action="Index">
-												Admin
-												Dashboard
-											</a>
-										</li>
+										<secure-content asp-area="" asp-controller="Home" asp-action="Admin">
+											<li>
+												<a asp-controller="Admin" asp-action="AdminDashBoard"asp-route-id="@userId">
+													Admin
+													Dashboard
+												</a>
+											</li>
+											</secure-content>	
 										<li>
 											<a href="employee-dashboard.html">
 												Employee
