@@ -1,6 +1,38 @@
 ﻿@model SmartTask.Web.ViewModels.ProjectVM.ProjectFormViewModel
 
 <h1>New Project</h1>
+<style>
+    .form-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f8f9fa;
+    }
+
+    .form-container {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 600px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 28px;
+        color: #343a40;
+    }
+
+    .btn-primary {
+        width: 100%;
+        margin-top: 20px;
+    }
+</style>
+<div class="form-wrapper">
+    <div class="form-container">
 
 <div asp-validation-summary="All"></div>
 <form asp-action="Create">
@@ -49,17 +81,22 @@
         </select>
     </div>
 
-    <div class="form-group">
-        <label asp-for="OwnerId"></label>
-        <select asp-for="OwnerId" id="ownerDropdown" class="form-control">
-            <option value="">Choose Owner</option>
-        </select>
-        <span asp-validation-for="OwnerId" class="text-danger"></span>
-    </div>
+    @* <div class="form-group"> *@
+    @*     <label asp-for="OwnerId"></label> *@
+    @*     <select asp-for="OwnerId" id="ownerDropdown" class="form-control"> *@
+    @*         <option value="">Choose Owner</option> *@
+    @*     </select> *@
+    @*     <span asp-validation-for="OwnerId" class="text-danger"></span> *@
+    @* </div> *@
+			<div class="form-group">
+				<label asp-for="OwnerId"></label>
+				<input asp-for="OwnerId" id="ownerDropdown" class="form-control" />
+				<span asp-validation-for="OwnerId" class="text-danger"></span>
 
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
-
+    </div>
+</div>
 
 
 @section Scripts {

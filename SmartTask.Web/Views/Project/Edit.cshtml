@@ -2,205 +2,189 @@
 @model ProjectEditViewModel;
 
 @{
-    ViewData["Title"] = "Edit Project";
+	ViewData["Title"] = "Edit Project";
 }
+<style>
+	.form-wrapper {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 100vh;
+		background-color: #f4f6f9;
+		padding: 20px;
+	}
 
-<div class="container mt-4">
-    <div class="card shadow">
-        <div class="card-header">
-            <h3 class="mb-0">Edit Project</h3>
-        </div>
-        <div class="card-body">
-            <form asp-action="Edit">
-                <input type="hidden" asp-for="Id" />
+	.form-container {
+		background: white;
+		padding: 40px;
+		border-radius: 12px;
+		box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+		width: 100%;
+		max-width: 700px;
+	}
 
-                <div class="form-group">
-                    <label asp-for="Name"></label>
-                    <input asp-for="Name" class="form-control" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
+	h3 {
+		text-align: center;
+		margin-bottom: 30px;
+		color: #2c3e50;
+		font-weight: 600;
+	}
 
-                <div class="form-group">
-                    <label asp-for="Description"></label>
-                    <textarea asp-for="Description" class="form-control"></textarea>
-                </div>
+	label {
+		font-weight: 500;
+		color: #34495e;
+		margin-top: 15px;
+	}
 
-                <div class="form-group">
-                    <label asp-for="StartDate"></label>
-                    <input asp-for="StartDate" class="form-control" type="date" />
-                </div>
+	.btn-primary, .btn-secondary {
+		width: 48%;
+		margin-top: 30px;
+	}
 
-                <div class="form-group">
-                    <label asp-for="EndDate"></label>
-                    <input asp-for="EndDate" class="form-control" type="date" />
-                    <span asp-validation-for="EndDate" class="text-danger"></span>
-                </div>
+	.btn-group-custom {
+		display: flex;
+		justify-content: space-between;
+		gap: 10px;
+	}
 
-                @*  <div class="form-group">
-                    <label asp-for="OwnerId"></label>
-                    <select asp-for="OwnerId" asp-items="@ViewBag.AdminUsers" class="form-control">
-                        <option value="">-- Select Owner --</option>
-                    </select>
-                    <span asp-validation-for="OwnerId" class="text-danger"></span>
-                </div> *@
-                <div class="form-group">
-                    <label>Department</label>
-                    <select class="form-select" asp-for="SelectedDepartmentId" asp-items="@(new SelectList(ViewBag.Departments, "Id", "Name"))">
-                        <option value="">-- Select Department --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Branch</label>
-                    <select class="form-select" asp-for="SelectedBranchId" asp-items="@(new SelectList(ViewBag.Branches, "Id", "Name"))">
-                        <option value="">-- Select Branch --</option>
-                    </select>
-                </div>
+	select.form-select, .form-control, textarea {
+		margin-top: 5px;
+	}
 
-                <div class="form-group">
-                    <label asp-for="OwnerId"></label>
-                    <select asp-for="OwnerId" id="ownerDropdown" class="form-control">
-                        <option value="">-- Select Owner --</option>
-                    </select>
-                    <span asp-validation-for="OwnerId" class="text-danger"></span>
-                </div>
+	.select2-container--default .select2-selection--multiple {
+		border-radius: 6px;
+		padding: 6px;
+		min-height: 38px;
+		border: 1px solid #ced4da;
+	}
+</style>
 
-                <div class="form-group">
-                    <label asp-for="Status"></label>
-                    <select asp-for="Status" class="form-control">
-                        <option value="Active">Active</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Completed">Completed</option>
-                    </select>
-                    <span asp-validation-for="Status" class="text-danger"></span>
-                </div>
+<div class="form-wrapper">
+	<div class="form-container">
+		<h3>Edit Project</h3>
+		<form asp-action="Edit">
+			<input type="hidden" asp-for="Id" />
 
-                @* <h4>Assigned Users</h4>
-                <div class="form-group">
-                    <div id="assignedUsersContainer">
-                        @if (Model.AssignedUsers != null && Model.AssignedUsers.Any())
-                        {
-                            @foreach (var user in Model.AssignedUsers)
-                            {
-                                <div class="form-check">
-                                    <input class="form-check-input"
-                                           type="checkbox"
-                                           name="AssignedUserIds"
-                                           value="@user.UserId"
-                                           checked="@user.IsChecked" />
-                                    <label class="form-check-label">@user.FullName</label>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <p>No assigned users.</p>
-                        }
-                    </div>
-                </div>*@
+			<div class="form-group">
+				<label asp-for="Name"></label>
+				<input asp-for="Name" class="form-control" />
+				<span asp-validation-for="Name" class="text-danger"></span>
+			</div>
 
-                <h4>Add Users</h4>
-                <div class="form-group">
-                    <label for="userDropdown">Add User</label>
+			<div class="form-group">
+				<label asp-for="Description"></label>
+				<textarea asp-for="Description" class="form-control"></textarea>
+			</div>
 
-                    <select id="userDropdown" name="AssignedUserIds" class="form-select select2" multiple="multiple"
-                            data-placeholder="-- Select users --">
-                        @* <option selected disabled>Choose a user...</option> *@
-                        @foreach (var user in ViewBag.AllUsers as List<SelectListItem>)
-                        {
-                            <option value="@user.Value" selected="@(user.Selected ? "selected" : null)">@user.Text</option>
-                        }
-                    </select>
-                </div>
+			<div class="form-group">
+				<label asp-for="StartDate"></label>
+				<input asp-for="StartDate" class="form-control" type="date" />
+			</div>
 
-                <button type="submit" class="btn btn-primary">Save</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-            </form>
-        </div>
-    </div>
+			<div class="form-group">
+				<label asp-for="EndDate"></label>
+				<input asp-for="EndDate" class="form-control" type="date" />
+				<span asp-validation-for="EndDate" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<label>Department</label>
+				<select class="form-select" asp-for="SelectedDepartmentId" asp-items="@(new SelectList(ViewBag.Departments, "Id", "Name"))">
+					<option value="">-- Select Department --</option>
+				</select>
+			</div>
+
+			<div class="form-group">
+				<label>Branch</label>
+				<select class="form-select" asp-for="SelectedBranchId" asp-items="@(new SelectList(ViewBag.Branches, "Id", "Name"))">
+					<option value="">-- Select Branch --</option>
+				</select>
+			</div>
+
+			<div class="form-group">
+				<label asp-for="OwnerId"></label>
+				<select asp-for="OwnerId" id="ownerDropdown" class="form-control">
+					<option value="">-- Select Owner --</option>
+				</select>
+				<span asp-validation-for="OwnerId" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<label asp-for="Status"></label>
+				<select asp-for="Status" class="form-control">
+					<option value="Active">Active</option>
+					<option value="Pending">Pending</option>
+					<option value="Completed">Completed</option>
+				</select>
+			</div>
+
+			<h4 class="mt-4">Add Users</h4>
+			<div class="form-group">
+				<label for="userDropdown">Add User</label>
+				<select id="userDropdown" name="AssignedUserIds" class="form-select select2" multiple="multiple"
+						data-placeholder="-- Select users --">
+					@foreach (var user in ViewBag.AllUsers as List<SelectListItem>)
+					{
+						<option value="@user.Value" selected="@(user.Selected ? "selected" : null)">@user.Text</option>
+					}
+				</select>
+			</div>
+
+			<div class="btn-group-custom">
+				<button type="submit" class="btn btn-primary">Save</button>
+				<a asp-action="Index" class="btn btn-secondary">Cancel</a>
+			</div>
+		</form>
+	</div>
 </div>
-
 
 <script src="~/lib/jquery/jquery.min.js"></script>
 <script src="~/lib/select2/js/select2.min.js"></script>
 
-
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#userDropdown').select2({
-                tags: true,
-                placeholder: "-- Select Users --",
-                allowClear: true,
-                width: '100%',
-            });
-        });
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+		$(document).ready(function () {
+			$('#userDropdown').select2({
+				tags: true,
+				placeholder: "-- Select Users --",
+				allowClear: true,
+				width: '100%',
+			});
+		});
 
-        function loadOwners(selectedOwnerId) {
-            var branchId = $('#SelectedBranchId').val();
-            var departmentId = $('#SelectedDepartmentId').val();
+		function loadOwners(selectedOwnerId) {
+			var branchId = $('#SelectedBranchId').val();
+			var departmentId = $('#SelectedDepartmentId').val();
 
-            if (!branchId || !departmentId) {
-                $('#ownerDropdown').empty().append('<option value="">-- Select Owner --</option>');
-                return;
-            }
+			if (!branchId || !departmentId) {
+				$('#ownerDropdown').empty().append('<option value="">-- Select Owner --</option>');
+				return;
+			}
 
-            $.ajax({
-                url: '@Url.Action("GetUsersByBranchAndDepartment", "Project")',
-                type: 'GET',
-                data: { branchId: branchId, departmentId: departmentId },
-                success: function (users) {
-                    var $dropdown = $('#ownerDropdown');
-                    $dropdown.empty();
-                    $dropdown.append('<option value="">-- Select Owner --</option>');
-                    $.each(users, function (i, user) {
-                        var selected = selectedOwnerId && user.id === selectedOwnerId ? 'selected' : '';
-                        $dropdown.append('<option value="' + user.id + '" ' + selected + '>' + user.fullName + '</option>');
-                    });
-                }
-            });
-        }
+			$.ajax({
+				url: '@Url.Action("GetUsersByBranchAndDepartment", "Project")',
+				type: 'GET',
+				data: { branchId: branchId, departmentId: departmentId },
+				success: function (users) {
+					var $dropdown = $('#ownerDropdown');
+					$dropdown.empty();
+					$dropdown.append('<option value="">-- Select Owner --</option>');
+					$.each(users, function (i, user) {
+						var selected = selectedOwnerId && user.id === selectedOwnerId ? 'selected' : '';
+						$dropdown.append('<option value="' + user.id + '" ' + selected + '>' + user.fullName + '</option>');
+					});
+				}
+			});
+		}
 
-        $(document).ready(function () {
-            $('#SelectedBranchId, #SelectedDepartmentId').on('change', function () {
-                loadOwners();
-            });
+		$(document).ready(function () {
+			$('#SelectedBranchId, #SelectedDepartmentId').on('change', function () {
+				loadOwners();
+			});
 
-            var initialOwnerId = '@Model.OwnerId';
-            loadOwners(initialOwnerId);
-        });
-    </script>
-
+			var initialOwnerId = '@Model.OwnerId';
+			loadOwners(initialOwnerId);
+		});
+	</script>
 }
-
-@*<script>
-    const userDropdown = document.getElementById("userDropdown");
-    const assignedUsersContainer = document.getElementById("assignedUsersContainer");
-
-    userDropdown.addEventListener("change", function () {
-        const selectedValue = this.value;
-        const selectedText = this.options[this.selectedIndex].text;
-
-        if (!document.getElementById(`checkbox-${selectedValue}`)) {
-            const div = document.createElement("div");
-            div.classList.add("form-check");
-
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.className = "form-check-input";
-            checkbox.id = `checkbox-${selectedValue}`;
-            checkbox.name = "AssignedUserIds";
-            checkbox.value = selectedValue;
-            checkbox.checked = true;
-
-            const label = document.createElement("label");
-            label.className = "form-check-label";
-            label.htmlFor = `checkbox-${selectedValue}`;
-            label.textContent = selectedText;
-
-            div.appendChild(checkbox);
-            div.appendChild(label);
-            assignedUsersContainer.appendChild(div);
-        }
-    });
-</script>*@
