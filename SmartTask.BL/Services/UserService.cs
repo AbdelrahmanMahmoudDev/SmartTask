@@ -54,6 +54,7 @@ namespace SmartTask.BL.Services
             user.FullName = updatedUser.FullName;
             user.DepartmentId = updatedUser.DepartmentId;
             user.updatedAt = DateTime.UtcNow;
+            user.ImagePath = updatedUser.ImagePath;
 
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
@@ -96,5 +97,11 @@ namespace SmartTask.BL.Services
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
         }
+
+        //public async Task<IdentityResult> ChangePasswordAsync(ApplicationUser user, string currentPassword, string newPassword)
+        //{
+        //    return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        //}
+
     }
 }

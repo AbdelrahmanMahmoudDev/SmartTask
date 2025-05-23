@@ -26,5 +26,8 @@ namespace SmartTask.BL.IServices
         Task<bool> AssignUserToDepartmentAsync(string userId, int departmentId);
 
         //Task< PaginatedList<ApplicationUser>> GetFilteredAsync(string searchString, int page, int pageSize);
+
+        //Task<IdentityResult> ChangePasswordAsync(ApplicationUser user, string currentPassword, string newPassword);
+
     }
 }

@@ -3,7 +3,6 @@
 @using SmartTask.Core.Models
 @inject UserManager<ApplicationUser> UserManager
 
-
 @{
     ViewData["Title"] = "Dashboard";
     var currentUser = await UserManager.GetUserAsync(User);
@@ -13,489 +12,114 @@
     var pendingProjects = Model.Count(p => p.Status == "Pending");
     var inProgressProjects = Model.Count(p => p.Status == "In Progress");
 
-    // Sample tasks data
-    var sampleTasks = new List<dynamic>
-    {
-        new { Name = "Design UI Mockups", Status = "Completed", Priority = "High", DueDate = DateTime.Now.AddDays(-2) },
-        new { Name = "Implement Authentication", Status = "In Progress", Priority = "High", DueDate = DateTime.Now.AddDays(3) },
-        new { Name = "Database Schema Design", Status = "Pending", Priority = "Medium", DueDate = DateTime.Now.AddDays(1) },
-        new { Name = "API Development", Status = "Not Started", Priority = "Critical", DueDate = DateTime.Now.AddDays(5) }
-    };
-
-    // Get user preferences from ViewBag
+    // User preferences from ViewBag
     var userPreference = ViewBag.UserPreference as SmartTask.Core.Models.UserDashboardPreference;
     var showProjectStatus = userPreference?.ShowProjectStatus ?? true;
     var showRecentProjects = userPreference?.ShowRecentProjects ?? true;
     var showUpcomingTasks = userPreference?.ShowUpcomingTasks ?? true;
     var showActivityChart = userPreference?.ShowActivityChart ?? true;
 }
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"]</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --success-color: #4caf50;
-            --warning-color: #ff9800;
-            --danger-color: #f44336;
-            --info-color: #2196f3;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --border-radius: 12px;
-            --card-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-            --transition: all 0.3s ease;
-        }
-
-        body {
-            background-color: #f8f9fc;
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .dashboard-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 2.5rem 2rem;
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
-            margin-bottom: 1.5rem;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--card-shadow);
-        }
-
-            .dashboard-header::before {
-                content: '';
-                position: absolute;
-                top: -50%;
-                right: -50%;
-                bottom: -50%;
-                left: -50%;
-                background: linear-gradient( 45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.05) 75%, transparent 75%, transparent );
-                transform: rotate(45deg);
-                z-index: 1;
-                background-size: 100px 100px;
-            }
-
-        .header-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .username-highlight {
-            font-weight: 700;
-            color: white;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-            position: relative;
-            display: inline-block;
-            padding: 0 8px;
-        }
-
-            .username-highlight::after {
-                content: '';
-                position: absolute;
-                bottom: 2px;
-                left: 0;
-                width: 100%;
-                height: 6px;
-                background-color: rgba(255, 255, 255, 0.3);
-                border-radius: 3px;
-                z-index: -1;
-            }
-
-        .settings-toggle {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            z-index: 3;
-        }
-
-            .settings-toggle:hover {
-                background: rgba(255, 255, 255, 0.25);
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            }
-
-        .card {
-            border: none;
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-            transition: var(--transition);
-            overflow: hidden;
-            height: 100%;
-            background: white;
-        }
-
-            .card:hover {
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-                transform: translateY(-3px);
-            }
-
-        .card-header {
-            background-color: white;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 1.25rem 1.5rem;
-            font-weight: 600;
-        }
-
-        .stat-card {
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            position: relative;
-            overflow: hidden;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-            .stat-card .icon {
-                font-size: 2.5rem;
-                opacity: 0.1;
-                position: absolute;
-                bottom: 1rem;
-                right: 1rem;
-            }
-
-        .stat-figure {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-        }
-
-        .stat-label {
-            color: #6c757d;
-            font-size: 0.9rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
-        }
-
-        .bg-gradient-primary {
-            background: linear-gradient(45deg, var(--primary-color), #6f86ff);
-            color: white;
-        }
-
-        .bg-gradient-success {
-            background: linear-gradient(45deg, var(--success-color), #69db7c);
-            color: white;
-        }
-
-        .bg-gradient-warning {
-            background: linear-gradient(45deg, var(--warning-color), #ffd166);
-            color: white;
-        }
-
-        .bg-gradient-info {
-            background: linear-gradient(45deg, var(--info-color), #4dabf7);
-            color: white;
-        }
-
-        .project-card {
-            border: none;
-            border-radius: var(--border-radius);
-            padding: 1.25rem;
-            margin-bottom: 1.25rem;
-            background: white;
-            transition: var(--transition);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-            cursor: pointer;
-        }
-
-            .project-card:hover {
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-                transform: translateY(-5px);
-            }
-
-            .project-card h5 {
-                font-weight: 600;
-                font-size: 1.1rem;
-                margin-bottom: 0.75rem;
-            }
-
-        .progress {
-            height: 8px;
-            background-color: #f1f1f1;
-            border-radius: 50px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            border-radius: 50px;
-        }
-
-        .task-item {
-            padding: 1rem;
-            border-left: 3px solid var(--primary-color);
-            margin-bottom: 1rem;
-            background: white;
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-        }
-
-            .task-item:hover {
-                transform: translateX(5px);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .badge {
-            border-radius: 50px;
-            padding: 0.5em 0.75em;
-            font-weight: 500;
-            font-size: 0.75rem;
-        }
-
-        .badge-high {
-            background-color: var(--danger-color);
-            color: white;
-        }
-
-        .badge-medium {
-            background-color: var(--warning-color);
-            color: white;
-        }
-
-        .badge-critical {
-            background-color: #9c27b0;
-            color: white;
-        }
-
-        .task-status {
-            font-size: 0.8rem;
-            padding: 0.35rem 0.75rem;
-            border-radius: 50px;
-            font-weight: 500;
-        }
-
-        .status-completed {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: var(--success-color);
-        }
-
-        .status-inprogress {
-            background-color: rgba(33, 150, 243, 0.1);
-            color: var(--info-color);
-        }
-
-        .status-pending {
-            background-color: rgba(255, 152, 0, 0.1);
-            color: var(--warning-color);
-        }
-
-        .status-notstarted {
-            background-color: rgba(244, 67, 54, 0.1);
-            color: var(--danger-color);
-        }
-
-        .btn-rounded {
-            border-radius: 50px;
-            padding: 0.5rem 1.25rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-            .btn-outline-primary:hover {
-                background-color: var(--primary-color);
-                color: white;
-        }
-
-        .btn-sm {
-            padding: 0.3rem 0.8rem;
-            border-radius: 50px;
-            font-size: 0.8rem;
-        }
-        /* Add to your existing CSS */
-        .bg-light-info {
-            background-color: rgba(23, 162, 184, 0.1);
-        }
-
-        .view-all {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: var(--transition);
-        }
-
-            .view-all:hover {
-                color: var(--secondary-color);
-                transform: translateX(3px);
-        }
-
-        .widget-section {
-            opacity: 1;
-            transform: translateY(0);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-            .widget-section.hidden {
-                opacity: 0;
-                transform: translateY(20px);
-                display: none;
-        }
-
-        .sort-btn:hover {
-            background-color: rgba(67, 97, 238, 0.1);
-            color: var(--primary-color);
-        }
-
-        .sort-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        .date-badge {
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 0.3rem 0.6rem;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            color: #6c757d;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .department-badge {
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 0.3rem 0.6rem;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            color: #6c757d;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .sorting {
-            opacity: 0.7;
-            transition: opacity 0.3s;
-        }
-
-    </style>
+    ...
 </head>
 <body>
     <div class="container-fluid py-4">
-        <!-- Header with Settings -->
-        <div class="dashboard-header mb-4">
-            <div class="header-content">
+
+        <!-- Header -->
+        <div class="dashboard-header mb-4 d-flex justify-content-between align-items-center">
+            <div>
                 <h1 class="mb-2"><i class="fas fa-tachometer-alt me-2"></i>Welcome, <span class="username-highlight">@currentUser?.FullName</span></h1>
                 <p class="mb-0 opacity-75">Here's an overview of your projects and progress</p>
             </div>
-
-            <!-- Settings Toggle Button -->
-            <a href="@Url.Action("Settings", "Dashboard")" class="settings-toggle">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
+            <a href="@Url.Action("Settings", "Dashboard")" class="settings-toggle btn btn-outline-secondary">
+                <i class="fas fa-cog"></i> Settings
             </a>
-            </div>
+        </div>
 
-        <!-- Stats Cards (Project Status Summary) -->
+        <!-- Project Status Summary -->
         <div data-widget-container="project-status" style="display: @(showProjectStatus ? "block" : "none")">
             <div class="row mb-4 g-3">
+
                 <div class="col-md-3 col-sm-6">
-                    <div class="card stat-card bg-gradient-primary">
+                    <div class="card stat-card bg-gradient-primary p-3 text-white">
                         <div class="stat-label">Total Projects</div>
-                        <div class="stat-figure">@totalProjects</div>
+                        <div class="stat-figure display-4">@totalProjects</div>
                         <p class="mb-0 opacity-75">Across all departments</p>
-                        <i class="fas fa-project-diagram icon"></i>
-                        </div>
-                        <div class="bg-light-info p-3 rounded-circle">
-                            <i class="fas fa-sync-alt text-info fa-2x"></i>
-                        </div>
+                        <i class="fas fa-project-diagram icon fa-3x"></i>
+                    </div>
+                </div>
+
                 <div class="col-md-3 col-sm-6">
-                    <div class="card stat-card bg-gradient-success">
+                    <div class="card stat-card bg-gradient-success p-3 text-white">
                         <div class="stat-label">Completed</div>
-                        <div class="stat-figure">@completedProjects</div>
-                        <p class="mb-0 opacity-75">@(completedProjects > 0 ? $"{Math.Round((double)completedProjects / totalProjects * 100)}% completion rate" : "No completed projects yet")</p>
-                        <i class="fas fa-check-circle icon"></i>
+                        <div class="stat-figure display-4">@completedProjects</div>
+                        <p class="mb-0 opacity-75">
+                            @(completedProjects > 0
+                                ? $"{Math.Round((double)completedProjects / totalProjects * 100)}% completion rate"
+                                : "No completed projects yet")
+                        </p>
+                        <i class="fas fa-check-circle icon fa-3x"></i>
                     </div>
                 </div>
+
                 <div class="col-md-3 col-sm-6">
-                    <div class="card stat-card bg-gradient-warning">
+                    <div class="card stat-card bg-gradient-warning p-3 text-white">
                         <div class="stat-label">In Progress</div>
-                        <div class="stat-figure">@inProgressProjects</div>
-                        <p class="mb-0 opacity-75">@(inProgressProjects > 0 ? $"{Math.Round((double)inProgressProjects / totalProjects * 100)}% of total projects" : "No projects in progress")</p>
-                        <i class="fas fa-spinner icon"></i>
-            </div>
-
-            <!-- Pending -->
-            <div class="col-md">
-                <div class="stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted">PENDING</h6>
-                            <h3 class="mb-0">@pendingprojects</h3>
-                            <small class="text-muted">
-                                <span class="text-warning fw-bold">@((pendingprojects * 100 / totalProjects).ToString("0"))%</span> awaiting start
-                            </small>
-                        </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="card stat-card bg-gradient-info">
-                        <div class="stat-label">Total Tasks</div>
-                        <div class="stat-figure">@totalTasks</div>
-                        <p class="mb-0 opacity-75">Across all projects</p>
-                        <i class="fas fa-tasks icon"></i>
-                        </div>
+                        <div class="stat-figure display-4">@inProgressProjects</div>
+                        <p class="mb-0 opacity-75">
+                            @(inProgressProjects > 0
+                                ? $"{Math.Round((double)inProgressProjects / totalProjects * 100)}% of total projects"
+                                : "No projects in progress")
+                        </p>
+                        <i class="fas fa-spinner icon fa-3x"></i>
                     </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6">
+                    <div class="card stat-card bg-gradient-danger p-3 text-white">
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-figure display-4">@pendingProjects</div>
+                        <p class="mb-0 opacity-75">
+                            <span class="text-warning fw-bold">
+                                @((pendingProjects * 100 / (totalProjects == 0 ? 1 : totalProjects)).ToString("0"))%
+                            </span> awaiting start
+                        </p>
+                        <i class="fas fa-hourglass-half icon fa-3x"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Total Tasks -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="card stat-card bg-gradient-info p-3 text-white">
+                    <div class="stat-label">Total Tasks</div>
+                    <div class="stat-figure display-4">@totalTasks</div>
+                    <p class="mb-0 opacity-75">Across all projects</p>
+                    <i class="fas fa-tasks icon fa-3x"></i>
                 </div>
             </div>
 
-            <!-- Total Tasks -->
-            <div class="col-md">
-                <div class="stat-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted">TOTAL TASKS</h6>
-                            <h3 class="mb-0">@totalTasks</h3>
-                            <small class="text-muted">
-                                <span class="text-purple fw-bold">@((totalTasks * 100 / totalProjects).ToString("0"))%</span> task coverage
-                            </small>
-                        </div>
-                        <div class="bg-light-purple p-3 rounded-circle">
-                            <i class="fas fa-tasks text-purple fa-2x"></i>
-                        </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card stat-card bg-gradient-secondary p-3 text-white">
+                    <div class="stat-label">Task Coverage</div>
+                    <div class="stat-figure display-4">
+                        @(totalProjects > 0
+                            ? ((double)totalTasks / totalProjects * 100).ToString("0") + "%"
+                            : "N/A")
                     </div>
+                    <p class="mb-0 opacity-75">tasks per project</p>
+                    <i class="fas fa-chart-bar icon fa-3x"></i>
                 </div>
             </div>
         </div>
+
+        <!-- Projects Section (Recent Projects) -->
         <div class="row">
-            <!-- Projects Section (Recent Projects) -->
             <div class="col-md-7 mb-4" data-widget-container="recent-projects" style="display: @(showRecentProjects ? "block" : "none")">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -539,7 +163,6 @@
                                      data-status="@project.Status"
                                      data-date="@project.StartDate?.ToString("yyyyMMdd")"
                                      onclick="window.location.href='@Url.Action("Details", "Project", new { id = project.Id })'">
-
                                     <div class="d-flex justify-content-between align-items-start mb-3">
                                         <div>
                                             <h5 class="mb-1">
@@ -552,12 +175,12 @@
                                             <p class="text-muted mb-2">
                                                 @(project.Description?.Length > 100 ? project.Description.Substring(0, 100) + "..." : project.Description)
                                             </p>
-                                            <div class="d-flex align-items-center">
-                                                <span class="badge bg-light text-dark me-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge bg-light text-dark">
                                                     <i class="fas fa-tasks me-1"></i> @totalProjectTasks Tasks
                                                 </span>
-                                                <span class="badge bg-light text-dark">
-                                                    <i class="fas fa-check-circle me-1 text-success"></i> @completedTasks Completed
+                                                <span class="badge bg-light text-success">
+                                                    <i class="fas fa-check-circle me-1"></i> @completedTasks Completed
                                                 </span>
                                             </div>
                                         </div>
@@ -566,16 +189,7 @@
                                                 @project.Status
                                             </span>
                                         </div>
-
-                                    <div class="d-flex align-items-center mb-3 gap-2">
-                                        <span class="badge bg-light text-dark">
-                                            <i class="fas fa-tasks me-1"></i> @totalProjectTasks Tasks
-                                        </span>
-                                        <span class="badge bg-light text-success">
-                                            <i class="fas fa-check-circle me-1"></i> @completedTasks Complete
-                                        </span>
                                     </div>
-
                                     <div class="progress mb-3">
                                         <div class="progress-bar bg-@statusClass"
                                              role="progressbar"
@@ -585,7 +199,6 @@
                                              aria-valuemax="100">
                                         </div>
                                     </div>
-
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="date-badge">
                                             <i class="far fa-calendar-alt"></i>
@@ -605,87 +218,65 @@
 
             <!-- Tasks Section (Upcoming Tasks) -->
             <div class="col-md-5 mb-4" data-widget-container="upcoming-tasks" style="display: @(showUpcomingTasks ? "block" : "none")">
-                <div class="card h-100">
+                <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-tasks me-2 text-primary"></i>Upcoming Tasks</h5>
-                        <a href="#" class="view-all">
-                            View All <i class="fas fa-chevron-right"></i>
+                        <h5 class="mb-0"><i class="fas fa-tasks me-2 text-info"></i>Upcoming Tasks</h5>
+                        <a href="@Url.Action("Index", "Task")" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-list me-1"></i> View All Tasks
                         </a>
                     </div>
                     <div class="card-body">
-                        @foreach (var task in sampleTasks)
-                        {
-                            <div class="task-item">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="mb-0 fw-semibold">@task.Name</h6>
-                                    <span class="badge badge-@(task.Priority.ToLower())">
-                                        @task.Priority
-                                    </span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="task-status status-@(task.Status.Replace(" ", "").ToLower())">
-                                        @task.Status
-                                    </span>
-                                    <span class="date-badge">
-                                        <i class="far fa-calendar-alt"></i>
-                                        <span>@task.DueDate.ToString("MMM dd")</span>
-                                    </span>
-                                </div>
-                            </div>
-                        }
+                        @* Render upcoming tasks for current user *@
+                        @* Example placeholder *@
+                        <p>No upcoming tasks assigned.</p>
                     </div>
                 </div>
             </div>
-
-
         </div>
+
+        <!-- Activity Chart (conditionally rendered) -->
+        @if (showActivityChart)
+        {
+            <div class="row mb-4" data-widget-container="activity-chart">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-chart-line me-2"></i>Activity Overview</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="activityChart" height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const sortBy = this.getAttribute('data-sort');
+                const container = document.getElementById('projects-container');
+                const projects = Array.from(container.children);
 
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const resetBtn = document.getElementById('resetBtn');
-            const saveBtn = document.getElementById('saveBtn');
-
-            // Project sorting functionality
-            $(document).ready(function() {
-                $('.sort-btn').click(function() {
-                    $('.sort-btn').removeClass('active');
-                    $(this).addClass('active');
-
-                    const sortType = $(this).data('sort');
-                    const $container = $('#projects-container');
-                    const $projects = $container.find('.project-card').detach();
-
-                    $container.addClass('sorting');
-
-                    $projects.sort(function(a, b) {
-                        if (sortType.includes('date')) {
-                            const dateA = $(a).data('date') || 0;
-                            const dateB = $(b).data('date') || 0;
-                            return sortType === 'date-asc' ? dateA - dateB : dateB - dateA;
-                        } else {
-                            const statusOrder = { "Completed": 1, "In Progress": 2, "Pending": 3 };
-                            const statusA = $(a).data('status') || "Pending";
-                            const statusB = $(b).data('status') || "Pending";
-                            return statusOrder[statusA] - statusOrder[statusB];
-                        }
-                    });
-
-                    $container.append($projects);
-
-                    setTimeout(() => $container.removeClass('sorting'), 300);
+                projects.sort((a, b) => {
+                    if (sortBy === 'date-asc') {
+                        return a.dataset.date.localeCompare(b.dataset.date);
+                    }
+                    else if (sortBy === 'date-desc') {
+                        return b.dataset.date.localeCompare(a.dataset.date);
+                    }
+                    else if (sortBy === 'status') {
+                        return a.dataset.status.localeCompare(b.dataset.status);
+                    }
+                    return 0;
                 });
 
-                // Set default sort (newest first)
-                $('.sort-btn[data-sort="date-desc"]').addClass('active');
-                });
+                container.innerHTML = '';
+                projects.forEach(p => container.appendChild(p));
             });
-                        $container.addClass('sorting');
-            setTimeout(() => $container.removeClass('sorting'), 300);
-        </script>
-    }
+        });
+    </script>
 </body>
 </html>
