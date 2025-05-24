@@ -45,13 +45,14 @@ namespace SmartTask.Web.Controllers
         private readonly IUserColumnPreferenceService _userColumnPreferenceService;
         private readonly ITaskDependencyRepository _taskDependencyRepo;
         private readonly INotificationService _notificationService;
-
+        private readonly IEventRepository eventRepository;
         public TaskController(ITaskRepository taskRepository, IProjectRepository projectRepository,
             UserManager<ApplicationUser> usermanager, SmartTaskContext context,
             IAssignTaskRepository assignTaskRepository, INotificationRepository notificationRepository,
             IHubContext<NotificationHub> hub, ITaskService taskService
             , IWebHostEnvironment environment, INotificationService notificationService
-            , IUserColumnPreferenceService userColumnPreferenceService, ITaskDependencyRepository taskDependencyRepo)
+            , IUserColumnPreferenceService userColumnPreferenceService, ITaskDependencyRepository taskDependencyRepo
+            , IEventRepository eventRepository)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
@@ -65,6 +66,7 @@ namespace SmartTask.Web.Controllers
             _userColumnPreferenceService = userColumnPreferenceService;
             _notificationService = notificationService;
             _taskDependencyRepo = taskDependencyRepo;
+            this.eventRepository = eventRepository;
         }
         [DisplayName("Task Details")]
         public async Task<IActionResult> Details(int id)
@@ -192,9 +194,10 @@ namespace SmartTask.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             string NotificationMessage = $"{user.FullName} Deleted Task : {task.Title}";
             _notificationService.sendSignalRNotificationAsync(users, user.Id, type, NotificationMessage, taskid);
-            
+
 
             //Delete Task
+            await eventRepository.DeleteAssignTaskAsync(taskid);
             await _taskService.DeleteDepend(taskid);
             await _taskService.Delete(taskid);
             return Ok();

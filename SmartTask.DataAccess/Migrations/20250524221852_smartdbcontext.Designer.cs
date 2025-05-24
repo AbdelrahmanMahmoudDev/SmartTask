@@ -12,13 +12,8 @@ using SmartTask.DataAccess.Data;
 namespace SmartTask.DataAccess.Migrations
 {
     [DbContext(typeof(SmartTaskContext))]
-<<<<<<<< HEAD:SmartTask.DataAccess/Migrations/20250524210040_smartdbcontext.Designer.cs
-    [Migration("20250524210040_smartdbcontext")]
+    [Migration("20250524221852_smartdbcontext")]
     partial class smartdbcontext
-========
-    [Migration("20250520070021_Init create")]
-    partial class Initcreate
->>>>>>>> a261c2cf695b094290b4516ef03d7fe2a308490c:SmartTask.DataAccess/Migrations/20250520070021_Init create.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
