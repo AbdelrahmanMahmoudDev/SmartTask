@@ -43,32 +43,27 @@ namespace SmartTask.BL.Services
             return PaginatedList<Project>.Create(query, page, pageSize);
         }
 
-        public async Task<PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int? departmentId, int page, int pageSize)
-        {
-            var query = _projectRepository.GetQueryable();
+        //public async Task<PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int? departmentId, int page, int pageSize)
+        //{
+        //    var query = _projectRepository.GetQueryable();
 
-            // Apply search filter
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                query = query.Where(p =>
-                    p.Name.Contains(searchString) ||
-                    p.Description.Contains(searchString));
-            }
+        //    // Apply search filter
+        //    if (!string.IsNullOrEmpty(searchString))
+        //    {
+        //        query = query.Where(p =>
+        //            p.Name.Contains(searchString) ||
+        //            p.Description.Contains(searchString));
+        //    }
 
-            // Apply department filter for Dashboard filtering
-            if (departmentId.HasValue)
-            {
-                query = query.Where(p => p.DepartmentId == departmentId.Value);
-            }
+        //    // Apply department filter for Dashboard filtering
+        //    if (departmentId.HasValue)
+        //    {
+        //        query = query.Where(p => p.DepartmentId == departmentId.Value);
+        //    }
 
-            // Apply department filter for Dashboard filtering
-            if (departmentId.HasValue)
-            {
-                query = query.Where(p => p.DepartmentId == departmentId.Value);
-            }
+        //    return PaginatedList<Project>.Create(query, page, pageSize);
+        //}
 
-            return await PaginatedList<Project>.CreateAsync(query, page, pageSize);
-        }
 
 
         public async Task<Project> AddProjectAsync(Project project)
@@ -130,5 +125,14 @@ namespace SmartTask.BL.Services
             return await GetFilteredProjectsAsync(searchString, null, page, pageSize);
         }
 
+        public Task<PaginatedList<Project>> GetFilteredByDepartmentProjectsAsync(string searchString, int? departmentId, int? branchId, int page, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Project>> GetFilteredProjectsAsync(object value1, object value2, int v, int maxValue)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

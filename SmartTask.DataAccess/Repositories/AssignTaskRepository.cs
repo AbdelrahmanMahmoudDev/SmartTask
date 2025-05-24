@@ -92,51 +92,51 @@ namespace SmartTask.DataAccess.Repositories
                 .Where(a => ids.Contains(a.UserId))
                 .ToList();
         }
-        public async Task AssignTasksToUserByIds(List<string> ids, TaskModel task, ClaimsPrincipal user)
-        {
-            //var assignedTasks = new List<AssignTask>();
-            AssignTask assignedTask;
+        //public async Task AssignTasksToUserByIds(List<string> ids, TaskModel task, ClaimsPrincipal user)
+        //{
+        //    //var assignedTasks = new List<AssignTask>();
+        //    AssignTask assignedTask;
 
-            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-            foreach (var id in ids)
-            {
-                assignedTask = new AssignTask
-                {
-                    UserId = id,
-                    TaskId = task.Id,
-                    AssignedAt = DateTime.UtcNow,
-                    AssignedById = userId,
-                    Status = task.Status,
-                    Comments = ""
-                };
-                _context.AssignTasks.Add(assignedTask);
+        //    var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    foreach (var id in ids)
+        //    {
+        //        assignedTask = new AssignTask
+        //        {
+        //            UserId = id,
+        //            TaskId = task.Id,
+        //            AssignedAt = DateTime.UtcNow,
+        //            AssignedById = userId,
+        //            Status = task.Status,
+        //            Comments = ""
+        //        };
+        //        _context.AssignTasks.Add(assignedTask);
 
-            }
-            //_context.AssignTasks.AddRange(assignedTasks);
-            await _context.SaveChangesAsync();
-        }
-        public async Task ModifyTasksToUserByIds(string userId, TaskModel _task, List<string> assignments)
-        {
+        //    }
+        //    //_context.AssignTasks.AddRange(assignedTasks);
+        //    await _context.SaveChangesAsync();
+        //}
+        //public async Task ModifyTasksToUserByIds(string userId, TaskModel _task, List<string> assignments)
+        //{
 
-            _task.CreatedById = userId;
-            _task.CreatedAt = DateTime.Now;
-            _task.UpdatedAt = DateTime.Now;
-            _context.AssignTasks.RemoveRange(_task.Assignments);
-            await _context.SaveChangesAsync();
+        //    _task.CreatedById = userId;
+        //    _task.CreatedAt = DateTime.Now;
+        //    _task.UpdatedAt = DateTime.Now;
+        //    _context.AssignTasks.RemoveRange(_task.Assignments);
+        //    await _context.SaveChangesAsync();
 
-            foreach (var assignedUserId in assignments)
-            {
-                _context.AssignTasks.Add(new AssignTask
-                {
-                    UserId = assignedUserId,
-                    TaskId = _task.Id,
-                    AssignedAt = DateTime.UtcNow,
-                    AssignedById = userId,
-                    Status = _task.Status,
-                    Comments = ""
-                });
-            }
-            await _context.SaveChangesAsync();
-        }
+        //    foreach (var assignedUserId in assignments)
+        //    {
+        //        _context.AssignTasks.Add(new AssignTask
+        //        {
+        //            UserId = assignedUserId,
+        //            TaskId = _task.Id,
+        //            AssignedAt = DateTime.UtcNow,
+        //            AssignedById = userId,
+        //            Status = _task.Status,
+        //            Comments = ""
+        //        });
+        //    }
+        //    await _context.SaveChangesAsync();
+        //}
     }
 }

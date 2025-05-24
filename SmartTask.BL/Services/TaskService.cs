@@ -3,7 +3,7 @@ using SmartTask.BL.IServices;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
 using SmartTask.Core.Models.Enums;
-using SmartTask.Core.Models.ServiceDto;
+//using SmartTask.Core.Models.ServiceDto;
 
 namespace SmartTask.BL.Services
 {
@@ -27,11 +27,11 @@ namespace SmartTask.BL.Services
             var task = await _taskRepository.GetWithDetailsAsync(id);
             return task;
         }
-        public async Task<bool> ISAParent(int id)
-        {
-            var task = await _taskRepository.ISAParent(id);
-            return task;
-        }
+        //public async Task<bool> ISAParent(int id)
+        //{
+        //    var task = await _taskRepository.ISAParent(id);
+        //    return task;
+        //}
         public async Task<Comment> AddComment(int taskId, string authorId, string content)
         {
             var comment = new Comment
@@ -102,53 +102,53 @@ namespace SmartTask.BL.Services
             return (await _taskRepository.GetByIdAsync(taskId));
         }
 
-        public async System.Threading.Tasks.Task DeleteDepend(int taskId)
-        {
-            var depend = (await _taskDependencyRepository.GetByPredecessorIdAsync(taskId)).ToList();
-            await _taskDependencyRepository.DeleteRangeAsync(depend);
+        //public async System.Threading.Tasks.Task DeleteDepend(int taskId)
+        //{
+        //    var depend = (await _taskDependencyRepository.GetByPredecessorIdAsync(taskId)).ToList();
+        //    await _taskDependencyRepository.DeleteRangeAsync(depend);
 
-            var depend2 = (await _taskDependencyRepository.GetBySuccessorIdAsync(taskId)).ToList();
-            await _taskDependencyRepository.DeleteRangeAsync(depend2);
-        }
+        //    var depend2 = (await _taskDependencyRepository.GetBySuccessorIdAsync(taskId)).ToList();
+        //    await _taskDependencyRepository.DeleteRangeAsync(depend2);
+        //}
 
         public async System.Threading.Tasks.Task Delete(int taskId)
         {
             await _taskRepository.DeleteAsync(taskId);
         }
 
-        public async Task<List<TaskDenpendDto>> Loadnodes(int id)
-        {
-            var graph = new Dictionary<int, List<int>>();
-            var visited = new HashSet<int>();
-            var task = await _taskRepository.GetByIdAsync(id);
-            var allTasks = await _taskRepository.GetByProjectIdAsync(task.ProjectId);
+        //public async Task<List<TaskDenpendDto>> Loadnodes(int id)
+        //{
+        //    var graph = new Dictionary<int, List<int>>();
+        //    var visited = new HashSet<int>();
+        //    var task = await _taskRepository.GetByIdAsync(id);
+        //    var allTasks = await _taskRepository.GetByProjectIdAsync(task.ProjectId);
 
-            var taskdepn = (await _taskDependencyRepository.GetAllAsync()).ToList()
-                .Where(x => x.Predecessor.ProjectId == task.ProjectId).ToList();
+        //    var taskdepn = (await _taskDependencyRepository.GetAllAsync()).ToList()
+        //        .Where(x => x.Predecessor.ProjectId == task.ProjectId).ToList();
 
-            taskdepn.ForEach(t =>
-            {
-                if (!graph.ContainsKey(t.PredecessorId))
-                {
-                    graph[t.PredecessorId] = new List<int>();
-                }
-                graph[t.PredecessorId].Add(t.SuccessorId);
-            });
+        //    taskdepn.ForEach(t =>
+        //    {
+        //        if (!graph.ContainsKey(t.PredecessorId))
+        //        {
+        //            graph[t.PredecessorId] = new List<int>();
+        //        }
+        //        graph[t.PredecessorId].Add(t.SuccessorId);
+        //    });
 
-            visited.DFS(id, graph);
+        //    visited.DFS(id, graph);
 
-            var notReachable = allTasks.ToList().ExceptBy(visited, e => e.Id);
-            var existingDeps = (await _taskDependencyRepository.GetBySuccessorIdAsync(id)).Select(e => e.PredecessorId).ToList();
+        //    var notReachable = allTasks.ToList().ExceptBy(visited, e => e.Id);
+        //    var existingDeps = (await _taskDependencyRepository.GetBySuccessorIdAsync(id)).Select(e => e.PredecessorId).ToList();
 
-            var taskViewDeps = notReachable.Select(n => new TaskDenpendDto
-            {
-                TaskId = n.Id,
-                Name = n.Title,
-                IsSelected = existingDeps.Contains(n.Id)
-            }).ToList();
+        //    var taskViewDeps = notReachable.Select(n => new TaskDenpendDto
+        //    {
+        //        TaskId = n.Id,
+        //        Name = n.Title,
+        //        IsSelected = existingDeps.Contains(n.Id)
+        //    }).ToList();
 
-            return taskViewDeps;
-        }
+        //    return taskViewDeps;
+        //}
 
         public async System.Threading.Tasks.Task SaveSelectedTasks(int SelectedTaskId, List<int> selectedTaskIds)
         {
@@ -173,6 +173,16 @@ namespace SmartTask.BL.Services
                     await _taskDependencyRepository.DeleteAsync(dependency.Id);
                 }
             }
+        }
+
+        public Task<bool> ISAParent(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public System.Threading.Tasks.Task DeleteDepend(int taskId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

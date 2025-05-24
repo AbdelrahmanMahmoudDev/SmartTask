@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Graph.Models;
+//using Microsoft.Graph.Models;
 using SmartTask.BL.IServices;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
@@ -68,7 +68,9 @@ namespace SmartTask.BL.Services
                 ShowRecentProjects = true,
                 ShowProjectStatus = true,
                 ShowUpcomingTasks = true,
-                ShowActivityChart = true,
+                //ShowActivityChart = true,
+                ShowMyTasks = true,
+                ShowTasksOverview = true,
                 RecentProjectsCount = 5,
                 PreferredView = "grid",
                 CreatedAt = DateTime.Now,
@@ -87,8 +89,9 @@ namespace SmartTask.BL.Services
                 ShowRecentProjects = preference.ShowRecentProjects,
                 ShowProjectStatus = preference.ShowProjectStatus,
                 ShowUpcomingTasks = preference.ShowUpcomingTasks,
-                ShowActivityChart = preference.ShowActivityChart,
                 RecentProjectsCount = preference.RecentProjectsCount,
+                ShowMyTasks = preference.ShowMyTasks,
+                ShowTasksOverview = preference.ShowTasksOverview,
                 PreferredView = preference.PreferredView,
                 CreatedAt = preference.CreatedAt,
                 UpdatedAt = preference.UpdatedAt,
@@ -118,9 +121,11 @@ namespace SmartTask.BL.Services
                 existingPreference.ShowRecentProjects = settings.ShowRecentProjects;
                 existingPreference.ShowProjectStatus = settings.ShowProjectStatus;
                 existingPreference.ShowUpcomingTasks = settings.ShowUpcomingTasks;
-                existingPreference.ShowActivityChart = settings.ShowActivityChart;
+              //  existingPreference.ShowActivityChart = settings.ShowActivityChart;
                 existingPreference.RecentProjectsCount = settings.RecentProjectsCount;
                 existingPreference.PreferredView = settings.PreferredView;
+                existingPreference.ShowMyTasks = settings.ShowMyTasks;
+                existingPreference.ShowTasksOverview = settings.ShowTasksOverview;
                 existingPreference.UpdatedAt = DateTime.Now;
 
                 await _preferenceRepository.UpdateAsync(existingPreference);
@@ -136,7 +141,9 @@ namespace SmartTask.BL.Services
                 ShowRecentProjects = settings.ShowRecentProjects,
                 ShowProjectStatus = settings.ShowProjectStatus,
                 ShowUpcomingTasks = settings.ShowUpcomingTasks,
-                ShowActivityChart = settings.ShowActivityChart,
+                //ShowActivityChart = settings.ShowActivityChart,
+                ShowMyTasks = settings.ShowMyTasks,
+                ShowTasksOverview = settings.ShowTasksOverview,
                 RecentProjectsCount = settings.RecentProjectsCount,
                 PreferredView = settings.PreferredView,
                 CreatedAt = settings.CreatedAt,
@@ -160,7 +167,9 @@ namespace SmartTask.BL.Services
                     ShowRecentProjects = true,
                     ShowProjectStatus = true,
                     ShowUpcomingTasks = true,
-                    ShowActivityChart = true,
+                    //ShowActivityChart = true,
+                    ShowMyTasks = true,
+                    ShowTasksOverview=true,
                     RecentProjectsCount = 5,
                     PreferredView = "grid",
                     CreatedAt = DateTime.Now,
@@ -207,7 +216,9 @@ namespace SmartTask.BL.Services
                 ShowRecentProjects = preference.ShowRecentProjects,
                 ShowProjectStatus = preference.ShowProjectStatus,
                 ShowUpcomingTasks = preference.ShowUpcomingTasks,
-                ShowActivityChart = preference.ShowActivityChart,
+                //ShowActivityChart = preference.ShowActivityChart,
+                ShowMyTasks = preference.ShowMyTasks,
+                ShowTasksOverview = preference.ShowTasksOverview,
                 RecentProjectsCount = preference.RecentProjectsCount,
                 PreferredView = preference.PreferredView,
                 CreatedAt = preference.CreatedAt,

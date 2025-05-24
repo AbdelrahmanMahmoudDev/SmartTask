@@ -1,0 +1,160 @@
+﻿@model List<SmartTask.Core.Models.Task>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "My Tasks";
+    var today = DateTime.Today;
+
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">My Tasks</h2>
+
+    <div class="card shadow rounded p-4 mb-4">
+        <form id="filterForm" class="row g-3">
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="searchKeyword" placeholder="Search by title or description">
+            </div>
+
+            <div class="col-md-2">
+                <select class="form-select" id="statusFilter">
+                    <option value="">Status</option>
+                    <option value="Todo">To Do</option>
+                    <option value="InProgress">In Progress</option>
+                    <option value="Done">Done</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select class="form-select" id="priorityFilter">
+                    <option value="">Priority</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <input type="date" class="form-control" id="startDate">
+            </div>
+
+            <div class="col-md-2">
+                <input type="date" class="form-control" id="endDate">
+            </div>
+
+            <div class="col-md-1 d-grid">
+                <button type="button" class="btn btn-primary" onclick="filterTasks()">Filter</button>
+            </div>
+
+            <div class="col-md-1 d-grid">
+                <button type="button" class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row" id="taskContainer">
+        @foreach (var task in Model)
+        {
+            var dueText = task.EndDate.HasValue
+            ? (task.EndDate.Value.Date < today
+            ? $"Overdue by {(today - task.EndDate.Value.Date).Days} days"
+            : $"Due {task.EndDate.Value.ToString("M/d/yyyy")}")
+            : "";
+            <div class="col-md-6 mb-4 task-card"
+                 data-title="@task.Title?.ToLowerInvariant()"
+                 data-description="@task.Description?.ToLowerInvariant()"
+                 data-status="@task.Status"
+                 data-priority="@task.Priority"
+                 data-start="@task.StartDate?.ToString("yyyy-MM-dd")"
+                 data-end="@task.EndDate?.ToString("yyyy-MM-dd")">
+
+                <div class="card border-left-4 border-primary shadow h-100 py-2 px-3">
+                    <div class="card-body">
+                        <h5 class="card-title">@task.Title</h5>
+                        <p class="card-text text-muted">@task.Description</p>
+                        <p class="mb-1"><strong>Start:</strong> @task.StartDate?.ToString("yyyy-MM-dd")</p>
+                        <p class="mb-1"><strong>End:</strong> @task.EndDate?.ToString("yyyy-MM-dd")</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <div>
+                                @if (!string.IsNullOrEmpty(dueText))
+                                {
+                                    if (task.EndDate < today)
+                                    {
+                                        <span class="overdue"><strong>@dueText</strong></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted"><strong>@dueText</strong></span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <span class="badge bg-info">@task.Status</span>
+                        <span class="badge bg-warning text-dark">@task.Priority</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div>
+    <a href="@Url.Action("Index", "Dashboard")" class="btn btn-secondary" id="cancelBtn">
+        <i class="fas fa-arrow-left"></i>
+        Back to Dashboard
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        function filterTasks() {
+            const keyword = document.getElementById('searchKeyword').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+            const priority = document.getElementById('priorityFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            const tasks = document.querySelectorAll('.task-card');
+            let anyVisible = false;
+
+            tasks.forEach(task => {
+                const title = task.dataset.title || '';
+                const description = task.dataset.description || '';
+                const taskStatus = task.dataset.status || '';
+                const taskPriority = task.dataset.priority || '';
+                const start = task.dataset.start;
+                const end = task.dataset.end;
+
+                const matchKeyword = keyword === '' || title.includes(keyword) || description.includes(keyword);
+                const matchStatus = status === '' || taskStatus === status;
+                const matchPriority = priority === '' || taskPriority === priority;
+                const matchStart = startDate === '' || (start && start >= startDate);
+                const matchEnd = endDate === '' || (end && end <= endDate);
+
+                const shouldShow = matchKeyword && matchStatus && matchPriority && matchStart && matchEnd;
+
+                task.style.display = shouldShow ? 'block' : 'none';
+
+                if (shouldShow) anyVisible = true;
+            });
+
+            // Show or hide "no results" message
+            document.getElementById("noTasksMessage").style.display = anyVisible ? 'none' : 'block';
+        }
+
+        function resetFilters() {
+            document.getElementById('filterForm').reset();
+            filterTasks();
+        }
+
+        // Run filter once when page loads
+        document.addEventListener("DOMContentLoaded", function () {
+            filterTasks();
+        });
+    </script>
+
+    <div id="noTasksMessage" class="alert alert-warning text-center mt-3" style="display:none;">
+        No tasks found matching the selected filters.
+    </div>
+}

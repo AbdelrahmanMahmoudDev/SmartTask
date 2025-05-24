@@ -22,7 +22,10 @@ namespace SmartTask.Core.Models
         public bool ShowRecentProjects { get; set; } = true;
         public bool ShowProjectStatus { get; set; } = true;
         public bool ShowUpcomingTasks { get; set; } = true;
-        public bool ShowActivityChart { get; set; } = true;
+        //public bool ShowActivityChart { get; set; } = true;
+        public bool ShowMyTasks { get; set; } = true;
+        public bool ShowTasksOverview { get; set; } = true;
+
         public int RecentProjectsCount { get; set; } = 5;
 
         [StringLength(20)]
