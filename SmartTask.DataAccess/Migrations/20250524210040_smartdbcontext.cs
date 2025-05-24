@@ -6,7 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SmartTask.DataAccess.Migrations
 {
     /// <inheritdoc />
+<<<<<<<< HEAD:SmartTask.DataAccess/Migrations/20250524210040_smartdbcontext.cs
     public partial class smartdbcontext : Migration
+========
+    public partial class Initcreate : Migration
+>>>>>>>> a261c2cf695b094290b4516ef03d7fe2a308490c:SmartTask.DataAccess/Migrations/20250520070021_Init create.cs
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -259,9 +263,12 @@ namespace SmartTask.DataAccess.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+<<<<<<<< HEAD:SmartTask.DataAccess/Migrations/20250524210040_smartdbcontext.cs
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsRead = table.Column<bool>(type: "bit", nullable: true),
                     link = table.Column<string>(type: "nvarchar(max)", nullable: true),
+========
+>>>>>>>> a261c2cf695b094290b4516ef03d7fe2a308490c:SmartTask.DataAccess/Migrations/20250520070021_Init create.cs
                     SenderId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ReceiverId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
@@ -273,6 +280,7 @@ namespace SmartTask.DataAccess.Migrations
                         column: x => x.ReceiverId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
+<<<<<<<< HEAD:SmartTask.DataAccess/Migrations/20250524210040_smartdbcontext.cs
                     table.ForeignKey(
                         name: "FK_Notifications_AspNetUsers_SenderId",
                         column: x => x.SenderId,
@@ -297,6 +305,11 @@ namespace SmartTask.DataAccess.Migrations
                     table.ForeignKey(
                         name: "FK_UserColumnPreferences_AspNetUsers_UserId",
                         column: x => x.UserId,
+========
+                    table.ForeignKey(
+                        name: "FK_Notifications_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+>>>>>>>> a261c2cf695b094290b4516ef03d7fe2a308490c:SmartTask.DataAccess/Migrations/20250520070021_Init create.cs
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });

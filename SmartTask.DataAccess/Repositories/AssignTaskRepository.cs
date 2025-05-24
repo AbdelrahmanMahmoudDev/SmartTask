@@ -142,7 +142,7 @@ namespace SmartTask.DataAccess.Repositories
             _task.CreatedAt = DateTime.Now;
             _task.UpdatedAt = DateTime.Now;
             _context.AssignTasks.RemoveRange(_task.Assignments);
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
 
             foreach (var assignedUserId in assignments)
             {
