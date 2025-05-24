@@ -117,7 +117,7 @@ namespace SmartTask.Web.Controllers
                             Description = task.Description,
                             EndDate = task.EndDate,
                             Priority = task.Priority,
-                            IsDelayed = IsTaskDelayed(task.EndDate, project.EndDate)
+                            IsDelayed = IsTaskDelayed(task.EndDate)
                         };
 
                         projectSummary.InProgressTasks.Add(inProgressTaskViewModel);
@@ -159,14 +159,14 @@ namespace SmartTask.Web.Controllers
         /// <param name="taskEndDate">The task's end date</param>
         /// <param name="projectEndDate">The project's end date</param>
         /// <returns>True if the task end date exceeds the project end date</returns>
-        private bool IsTaskDelayed(DateTime? taskEndDate, DateTime? projectEndDate)
+        private bool IsTaskDelayed(DateTime? taskEndDate)
         {
-            if (!taskEndDate.HasValue || !projectEndDate.HasValue)
+            if (!taskEndDate.HasValue )
             {
                 return false;
             }
 
-            return taskEndDate.Value > projectEndDate.Value;
+            return taskEndDate.Value < DateTime.Now;
         }
     }
 }
