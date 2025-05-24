@@ -1,80 +1,6 @@
 ﻿@using SmartTask.Web.ViewModels.DepartmentVM
 <!-- Views/Department/Index.cshtml -->
 @model DepartmentIndexViewModel
-
-<h1>Departments</h1>
-
-<secure-content asp-area="" asp-controller="Department" asp-action="Create">
-    <a asp-action="Create" class="btn btn-success">Create New</a>
-</secure-content>
-
-<form asp-action="Index" method="get">
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" name="searchString" value="@Model.SearchString"
-               placeholder="Search departments...">
-        <button class="btn btn-outline-secondary" type="submit">Search</button>
-    </div>
-</form>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Manager</th>
-            <th>Department</th>
-            <secure-content asp-area="" asp-controller="Department" asp-action="Edit">
-
-                <th>Edit</th>
-            </secure-content>
-
-            <secure-content asp-area="" asp-controller="Department" asp-action="Delete">
-
-                <th>Delete</th>
-            </secure-content>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var department in Model.Departments)
-        {
-            <tr>
-                <td>@department.Name</td>
-                <td>@department.Manager?.FullName</td>
-              
-                <td><a href="/department/details/@department.Id" class="btn btn-primary">Details</a></td>
-                    <secure-content asp-area="" asp-controller="Branch" asp-action="Edit">
-
-                        <td><a href="/Department/edit/@department.Id" class="btn btn-primary">Edit</a></td>
-                    </secure-content>
-                    <secure-content asp-area="" asp-controller="Department" asp-action="Delete">
-                        <td><a href="/Department/Delete/@department.Id" onclick="return confirm('Are you sure?')" class="btn btn-danger">Delete</a></td>
-
-                    </secure-content>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@{
-    var prevDisabled = !Model.Departments.HasPreviousPage ? "disabled" : "";
-    var nextDisabled = !Model.Departments.HasNextPage ? "disabled" : "";
-}
-
-<a asp-action="Index"
-   asp-route-page="@(Model.Departments.PageIndex - 1)"
-   asp-route-searchString="@Model.SearchString"
-   class="btn btn-primary @prevDisabled">
-    Previous
-</a>
-<a asp-action="Index"
-   asp-route-page="@(Model.Departments.PageIndex + 1)"
-   asp-route-searchString="@Model.SearchString"
-   class="btn btn-primary @nextDisabled">
-    Next
-</a>
-
-@{
-    ViewData["Title"] = "Department Table";
-}
 <!-- ====== CDN CSS Links ====== -->
 <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -746,22 +672,92 @@
     /* .view-btn { */
     /*     background-color: #17a2b8; /* أزرق سماوي */ */
     /* } */
-
     /* .edit-btn { */
     /*     background-color: #007bff; /* أزرق */ */
     /* } */
-
     /* .delete-btn { */
     /*     background-color: #dc3545; /* أحمر */ */
     /* } */
-
     .create-btn {
         background-color: #007bfa; /* أصفر */
         color: #fff;
     }
 
-
 </style>
+<h1>Departments</h1>
+
+<secure-content asp-area="" asp-controller="Department" asp-action="Create">
+    <a asp-action="Create" class="btn btn-success">Create New</a>
+</secure-content>
+
+<form asp-action="Index" method="get">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" name="searchString" value="@Model.SearchString"
+               placeholder="Search departments...">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Manager</th>
+            <th>Department</th>
+            <secure-content asp-area="" asp-controller="Department" asp-action="Edit">
+
+                <th>Edit</th>
+            </secure-content>
+
+            <secure-content asp-area="" asp-controller="Department" asp-action="Delete">
+
+                <th>Delete</th>
+            </secure-content>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var department in Model.Departments)
+        {
+            <tr>
+                <td>@department.Name</td>
+                <td>@department.Manager?.FullName</td>
+              
+                <td><a href="/department/details/@department.Id" class="btn btn-primary">Details</a></td>
+                    <secure-content asp-area="" asp-controller="Branch" asp-action="Edit">
+
+                        <td><a href="/Department/edit/@department.Id" class="btn btn-primary">Edit</a></td>
+                    </secure-content>
+                    <secure-content asp-area="" asp-controller="Department" asp-action="Delete">
+                        <td><a href="/Department/Delete/@department.Id" onclick="return confirm('Are you sure?')" class="btn btn-danger">Delete</a></td>
+
+                    </secure-content>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisabled = !Model.Departments.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.Departments.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-page="@(Model.Departments.PageIndex - 1)"
+   asp-route-searchString="@Model.SearchString"
+   class="btn btn-primary @prevDisabled">
+    Previous
+</a>
+<a asp-action="Index"
+   asp-route-page="@(Model.Departments.PageIndex + 1)"
+   asp-route-searchString="@Model.SearchString"
+   class="btn btn-primary @nextDisabled">
+    Next
+</a>
+
+@{
+    ViewData["Title"] = "Department Table";
+}
+
 
 <!-- ====== HTML BODY START ====== -->
 <div class="container mt-5">

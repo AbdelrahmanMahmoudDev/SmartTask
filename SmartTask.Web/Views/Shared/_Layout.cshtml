@@ -463,11 +463,13 @@
 												</a>
 											</li>
 											</secure-content>	
-										<li>
-											<a href="employee-dashboard.html">
-												Employee Dashboard
-											</a>
-										</li>
+										<secure-content asp-area="" asp-controller="User" asp-action="DashBoard">
+											<li>
+												<a asp-controller="Admin" asp-action="Index" asp-route-id="@userId">
+													Admin Dashboard
+												</a>
+											</li>
+										</secure-content>
 
 									</ul>
 								</li>

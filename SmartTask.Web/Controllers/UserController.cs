@@ -125,5 +125,11 @@ namespace SmartTask.Web.Controllers
             await _userService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
+        public async Task<IActionResult> DashBoard(string id)
+        {
+            await _userService.DeleteAsync(id);
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }
