@@ -1,674 +1,660 @@
 ﻿@using SmartTask.Web.TagHelpers;
+@using System.Security.Claims
 @addTagHelper *, SmartTask.Web.TagHelpers
+@{
+    var userId = User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+}
 <!DOCTYPE html>
 <html lang="en" data-color="lavared">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>@ViewData["Title"] - SmartTask.Web</title>
-	<script type="importmap"></script>
-	<!-- Favicon -->
-	<link rel="shortcut icon" type="image/x-icon" href="~/assets/img/favicon.png">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SmartTask.Web</title>
+    <script type="importmap"></script>
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="~/assets/img/favicon.png">
 
-	<!-- Apple Touch Icon -->
-	<link rel="apple-touch-icon" sizes="180x180" href="~/assets/img/apple-touch-icon.png">
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="~/assets/img/apple-touch-icon.png">
 
-	<!-- Theme Script js -->
-	@* <script src="~/assets/js/theme-script.js"></script> *@
+    <!-- Theme Script js -->
+    @* <script src="~/assets/js/theme-script.js"></script> *@
 
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-
-
-	<!-- Feather CSS -->
-	<link rel="stylesheet" href="~/assets/plugins/icons/feather/feather.css">
-
-	<!-- Tabler Icon CSS -->
-	<link rel="stylesheet" href="~/assets/plugins/tabler-icons/tabler-icons.css">
-
-	<!-- Select2 CSS -->
-	<link rel="stylesheet" href="~/assets/plugins/select2/css/select2.min.css">
-
-	<!-- Fontawesome CSS -->
-	<link rel="stylesheet" href="~/assets/plugins/fontawesome/css/fontawesome.min.css">
-	<link rel="stylesheet" href="~/assets/plugins/fontawesome/css/all.min.css">
-
-	<!-- Color Picker Css -->
-	<link rel="stylesheet" href="~/assets/plugins/flatpickr/flatpickr.min.css">
-	<link rel="stylesheet" href="~/assets/plugins/simonwep/pickr/themes/nano.min.css">
-
-	<!-- Daterangepikcer CSS -->
-	<link rel="stylesheet" href="~/assets/plugins/daterangepicker/daterangepicker.css">
-
-	<!-- Datatable CSS -->
-	<link rel="stylesheet" href="~/assets/css/dataTables.bootstrap5.min.css">
-
-	<!-- Select2 CSS -->
-	<link rel="stylesheet" href="~/assets/plugins/select2/css/select2.min.css">
-
-	<!-- Bootstrap Tagsinput CSS -->
-	<link rel="stylesheet" href="~/assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css">
-
-	<!-- Main CSS -->
-	<link rel="stylesheet" href="~/assets/css/style.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
 
+    <!-- Feather CSS -->
+    <link rel="stylesheet" href="~/assets/plugins/icons/feather/feather.css">
 
-	@* <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /> *@
-	@* <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
-	@* <link rel="stylesheet" href="~/SmartTask.Web.styles.css" asp-append-version="true" /> *@
+    <!-- Tabler Icon CSS -->
+    <link rel="stylesheet" href="~/assets/plugins/tabler-icons/tabler-icons.css">
 
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
-	<link rel="stylesheet" href="~/css/notification.css" />
+    <!-- Select2 CSS -->
+    <link rel="stylesheet" href="~/assets/plugins/select2/css/select2.min.css">
+
+    <!-- Fontawesome CSS -->
+    <link rel="stylesheet" href="~/assets/plugins/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="~/assets/plugins/fontawesome/css/all.min.css">
+
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="~/assets/plugins/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="~/assets/plugins/simonwep/pickr/themes/nano.min.css">
+
+    <!-- Daterangepikcer CSS -->
+    <link rel="stylesheet" href="~/assets/plugins/daterangepicker/daterangepicker.css">
+
+    <!-- Datatable CSS -->
+    <link rel="stylesheet" href="~/assets/css/dataTables.bootstrap5.min.css">
+
+    <!-- Select2 CSS -->
+    <link rel="stylesheet" href="~/assets/plugins/select2/css/select2.min.css">
+
+    <!-- Bootstrap Tagsinput CSS -->
+    <link rel="stylesheet" href="~/assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="~/assets/css/style.css">
+
+
+
+    @* <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /> *@
+    @* <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
+    @* <link rel="stylesheet" href="~/SmartTask.Web.styles.css" asp-append-version="true" /> *@
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link rel="stylesheet" href="~/css/notification.css" />
 </head>
 @RenderSection("Header", required: false)
 <body>
-	@Html.AntiForgeryToken()
-	<div id="global-loader" style="display: none;">
-		<div class="page-loader"></div>
-	</div>
-	<div class="main-wrapper">
+    @Html.AntiForgeryToken()
+    <div id="global-loader" style="display: none;">
+        <div class="page-loader"></div>
+    </div>
+    <div class="main-wrapper">
 
-		<!-- Header -->
-		<div class="header">
-			<div class="main-header">
+        <!-- Header -->
+        <div class="header">
+            <div class="main-header">
 
-				<div class="header-left">
-					<a asp-controller="Home" asp-action="Index" class="logo">
-						<img src="~/assets/img/logo.svg" alt="Logo">
-					</a>
-					<a asp-controller="Home" asp-action="Index" class="dark-logo">
-						<img src="~/assets/img/logo-white.svg" alt="Logo">
-					</a>
-				</div>
+                <div class="header-left">
+                    <a asp-controller="Home" asp-action="Index" class="logo">
+                        <img src="~/assets/img/logo.svg" alt="Logo">
+                    </a>
+                    <a asp-controller="Home" asp-action="Index" class="dark-logo">
+                        <img src="~/assets/img/logo-white.svg" alt="Logo">
+                    </a>
+                </div>
 
-				<a id="mobile_btn" class="mobile_btn" href="#sidebar">
-					<span class="bar-icon">
-						<span></span>
-						<span></span>
-						<span></span>
-					</span>
-				</a>
+                <a id="mobile_btn" class="mobile_btn" href="#sidebar">
+                    <span class="bar-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                </a>
 
-				<div class="header-user">
-					<div class="nav user-menu nav-list">
+                <div class="header-user">
+                    <div class="nav user-menu nav-list">
 
-						<div class="me-auto d-flex align-items-center" id="header-search">
-							<a id="toggle_btn" href="javascript:void(0);" class="btn btn-menubar me-1">
-								<i class="ti ti-arrow-bar-to-left"></i>
-							</a>
-							<!-- Search -->
-							<div class="input-group input-group-flat d-inline-flex me-1">
-								<span class="input-icon-addon">
-									<i class="ti ti-search"></i>
-								</span>
-								<input type="text" class="form-control" placeholder="Search in HRMS">
-								<span class="input-group-text">
-									<kbd>CTRL + / </kbd>
-								</span>
-							</div>
-							<!-- /Search -->
-							<div class="dropdown crm-dropdown">
-								<a href="#" class="btn btn-menubar me-1" data-bs-toggle="dropdown">
-									<i class="ti ti-layout-grid"></i>
-								</a>
-								<div class="dropdown-menu dropdown-lg dropdown-menu-start">
-									<div class="card mb-0 border-0 shadow-none">
-										<div class="card-header">
-											<h4>CRM</h4>
-										</div>
-										<div class="card-body pb-1">
-											<div class="row">
-												<div class="col-sm-6">
-													<a href="contacts.html"
-													   class="d-flex align-items-center justify-content-between p-2 crm-link mb-3">
-														<span class="d-flex align-items-center me-3">
-															<i class="ti ti-user-shield text-default me-2"></i>Contacts
-														</span>
-														<i class="ti ti-arrow-right"></i>
-													</a>
-													<a href="deals-grid.html"
-													   class="d-flex align-items-center justify-content-between p-2 crm-link mb-3">
-														<span class="d-flex align-items-center me-3">
-															<i class="ti ti-heart-handshake text-default me-2"></i>Deals
-														</span>
-														<i class="ti ti-arrow-right"></i>
-													</a>
-													<a href="pipeline.html"
-													   class="d-flex align-items-center justify-content-between p-2 crm-link mb-3">
-														<span class="d-flex align-items-center me-3">
-															<i class="ti ti-timeline-event-text text-default me-2"></i>Pipeline
-														</span>
-														<i class="ti ti-arrow-right"></i>
-													</a>
-												</div>
-												<div class="col-sm-6">
-													<a href="companies-grid.html"
-													   class="d-flex align-items-center justify-content-between p-2 crm-link mb-3">
-														<span class="d-flex align-items-center me-3">
-															<i class="ti ti-building text-default me-2"></i>Companies
-														</span>
-														<i class="ti ti-arrow-right"></i>
-													</a>
-													<a href="leads-grid.html"
-													   class="d-flex align-items-center justify-content-between p-2 crm-link mb-3">
-														<span class="d-flex align-items-center me-3">
-															<i class="ti ti-user-check text-default me-2"></i>Leads
-														</span>
-														<i class="ti ti-arrow-right"></i>
-													</a>
-													<a href="activity.html"
-													   class="d-flex align-items-center justify-content-between p-2 crm-link mb-3">
-														<span class="d-flex align-items-center me-3">
-															<i class="ti ti-activity text-default me-2"></i>Activities
-														</span>
-														<i class="ti ti-arrow-right"></i>
-													</a>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<a href="profile-settings.html" class="btn btn-menubar">
-								<i class="ti ti-settings-cog"></i>
-							</a>
-						</div>
+                        <div class="me-auto d-flex align-items-center" id="header-search">
+                            <a id="toggle_btn" href="javascript:void(0);" class="btn btn-menubar me-1">
+                                <i class="ti ti-arrow-bar-to-left"></i>
+                            </a>
+                            
+                            @* <div class="dropdown-menu dropdown-menu-end"> *@
+                            @*     <div class="card mb-0 border-0 shadow-none"> *@
+                            @*         <div class="card-header"> *@
+                            @*             <h4>Smart Task</h4> *@
+                            @*         </div> *@
+                            @*         <div class="card-body"> *@
+                            @*             <a class="d-block pb-2 btn btn-primary" *@
+                            @*                asp-controller="Notification" *@
+                            @*                asp-action="Index"> *@
+                            @*                 <span class="avatar avatar-md bg-transparent-dark me-2"> *@
+                            @*                     <i class="ti ti-calendar text-gray-9"></i> *@
+                            @*                 </span>Calendar *@
+                            @*             </a> *@
+                            @*             <a href="todo.html" class="d-block py-2"> *@
+                            @*                 <span class="avatar avatar-md bg-transparent-dark me-2"> *@
+                            @*                     <i class="ti ti-subtask text-gray-9"></i> *@
+                            @*                 </span>To Do *@
+                            @*             </a> *@
+                            @*             <a href="notes.html" class="d-block py-2"> *@
+                            @*                 <span class="avatar avatar-md bg-transparent-dark me-2"> *@
+                            @*                     <i class="ti ti-notes text-gray-9"></i> *@
+                            @*                 </span>Notes *@
+                            @*             </a> *@
+                            @*             <a href="file-manager.html" class="d-block py-2"> *@
+                            @*                 <span class="avatar avatar-md bg-transparent-dark me-2"> *@
+                            @*                     <i class="ti ti-folder text-gray-9"></i> *@
+                            @*                 </span>File Manager *@
+                            @*             </a> *@
+                            @*             <a href="kanban-view.html" class="d-block py-2"> *@
+                            @*                 <span class="avatar avatar-md bg-transparent-dark me-2"> *@
+                            @*                     <i class="ti ti-layout-kanban text-gray-9"></i> *@
+                            @*                 </span>Kanban *@
+                            @*             </a> *@
+                            @*             <a href="invoices.html" class="d-block py-2 pb-0"> *@
+                            @*                 <span class="avatar avatar-md bg-transparent-dark me-2"> *@
+                            @*                     <i class="ti ti-file-invoice text-gray-9"></i> *@
+                            @*                 </span>Invoices *@
+                            @*             </a> *@
+                            @*         </div> *@
+                            @*     </div> *@
+                            @* </div> *@
+                        </div>
 
 
 
-						<div class="d-flex align-items-center">
-							<div class="me-1">
-								<a href="#" class="btn btn-menubar btnFullscreen">
-									<i class="ti ti-maximize"></i>
-								</a>
-							</div>
-							<div class="dropdown me-1">
-								<a href="#" class="btn btn-menubar" data-bs-toggle="dropdown">
-									<i class="ti ti-layout-grid-remove"></i>
-								</a>
-								<div class="dropdown-menu dropdown-menu-end">
-									<div class="card mb-0 border-0 shadow-none">
-										<div class="card-header">
-											<h4>Applications</h4>
-										</div>
-										<div class="card-body">
-											<a href="calendar.html" class="d-block pb-2">
-												<span class="avatar avatar-md bg-transparent-dark me-2">
-													<i class="ti ti-calendar text-gray-9"></i>
-												</span>Calendar
-											</a>
-											<a href="todo.html" class="d-block py-2">
-												<span class="avatar avatar-md bg-transparent-dark me-2">
-													<i class="ti ti-subtask text-gray-9"></i>
-												</span>To Do
-											</a>
-											<a href="notes.html" class="d-block py-2">
-												<span class="avatar avatar-md bg-transparent-dark me-2">
-													<i class="ti ti-notes text-gray-9"></i>
-												</span>Notes
-											</a>
-											<a href="file-manager.html" class="d-block py-2">
-												<span class="avatar avatar-md bg-transparent-dark me-2">
-													<i class="ti ti-folder text-gray-9"></i>
-												</span>File Manager
-											</a>
-											<a href="kanban-view.html" class="d-block py-2">
-												<span class="avatar avatar-md bg-transparent-dark me-2">
-													<i class="ti ti-layout-kanban text-gray-9"></i>
-												</span>Kanban
-											</a>
-											<a href="invoices.html" class="d-block py-2 pb-0">
-												<span class="avatar avatar-md bg-transparent-dark me-2">
-													<i class="ti ti-file-invoice text-gray-9"></i>
-												</span>Invoices
-											</a>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="me-1">
-								<a href="chat.html" class="btn btn-menubar position-relative">
-									<i class="ti ti-brand-hipchat"></i>
-									<span class="badge bg-info rounded-pill d-flex align-items-center justify-content-center header-badge">5</span>
-								</a>
-							</div>
-							<div class="me-1">
-								<a href="email.html" class="btn btn-menubar">
-									<i class="ti ti-mail"></i>
-								</a>
-							</div>
-							<div class="me-1 notification_item">
-								<a href="#" class="btn btn-menubar position-relative me-1" id="notification_popup"
-								   data-bs-toggle="dropdown">
-									<i class="ti ti-bell"></i>
-									<span class="notification-status-dot"></span>
-								</a>
-								<div class="dropdown-menu dropdown-menu-end notification-dropdown p-4">
-									<div class="d-flex align-items-center justify-content-between border-bottom p-0 pb-3 mb-3">
-										<h4 class="notification-title">Notifications (<span class="header-badge">0</span>)</h4>
-										<div class="d-flex align-items-center">
-											<a href="#" class="text-primary fs-15 me-3 lh-1" id="mark-all-read">Mark all as read</a>
-											<div class="dropdown">
-												<a href="javascript:void(0);" class="bg-white dropdown-toggle"
-												   data-bs-toggle="dropdown">
-													<i class="ti ti-calendar-due me-1"></i>Today
-												</a>
-												<ul class="dropdown-menu mt-2 p-3">
-													<li>
-														<a href="javascript:void(0);" class="dropdown-item rounded-1">
-															This Week
-														</a>
-													</li>
-													<li>
-														<a href="javascript:void(0);" class="dropdown-item rounded-1">
-															Last Week
-														</a>
-													</li>
-													<li>
-														<a href="javascript:void(0);" class="dropdown-item rounded-1">
-															Last Month
-														</a>
-													</li>
-												</ul>
-											</div>
-										</div>
-									</div>
-									<div class="noti-content">
-										<div class="d-flex flex-column">
-											<!-- Notifications will be dynamically inserted here -->
-										</div>
-									</div>
-									<div class="d-flex p-0 mt-3">
-										<a href="#" class="btn btn-light w-100 me-2" data-bs-dismiss="dropdown">Close</a>
-										<a href="activity.html" class="btn btn-primary w-100">View All</a>
-									</div>
-								</div>
-							</div>
-							<div class="dropdown profile-dropdown">
-								<a href="javascript:void(0);" class="dropdown-toggle d-flex align-items-center"
-								   data-bs-toggle="dropdown">
-									<span class="avatar avatar-sm online">
-										<img src="~/assets/img/profiles/avatar-12.jpg" alt="Img"
-											 class="img-fluid rounded-circle">
-									</span>
-								</a>
-								<div class="dropdown-menu shadow-none">
-									<div class="card mb-0">
-										<div class="card-header">
-											<div class="d-flex align-items-center">
-												<span class="avatar avatar-lg me-2 avatar-rounded">
-													<img src="~/assets/img/profiles/avatar-12.jpg" alt="img">
-												</span>
-												<div>
-													<h5 class="mb-0">Kevin Larry</h5>
-													<p class="fs-12 fw-medium mb-0">
-														<a href="https://smarthr.co.in/cdn-cgi/l/email-protection"
-														   class="__cf_email__"
-														   data-cfemail="2e594f5c5c4b406e4b564f435e424b004d4143">[email&#160;protected]</a>
-													</p>
-												</div>
-											</div>
-										</div>
-										<div class="card-body">
-											<a class="dropdown-item d-inline-flex align-items-center p-0 py-2"
-											   href="profile.html">
-												<i class="ti ti-user-circle me-1"></i>My Profile
-											</a>
-											<a class="dropdown-item d-inline-flex align-items-center p-0 py-2"
-											   href="bussiness-settings.html">
-												<i class="ti ti-settings me-1"></i>Settings
-											</a>
+                        <div class="d-flex align-items-center">
+                            <div class="me-1">
+                                <a href="#" class="btn btn-menubar btnFullscreen">
+                                    <i class="ti ti-maximize"></i>
+                                </a>
+                            </div>
+                            <div class="dropdown me-1">
+                                <a href="#" class="btn btn-menubar" data-bs-toggle="dropdown">
+                                    <i class="ti ti-layout-grid-remove"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <div class="card mb-0 border-0 shadow-none">
+                                        <div class="card-header">
+                                            <h4>Project Manager</h4>
+                                        </div>
+                                       
+                                        <div class="card-body">
+                                            <a asp-controller="Project"
+                                               asp-action="Index" class="d-block py-2">
+                                                <span class="avatar avatar-md bg-transparent-dark me-2">
+                                                    <i class="ti ti-notes text-gray-9"></i>
+                                                </span>Projects
+                                            </a>
+                                            <a asp-controller="ProjectProgress" asp-action="Index" class="d-block py-2">
+                                                <span class="avatar avatar-md bg-transparent-dark me-2">
+                                                    <i class="ti ti-folder text-gray-9"></i>
+                                                </span>Project Progress
+                                            </a>
+                                            <a class="d-block"
+                                               asp-controller="Branch"
+                                               asp-action="Index">
+                                                <span class="avatar avatar-md bg-transparent-dark me-2">
+                                                    <i class="ti ti-calendar text-gray-9"></i>
+                                                </span>Branches
+                                            </a>
+                                            <a class="d-block"
+                                               asp-controller="Department"
+                                               asp-action="Index">
+                                                <span class="avatar avatar-md bg-transparent-dark me-2">
+                                                    <i class="ti ti-calendar text-gray-9"></i>
+                                                </span>Departments
+                                            </a>
+                                            <a asp-controller="Outlook"
+                                               asp-action="Index" class="d-block py-2">
+                                                <span class="avatar avatar-md bg-transparent-dark me-2">
+                                                    <i class="ti ti-subtask text-gray-9"></i>
+                                                </span>Outlook
+                                            </a>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dropdown me-1">
+                                <a href="#" class="btn btn-menubar" data-bs-toggle="dropdown">
+                                    <i class="ti ti-layout-grid-remove"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <div class="card mb-0 border-0 shadow-none">
+                                        <div class="card-header">
+                                            <h4>User Manager</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <a class="d-block"
+                                               asp-controller="User"
+                                               asp-action="Index">
+                                                <span class="avatar avatar-md bg-transparent-dark me-2">
+                                                    <i class="ti ti-calendar text-gray-9"></i>
+                                                </span>All Users
+                                            </a>
+                                            <a asp-controller="Account"
+                                               asp-action="ManageUserRoles" class="d-block py-2">
+                                                <span class="avatar avatar-md bg-transparent-dark me-2">
+                                                    <i class="ti ti-subtask text-gray-9"></i>
+                                                </span>Assign User To Roles
+                                            </a>
+                                            <a asp-controller="Audit"
+                                               asp-action="index" class="d-block py-2">
+                                                <span class="avatar avatar-md bg-transparent-dark me-2">
+                                                    <i class="ti ti-notes text-gray-9"></i>
+                                                </span>Activity Log
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                            <div class="me-1 notification_item">
+                                <a href="#" class="btn btn-menubar position-relative me-1" id="notification_popup"
+                                   data-bs-toggle="dropdown">
+                                    <i class="ti ti-bell"></i>
+                                    <span class="notification-status-dot"></span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end notification-dropdown p-4">
+                                    <div class="d-flex align-items-center justify-content-between border-bottom p-0 pb-3 mb-3">
+                                        <h4 class="notification-title">Notifications (<span class="header-badge">0</span>)</h4>
+                                        <div class="d-flex align-items-center">
+                                            <a href="#" class="text-primary fs-15 me-3 lh-1" id="mark-all-read">Mark all as read</a>
+                                            <div class="dropdown">
+                                                <a href="javascript:void(0);" class="bg-white dropdown-toggle"
+                                                   data-bs-toggle="dropdown">
+                                                    <i class="ti ti-calendar-due me-1"></i>Today
+                                                </a>
+                                                <ul class="dropdown-menu mt-2 p-3">
+                                                    <li>
+                                                        <a href="javascript:void(0);" class="dropdown-item rounded-1">
+                                                            This Week
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="javascript:void(0);" class="dropdown-item rounded-1">
+                                                            Last Week
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="javascript:void(0);" class="dropdown-item rounded-1">
+                                                            Last Month
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="noti-content">
+                                        <div class="d-flex flex-column">
+                                            <!-- Notifications will be dynamically inserted here -->
+                                        </div>
+                                    </div>
+                                    <div class="d-flex p-0 mt-3">
+                                        <a href="#" class="btn btn-light w-100 me-2" data-bs-dismiss="dropdown">Close</a>
+                                        <a href="activity.html" class="btn btn-primary w-100">View All</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dropdown profile-dropdown">
+                                <a href="javascript:void(0);" class="dropdown-toggle d-flex align-items-center"
+                                   data-bs-toggle="dropdown">
+                                    <span class="avatar avatar-sm online">
+                                        <img src="~/assets/img/profiles/avatar-12.jpg" alt="Img"
+                                             class="img-fluid rounded-circle">
+                                    </span>
+                                </a>
+                                <div class="dropdown-menu shadow-none">
+                                    <div class="card mb-0">
+                                        <div class="card-header">
+                                            <div class="d-flex align-items-center">
+                                                <span class="avatar avatar-lg me-2 avatar-rounded">
+                                                    <img src="~/assets/img/profiles/avatar-12.jpg" alt="img">
+                                                </span>
+                                                <div>
+                                                    <h5 class="mb-0">Kevin Larry</h5>
+                                                    <p class="fs-12 fw-medium mb-0">
+                                                        <a href="https://smarthr.co.in/cdn-cgi/l/email-protection"
+                                                           class="__cf_email__"
+                                                           data-cfemail="2e594f5c5c4b406e4b564f435e424b004d4143">[email&#160;protected]</a>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <a class="dropdown-item d-inline-flex align-items-center p-0 py-2"
+                                               asp-controller="User"
+                                               asp-action="Details"
+                                               asp-route-id="@userId">
+                                                <i class="ti ti-user-circle me-1"></i>My Profile
+                                            </a>
+                                        </div>
+                                        <div class="card-footer py-1">
+                                            <a class="dropdown-item d-inline-flex align-items-center p-0 py-2"
+                                               href="account/login"><i class="ti ti-login me-2"></i>Logout</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-											<a class="dropdown-item d-inline-flex align-items-center p-0 py-2"
-											   href="profile-settings.html">
-												<i class="ti ti-circle-arrow-up me-1"></i>My Account
-											</a>
-											<a class="dropdown-item d-inline-flex align-items-center p-0 py-2"
-											   href="knowledgebase.html">
-												<i class="ti ti-question-mark me-1"></i>Knowledge Base
-											</a>
-										</div>
-										<div class="card-footer py-1">
-											<a class="dropdown-item d-inline-flex align-items-center p-0 py-2"
-											   href="login.html"><i class="ti ti-login me-2"></i>Logout</a>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+                <!-- Mobile Menu -->
+                <div class="dropdown mobile-user-menu">
+                    <a href="javascript:void(0);" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        <i class="fa fa-ellipsis-v"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" href="profile.html">
+                            My
+                            Profile
+                        </a>
+                        <a class="dropdown-item" href="profile-settings.html">Settings</a>
+                        <a class="dropdown-item" href="login.html">Logout</a>
+                    </div>
+                </div>
+                <!-- /Mobile Menu -->
 
-				<!-- Mobile Menu -->
-				<div class="dropdown mobile-user-menu">
-					<a href="javascript:void(0);" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
-					   aria-expanded="false">
-						<i class="fa fa-ellipsis-v"></i>
-					</a>
-					<div class="dropdown-menu dropdown-menu-end">
-						<a class="dropdown-item" href="profile.html">
-							My
-							Profile
-						</a>
-						<a class="dropdown-item" href="profile-settings.html">Settings</a>
-						<a class="dropdown-item" href="login.html">Logout</a>
-					</div>
-				</div>
-				<!-- /Mobile Menu -->
+            </div>
 
-			</div>
+        </div>
+        <!-- /Header -->
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <!-- Logo -->
+            <div class="sidebar-logo">
+                <a asp-controller="Home" asp-action="Index" class="logo logo-normal">
+                    <img src="~/assets/img/logo.svg" alt="Logo">
+                </a>
+                <a asp-controller="Home" asp-action="Index" class="logo-small">
+                    <img src="~/assets/img/logo-small.svg" alt="Logo">
+                </a>
+                <a asp-controller="Home" asp-action="Index" class="dark-logo">
+                    <img src="~/assets/img/logo-white.svg" alt="Logo">
+                </a>
+            </div>
+            <!-- /Logo -->
+            <div class="modern-profile p-3 pb-0">
+                <div class="text-center rounded bg-light p-3 mb-4 user-profile">
+                    <div class="avatar avatar-lg online mb-3">
+                        <img src="~/assets/img/profiles/avatar-02.jpg" alt="Img" class="img-fluid rounded-circle">
+                    </div>
+                    <h6 class="fs-12 fw-normal mb-1">Adrian Herman</h6>
+                    <p class="fs-10">System Admin</p>
+                </div>
+                <div class="sidebar-nav mb-3">
+                    <ul class="nav nav-tabs nav-tabs-solid nav-tabs-rounded nav-justified bg-transparent"
+                        role="tablist">
+                        <li class="nav-item"><a class="nav-link active border-0" href="#">Menu</a></li>
+                        <li class="nav-item"><a class="nav-link border-0" href="chat.html">Chats</a></li>
+                        <li class="nav-item"><a class="nav-link border-0" href="email.html">Inbox</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="sidebar-header p-3 pb-0 pt-2">
+                <div class="text-center rounded bg-light p-2 mb-4 sidebar-profile d-flex align-items-center">
+                    <div class="avatar avatar-md onlin">
+                        <img src="~/assets/img/profiles/avatar-02.jpg" alt="Img" class="img-fluid rounded-circle">
+                    </div>
+                    <div class="text-start sidebar-profile-info ms-2">
+                        <h6 class="fs-12 fw-normal mb-1">Adrian Herman</h6>
+                        <p class="fs-10">System Admin</p>
+                    </div>
+                </div>
+                <div class="input-group input-group-flat d-inline-flex mb-4">
+                    <span class="input-icon-addon">
+                        <i class="ti ti-search"></i>
+                    </span>
+                    <input type="text" class="form-control" placeholder="Search in HRMS">
+                    <span class="input-group-text">
+                        <kbd>CTRL + / </kbd>
+                    </span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between menu-item mb-3">
+                    <div class="me-3">
+                        <a href="calendar.html" class="btn btn-menubar">
+                            <i class="ti ti-layout-grid-remove"></i>
+                        </a>
+                    </div>
+                    <div class="me-3">
+                        <a href="chat.html" class="btn btn-menubar position-relative">
+                            <i class="ti ti-brand-hipchat"></i>
+                            <span class="badge bg-info rounded-pill d-flex align-items-center justify-content-center header-badge">5</span>
+                        </a>
+                    </div>
+                    <div class="me-3 notification-item">
+                        <a href="activity.html" class="btn btn-menubar position-relative me-1">
+                            <i class="ti ti-bell"></i>
+                            <span class="notification-status-dot"></span>
+                        </a>
+                    </div>
+                    <div class="me-0">
+                        <a href="email.html" class="btn btn-menubar">
+                            <i class="ti ti-message"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-inner slimscroll">
+                <div id="sidebar-menu" class="sidebar-menu">
+                    <ul>
+                        <li class="menu-title"><span>MAIN MENU</span></li>
+                        <li>
+                            <ul>
+                                <li class="submenu">
+                                    <a href="javascript:void(0);">
+                                        <i class="ti ti-smart-home"></i><span>Dashboard</span><span class="badge badge-danger fs-10 fw-medium text-white p-1">Hot</span><span class="menu-arrow"></span>
+                                    </a>
+                                    <ul>
+                                        <secure-content asp-area="" asp-controller="Admin" asp-action="Index">
+                                            <li>
+                                                <a asp-controller="Admin" asp-action="Index" asp-route-id="@userId">
+                                                    Admin Dashboard
+                                                </a>
+                                            </li>
+                                        </secure-content>
+                                        <li>
+                                            <a href="employee-dashboard.html">
+                                                Employee Dashboard
+                                            </a>
+                                        </li>
 
-		</div>
-		<!-- /Header -->
-		<!-- Sidebar -->
-		<div class="sidebar" id="sidebar">
-			<!-- Logo -->
-			<div class="sidebar-logo">
-				<a asp-controller="Home" asp-action="Index" class="logo logo-normal">
-					<img src="~/assets/img/logo.svg" alt="Logo">
-				</a>
-				<a asp-controller="Home" asp-action="Index" class="logo-small">
-					<img src="~/assets/img/logo-small.svg" alt="Logo">
-				</a>
-				<a asp-controller="Home" asp-action="Index" class="dark-logo">
-					<img src="~/assets/img/logo-white.svg" alt="Logo">
-				</a>
-			</div>
-			<!-- /Logo -->
-			<div class="modern-profile p-3 pb-0">
-				<div class="text-center rounded bg-light p-3 mb-4 user-profile">
-					<div class="avatar avatar-lg online mb-3">
-						<img src="~/assets/img/profiles/avatar-02.jpg" alt="Img" class="img-fluid rounded-circle">
-					</div>
-					<h6 class="fs-12 fw-normal mb-1">Adrian Herman</h6>
-					<p class="fs-10">System Admin</p>
-				</div>
-				<div class="sidebar-nav mb-3">
-					<ul class="nav nav-tabs nav-tabs-solid nav-tabs-rounded nav-justified bg-transparent"
-						role="tablist">
-						<li class="nav-item"><a class="nav-link active border-0" href="#">Menu</a></li>
-						<li class="nav-item"><a class="nav-link border-0" href="chat.html">Chats</a></li>
-						<li class="nav-item"><a class="nav-link border-0" href="email.html">Inbox</a></li>
-					</ul>
-				</div>
-			</div>
-			<div class="sidebar-header p-3 pb-0 pt-2">
-				<div class="text-center rounded bg-light p-2 mb-4 sidebar-profile d-flex align-items-center">
-					<div class="avatar avatar-md onlin">
-						<img src="~/assets/img/profiles/avatar-02.jpg" alt="Img" class="img-fluid rounded-circle">
-					</div>
-					<div class="text-start sidebar-profile-info ms-2">
-						<h6 class="fs-12 fw-normal mb-1">Adrian Herman</h6>
-						<p class="fs-10">System Admin</p>
-					</div>
-				</div>
-				<div class="input-group input-group-flat d-inline-flex mb-4">
-					<span class="input-icon-addon">
-						<i class="ti ti-search"></i>
-					</span>
-					<input type="text" class="form-control" placeholder="Search in HRMS">
-					<span class="input-group-text">
-						<kbd>CTRL + / </kbd>
-					</span>
-				</div>
-				<div class="d-flex align-items-center justify-content-between menu-item mb-3">
-					<div class="me-3">
-						<a href="calendar.html" class="btn btn-menubar">
-							<i class="ti ti-layout-grid-remove"></i>
-						</a>
-					</div>
-					<div class="me-3">
-						<a href="chat.html" class="btn btn-menubar position-relative">
-							<i class="ti ti-brand-hipchat"></i>
-							<span class="badge bg-info rounded-pill d-flex align-items-center justify-content-center header-badge">5</span>
-						</a>
-					</div>
-					<div class="me-3 notification-item">
-						<a href="activity.html" class="btn btn-menubar position-relative me-1">
-							<i class="ti ti-bell"></i>
-							<span class="notification-status-dot"></span>
-						</a>
-					</div>
-					<div class="me-0">
-						<a href="email.html" class="btn btn-menubar">
-							<i class="ti ti-message"></i>
-						</a>
-					</div>
-				</div>
-			</div>
-			<div class="sidebar-inner slimscroll">
-				<div id="sidebar-menu" class="sidebar-menu">
-					<ul>
-						<li class="menu-title"><span>MAIN MENU</span></li>
-						<li>
-							<ul>
-								<li class="submenu">
-									<a href="javascript:void(0);">
-										<i class="ti ti-smart-home"></i><span>Dashboard</span><span class="badge badge-danger fs-10 fw-medium text-white p-1">Hot</span><span class="menu-arrow"></span>
-									</a>
-									<ul>
-										<li>
-											<a asp-controller="Home" asp-action="Index">
-												Admin
-												Dashboard
-											</a>
-										</li>
-										<li>
-											<a href="employee-dashboard.html">
-												Employee
-												Dashboard
-											</a>
-										</li>
+                                    </ul>
+                                </li>
 
-									</ul>
-								</li>
+                            </ul>
+                        </li>
 
-							</ul>
-						</li>
+                        @* <li class="menu-title"><span>PROJECTS</span></li>
+						@* <li> *@
+                        @* 	<ul> *@
+                        @* 		<li> *@
+                        @* 			<a href="clients-grid.html"> *@
+                        @* 				<i class="ti ti-users-group"></i><span>Clients</span> *@
+                        @* 			</a> *@
+                        @* 		</li> *@
+                        @* 		<li class="submenu"> *@
+                        @* 			<a href="javascript:void(0);"> *@
+                        @* 				<i class="ti ti-box"></i><span>Projects</span> *@
+                        @* 				<span class="menu-arrow"></span> *@
+                        @* 			</a> *@
+                        @* 			<ul> *@
+                        @* 				<li> *@
+                        @* 					<a href="projects-grid.html">Projects</a> *@
+                        @* 				</li> *@
+                        @* 				<li><a href="tasks.html">Tasks</a></li> *@
+                        @* 				<li> *@
+                        @* 					<a href="task-board.html"> *@
+                        @* 						Task *@
+                        @* 						Board *@
+                        @* 					</a> *@
+                        @* 				</li> *@
+                        @* 			</ul> *@
+                        @* 		</li> *@
+                        @* 	</ul> *@
+                        @* </li> *@
+                        @* <li class="menu-title"><span>Administration</span></li> *@
+                        <li>
+                            <ul>
+                                <secure-content asp-area="" asp-controller="Account" asp-action="AddRole">
+                                    <li>
+                                        <a asp-controller="Account" asp-action="AddRole">
+                                            <i class="ti ti-users-group"></i><span>Add Role</span>
+                                        </a>
+                                    </li>
+                                </secure-content>
+                                <secure-content asp-area="" asp-controller="Account" asp-action="ManageUserRoles">
 
-						<li class="menu-title"><span>PROJECTS</span></li>
-						<li>
-							<ul>
-								<li>
-									<a href="clients-grid.html">
-										<i class="ti ti-users-group"></i><span>Clients</span>
-									</a>
-								</li>
-								<li class="submenu">
-									<a href="javascript:void(0);">
-										<i class="ti ti-box"></i><span>Projects</span>
-										<span class="menu-arrow"></span>
-									</a>
-									<ul>
-										<li>
-											<a href="projects-grid.html">Projects</a>
-										</li>
-										<li><a href="tasks.html">Tasks</a></li>
-										<li>
-											<a href="task-board.html">
-												Task
-												Board
-											</a>
-										</li>
-									</ul>
-								</li>
-							</ul>
-						</li>
-						<li class="menu-title"><span>Administration</span></li>
-						<li>
-							<ul>
-								<secure-content asp-area="" asp-controller="Account" asp-action="AddRole">
-									<li>
-										<a asp-controller="Account" asp-action="AddRole">
-											<i class="ti ti-users-group"></i><span>Add Role</span>
-										</a>
-									</li>
-								</secure-content>
-								<secure-content asp-area="" asp-controller="Account" asp-action="ManageUserRoles">
-
-									<li>
-										<a asp-controller="Account" asp-action="ManageUserRoles">
-											<i class="ti ti-user-star"></i><span>Manage User Roles</span>
-										</a>
-									</li>
-								</secure-content>
-							</ul>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</div>
-		<!-- /Sidebar -->
-		<!-- Page Wrapper -->
-		<div class="page-wrapper">
-			<div class="content">
-
-
-
-				<div class="card">
-					<div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
-						<h5>@ViewData["Title"]</h5>
-					</div>
-					<div class="card-body p-0">
-						@RenderBody()
-					</div>
-				</div>
-
-			</div>
-
-			<div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
-				<p class="mb-0">2014 - 2025 &copy; SmartHR.</p>
-				<p>Designed &amp; Developed By <a href="javascript:void(0);" class="text-primary">Dreams</a></p>
-			</div>
-
-		</div>
+                                    <li>
+                                        <a asp-controller="Account" asp-action="ManageUserRoles">
+                                            <i class="ti ti-user-star"></i><span>Manage User Roles</span>
+                                        </a>
+                                    </li>
+                                </secure-content>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- /Sidebar -->
+        <!-- Page Wrapper -->
+        <div class="page-wrapper">
+            <div class="content">
 
 
-	</div>
-	@* <header> *@
-	@*     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"> *@
-	@*         <div class="container-fluid"> *@
-	@*             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SmartTask.Web</a> *@
-	@*             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" *@
-	@*                     aria-expanded="false" aria-label="Toggle navigation"> *@
-	@*                 <span class="navbar-toggler-icon"></span> *@
-	@*             </button> *@
-	@*             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between"> *@
-	@*                 <ul class="navbar-nav flex-grow-1"> *@
-	@*                     <li class="nav-item"> *@
-	@*                         <a class="nav-link text-dark"  asp-controller="Home" asp-action="Index">Home</a> *@
-	@*                     </li> *@
-	@*                     <li class="nav-item"> *@
-	@*                         <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
-	@*                     </li> *@
-	@*                      <li class="nav-item"> *@
-	@*                         <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a> *@
-	@*                     </li> *@
-	@*                     <li class="nav-item"> *@
-	@*                         <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a> *@
-	@*                     </li> *@
-	@*                     <li class="nav-item"> *@
-	@*                         <a class="nav-link text-dark" asp-controller="Account" asp-action="AddRole">Add Role</a> *@
-	@*                     </li> *@
-	@*                     <li class="nav-item"> *@
-	@*                         <a class="nav-link text-dark" asp-controller="Account" asp-action="ManageUserRoles">Manage Roles</a> *@
-	@*                     </li> *@
-	@*                 </ul> *@
-	@*             </div> *@
-	@*         </div> *@
-	@*     </nav> *@
-	@* </header> *@
-	<div class="container">
-		<main role="main" class="pb-3">
 
-		</main>
-	</div>
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+                        <h5>@ViewData["Title"]</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        @RenderBody()
+                    </div>
+                </div>
 
-	@* <footer class="border-top footer text-muted"> *@
-	@*     <div class="container"> *@
-	@*         &copy; 2025 - SmartTask.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
-	@*     </div> *@
-	@* </footer> *@
-	<div class="modal fade" id="taskDetailsModal" tabindex="-1">
-		<div class="modal-dialog modal-lg modal-dialog-centered">
-			<div class="modal-content shadow" id="taskDetailsContent">
-				<!-- Content will be loaded here -->
-			</div>
-		</div>
-	</div>
-	<!-- jQuery -->
-	<script data-cfasync="false" src="~/assets/js/email-decode.min.js"></script>
-	<script src="~/assets/js/jquery-3.7.1.min.js"></script>
+            </div>
 
-	<!-- Bootstrap Core JS -->
-	<script src="~/assets/js/bootstrap.bundle.min.js"></script>
+            <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+                <p class="mb-0">2014 - 2025 &copy; SmartHR.</p>
+                <p>Designed &amp; Developed By <a href="javascript:void(0);" class="text-primary">Dreams</a></p>
+            </div>
 
-	<!-- Feather Icon JS -->
-	<script src="~/assets/js/feather.min.js"></script>
-
-	<!-- Slimscroll JS -->
-	<script src="~/assets/js/jquery.slimscroll.min.js"></script>
-
-	<!-- Color Picker JS -->
-	<script src="~/assets/plugins/simonwep/pickr/pickr.es5.min.js"></script>
-
-	<!-- Datatable JS -->
-	<script src="~/assets/js/jquery.dataTables.min.js"></script>
-	<script src="~/assets/js/dataTables.bootstrap5.min.js"></script>
-
-	<!-- Daterangepikcer JS -->
-	<script src="~/assets/js/moment.js"></script>
-	<script src="~/assets/plugins/daterangepicker/daterangepicker.js"></script>
-	<script src="~/assets/js/bootstrap-datetimepicker.min.js"></script>
-
-	<!-- Select2 JS -->
-	<script src="~/assets/plugins/select2/js/select2.min.js"></script>
-
-	<!-- Bootstrap Tagsinput JS -->
-	<script src="~/assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js"></script>
-
-	<!-- Chart JS -->
-	<script src="~/assets/plugins/apexchart/apexcharts.min.js"></script>
-	<script src="~/assets/plugins/apexchart/chart-data.js"></script>
-
-	<!-- Custom JS -->
-	<script src="~/assets/js/theme-colorpicker.js"></script>
-	<script src="~/assets/js/script.js"></script>
-
-	@* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
-	@* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
-	@* <script src="~/js/site.js" asp-append-version="true"></script> *@
+        </div>
 
 
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-	@* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
-	<script src="~/js/notification.js"></script>
-	<script>
-		initializeNotifications();
-				function loadTaskDetails(taskId) {
-			$.ajax({
-				url: '@Url.Action("Details", "Task")/' + taskId,
-				type: 'GET',
-				success: function (response) {
-					$('#taskDetailsContent').html(response);
-					var detailsModal = new bootstrap.Modal(document.getElementById('taskDetailsModal'));
-					detailsModal.show();
-				},
-				error: function (error) {
-					console.log('Error loading task details:', error);
-					alert('Failed to load task details. Please try again.');
-				}
-			});
-		}
-	</script>
-	//
-	<script src="~/js/jquery-ui.js" asp-append-version="true"></script>
-	<script src="~/js/site.js" asp-append-version="true"></script>
-	@await RenderSectionAsync("Scripts", required: false)
+    </div>
+    @* <header> *@
+    @*     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"> *@
+    @*         <div class="container-fluid"> *@
+    @*             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SmartTask.Web</a> *@
+    @*             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" *@
+    @*                     aria-expanded="false" aria-label="Toggle navigation"> *@
+    @*                 <span class="navbar-toggler-icon"></span> *@
+    @*             </button> *@
+    @*             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between"> *@
+    @*                 <ul class="navbar-nav flex-grow-1"> *@
+    @*                     <li class="nav-item"> *@
+    @*                         <a class="nav-link text-dark"  asp-controller="Home" asp-action="Index">Home</a> *@
+    @*                     </li> *@
+    @*                     <li class="nav-item"> *@
+    @*                         <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
+    @*                     </li> *@
+    @*                      <li class="nav-item"> *@
+    @*                         <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a> *@
+    @*                     </li> *@
+    @*                     <li class="nav-item"> *@
+    @*                         <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a> *@
+    @*                     </li> *@
+    @*                     <li class="nav-item"> *@
+    @*                         <a class="nav-link text-dark" asp-controller="Account" asp-action="AddRole">Add Role</a> *@
+    @*                     </li> *@
+    @*                     <li class="nav-item"> *@
+    @*                         <a class="nav-link text-dark" asp-controller="Account" asp-action="ManageUserRoles">Manage Roles</a> *@
+    @*                     </li> *@
+    @*                 </ul> *@
+    @*             </div> *@
+    @*         </div> *@
+    @*     </nav> *@
+    @* </header> *@
+    <div class="container">
+        <main role="main" class="pb-3">
+
+        </main>
+    </div>
+
+    @* <footer class="border-top footer text-muted"> *@
+    @*     <div class="container"> *@
+    @*         &copy; 2025 - SmartTask.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
+    @*     </div> *@
+    @* </footer> *@
+    <div class="modal fade" id="taskDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow" id="taskDetailsContent">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+    <!-- jQuery -->
+    <script data-cfasync="false" src="~/assets/js/email-decode.min.js"></script>
+    <script src="~/assets/js/jquery-3.7.1.min.js"></script>
+
+    <!-- Bootstrap Core JS -->
+    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Feather Icon JS -->
+    <script src="~/assets/js/feather.min.js"></script>
+
+    <!-- Slimscroll JS -->
+    <script src="~/assets/js/jquery.slimscroll.min.js"></script>
+
+    <!-- Color Picker JS -->
+    <script src="~/assets/plugins/simonwep/pickr/pickr.es5.min.js"></script>
+
+    <!-- Datatable JS -->
+    <script src="~/assets/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- Daterangepikcer JS -->
+    <script src="~/assets/js/moment.js"></script>
+    <script src="~/assets/plugins/daterangepicker/daterangepicker.js"></script>
+    <script src="~/assets/js/bootstrap-datetimepicker.min.js"></script>
+
+    <!-- Select2 JS -->
+    <script src="~/assets/plugins/select2/js/select2.min.js"></script>
+
+    <!-- Bootstrap Tagsinput JS -->
+    <script src="~/assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js"></script>
+
+    <!-- Chart JS -->
+    <script src="~/assets/plugins/apexchart/apexcharts.min.js"></script>
+    <script src="~/assets/plugins/apexchart/chart-data.js"></script>
+
+    <!-- Custom JS -->
+    <script src="~/assets/js/theme-colorpicker.js"></script>
+    <script src="~/assets/js/script.js"></script>
+
+    @* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
+    @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
+    @* <script src="~/js/site.js" asp-append-version="true"></script> *@
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
+    <script src="~/js/notification.js"></script>
+    <script>
+        initializeNotifications();
+                function loadTaskDetails(taskId) {
+            $.ajax({
+                url: '@Url.Action("Details", "Task")/' + taskId,
+                type: 'GET',
+                success: function (response) {
+                    $('#taskDetailsContent').html(response);
+                    var detailsModal = new bootstrap.Modal(document.getElementById('taskDetailsModal'));
+                    detailsModal.show();
+                },
+                error: function (error) {
+                    console.log('Error loading task details:', error);
+                    alert('Failed to load task details. Please try again.');
+                }
+            });
+        }
+    </script>
+    //
+    <script src="~/js/jquery-ui.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
