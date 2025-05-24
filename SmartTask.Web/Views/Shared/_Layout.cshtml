@@ -2,7 +2,7 @@
 @using System.Security.Claims
 @addTagHelper *, SmartTask.Web.TagHelpers
 @{
-	var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+	var userId = User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
 }
 <!DOCTYPE html>
@@ -456,18 +456,16 @@
 										<i class="ti ti-smart-home"></i><span>Dashboard</span><span class="badge badge-danger fs-10 fw-medium text-white p-1">Hot</span><span class="menu-arrow"></span>
 									</a>
 									<ul>
-										<secure-content asp-area="" asp-controller="Home" asp-action="Admin">
+										<secure-content asp-area="" asp-controller="Admin" asp-action="Index">
 											<li>
-												<a asp-controller="Admin" asp-action="AdminDashBoard"asp-route-id="@userId">
-													Admin
-													Dashboard
+												<a asp-controller="Admin" asp-action="Index"asp-route-id="@userId">
+													Admin Dashboard
 												</a>
 											</li>
 											</secure-content>	
 										<li>
 											<a href="employee-dashboard.html">
-												Employee
-												Dashboard
+												Employee Dashboard
 											</a>
 										</li>
 
@@ -477,35 +475,35 @@
 							</ul>
 						</li>
 
-						<li class="menu-title"><span>PROJECTS</span></li>
-						<li>
-							<ul>
-								<li>
-									<a href="clients-grid.html">
-										<i class="ti ti-users-group"></i><span>Clients</span>
-									</a>
-								</li>
-								<li class="submenu">
-									<a href="javascript:void(0);">
-										<i class="ti ti-box"></i><span>Projects</span>
-										<span class="menu-arrow"></span>
-									</a>
-									<ul>
-										<li>
-											<a href="projects-grid.html">Projects</a>
-										</li>
-										<li><a href="tasks.html">Tasks</a></li>
-										<li>
-											<a href="task-board.html">
-												Task
-												Board
-											</a>
-										</li>
-									</ul>
-								</li>
-							</ul>
-						</li>
-						<li class="menu-title"><span>Administration</span></li>
+						@* <li class="menu-title"><span>PROJECTS</span></li> *@
+						@* <li> *@
+						@* 	<ul> *@
+						@* 		<li> *@
+						@* 			<a href="clients-grid.html"> *@
+						@* 				<i class="ti ti-users-group"></i><span>Clients</span> *@
+						@* 			</a> *@
+						@* 		</li> *@
+						@* 		<li class="submenu"> *@
+						@* 			<a href="javascript:void(0);"> *@
+						@* 				<i class="ti ti-box"></i><span>Projects</span> *@
+						@* 				<span class="menu-arrow"></span> *@
+						@* 			</a> *@
+						@* 			<ul> *@
+						@* 				<li> *@
+						@* 					<a href="projects-grid.html">Projects</a> *@
+						@* 				</li> *@
+						@* 				<li><a href="tasks.html">Tasks</a></li> *@
+						@* 				<li> *@
+						@* 					<a href="task-board.html"> *@
+						@* 						Task *@
+						@* 						Board *@
+						@* 					</a> *@
+						@* 				</li> *@
+						@* 			</ul> *@
+						@* 		</li> *@
+						@* 	</ul> *@
+						@* </li> *@
+						@* <li class="menu-title"><span>Administration</span></li> *@
 						<li>
 							<ul>
 								<secure-content asp-area="" asp-controller="Account" asp-action="AddRole">

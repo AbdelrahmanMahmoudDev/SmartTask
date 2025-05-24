@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SmartTask.Core.IRepositories;
 using SmartTask.DataAccess.Repositories;
 
 namespace SmartTask.Web.Controllers
 {
+    [Authorize]
     public class AdminController : Controller
     {
         private readonly IUserRepository _userRepository;
@@ -12,10 +14,10 @@ namespace SmartTask.Web.Controllers
         {
             _userRepository = userRepository;
         }
-        public IActionResult Index(string id)
+        public async Task<IActionResult> Index(string id)
         {
           
-        var User =_userRepository.GetByIdAsync(id);
+        var User =await _userRepository.GetByIdAsync(id);
             if (User == null)
             {
                 return NotFound();
