@@ -4,7 +4,19 @@
     ViewData["Title"] = "AddBranch";
 }
 
-<h1>AddBranch</h1>
+@* <h1>AddBranch</h1> *@
+
+<style>
+    .select2-container--default .select2-selection--single .select2-selection__clear {
+        position: absolute;
+        right: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: #dc3545;
+    }
+</style>
 
 <hr />
 <div asp-validation-summary="All"></div>
@@ -19,7 +31,7 @@
 
             <div class="form-group">
                 <label asp-for="ManagerId">Manager</label>
-                <select asp-for="ManagerId" class="form-control" asp-items="ViewBag.Managers">
+                <select asp-for="ManagerId" class="form-control select2" asp-items="ViewBag.Managers">
                     <option value="">Select a Manager</option>
                 </select>
                 <span asp-validation-for="ManagerId" class="text-danger"></span>
@@ -57,5 +69,13 @@
                     width: '100%',
                 });
             });
+
+        $(document).ready(function () {
+        $('#ManagerId').select2({
+                placeholder: "-- Select Manager --",
+                allowClear: true,
+                width: '100%',
+            });
+        });
 	</script>
 }

@@ -4,6 +4,18 @@
     ViewData["Title"] = "Edit Branch";
 }
 
+<style>
+    .select2-container--default .select2-selection--single .select2-selection__clear {
+        position: absolute;
+        right: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: #dc3545;
+    }
+</style>
+
 <h1>Edit Branch</h1>
 
 <hr />
@@ -22,7 +34,7 @@
 
             <div class="form-group">
                 <label asp-for="ManagerId" class="control-label">Manager Name</label>
-                <select asp-for="ManagerId" asp-items="@ViewBag.Managers" class="form-control">
+                <select asp-for="ManagerId" asp-items="@ViewBag.Managers" class="form-control select2">
                     <option value="">Select a Manager</option>
                 </select>
                 <span asp-validation-for="ManagerId" class="text-danger"></span>
@@ -69,6 +81,14 @@
             $('.select2').select2({
                 tags: true,
                 placeholder: "-- Select Departments --",
+                allowClear: true,
+                width: '100%',
+            });
+        });
+
+        $(document).ready(function () {
+        $('#ManagerId').select2({
+                placeholder: "-- Select Manager --",
                 allowClear: true,
                 width: '100%',
             });

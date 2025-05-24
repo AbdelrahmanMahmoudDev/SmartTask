@@ -36,7 +36,8 @@ namespace SmartTask.Web.Controllers
         {
             var branches = await branchService.GetFiltered(searchString, null, page, pageSize);
 
-            var managers = await userManager.GetUsersInRoleAsync("BranchManager");
+            //var managers = await userManager.GetUsersInRoleAsync("BranchManager");
+            var managers = await userManager.Users.ToListAsync();
 
             var user = await userManager.GetUserAsync(User);
 
@@ -56,7 +57,8 @@ namespace SmartTask.Web.Controllers
         [Authorize]
         public async Task<IActionResult> AddBranch()
         {
-            var managers = await userManager.GetUsersInRoleAsync("BranchManager");
+            //var managers = await userManager.GetUsersInRoleAsync("BranchManager");
+            var managers = await userManager.Users.ToListAsync();
             var departments = await departmentService.GetAllDepartmentsAsync() ?? new List<Department>();
 
             ViewBag.Managers = new SelectList(managers ?? new List<ApplicationUser>(), "Id", "UserName");
@@ -75,7 +77,8 @@ namespace SmartTask.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var managers = await userManager.GetUsersInRoleAsync("BranchManager");
+                //var managers = await userManager.GetUsersInRoleAsync("BranchManager");
+                var managers = await userManager.Users.ToListAsync();
                 var departments = await departmentService.GetAllDepartmentsAsync();
 
                 ViewBag.Managers = new SelectList(managers, "Id", "UserName");
@@ -124,7 +127,8 @@ namespace SmartTask.Web.Controllers
             var branch = await branchService.GetBranchWithDetailsAsync(id);
             if (branch == null) return View("NotFound");
 
-            var managers = await userManager.GetUsersInRoleAsync("BranchManager");
+            //var managers = await userManager.GetUsersInRoleAsync("BranchManager");
+            var managers = await userManager.Users.ToListAsync();
 
             var currentUsers = await userManager.Users
                 .Where(u => u.BranchId == id)
@@ -158,7 +162,8 @@ namespace SmartTask.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var managers = await userManager.GetUsersInRoleAsync("BranchManager");
+                //var managers = await userManager.GetUsersInRoleAsync("BranchManager");
+                var managers = await userManager.Users.ToListAsync();
                 var departments = await departmentService.GetAllDepartmentsAsync();
                 ViewBag.Managers = new SelectList(managers, "Id", "FullName", model.ManagerId);
                 model.AllDepartments = departments;

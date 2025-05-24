@@ -2,8 +2,23 @@
 @using SmartTask.Web.ViewModels.DepartmentVM
 @model DepartmentFormViewModel
 
-<link rel="stylesheet" href="~/lib/select2/css/select2.min.css" />
-<h1>Create New Department</h1>
+@* <link rel="stylesheet" href="~/lib/select2/css/select2.min.css" /> *@
+@* <h1>Create New Department</h1> *@
+
+<style>
+    .select2-selection__clear {
+        position: absolute !important;
+        right: 1.2rem !important;
+        top: 50% !important;
+        transform: translateY(-50%);
+        color: #dc3545 !important;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 10;
+    }
+ 
+</style>
+
 
 <form asp-action="Create">
     <div class="form-group">
@@ -13,10 +28,14 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="ManagerId"></label>
-        <select asp-for="ManagerId" asp-items="@ViewBag.Managers" class="form-select">
-            <option value="">-- Select Manager --</option>
+        <label asp-for="ManagerId" class="control-label">Manager Name</label>
+        <select asp-for="ManagerId"
+                asp-items="@ViewBag.Managers"
+                class="form-control select2"
+                data-placeholder="-- Select a Manager --">
+            <option value="">Select a Manager</option>
         </select>
+
         <span asp-validation-for="ManagerId" class="text-danger"></span>
     </div>
 
@@ -54,7 +73,7 @@
 
 
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @* <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> *@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script>
         $(document).ready(function () {
@@ -94,6 +113,14 @@
                 }
             });
         });
+        });
+
+        $(document).ready(function () {
+        $('#ManagerId').select2({
+            placeholder: $('#ManagerId').data('placeholder'),
+                allowClear: true,
+                width: '100%',
+            });
         });
     </script>
 }
