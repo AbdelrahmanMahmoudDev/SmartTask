@@ -54,8 +54,22 @@ namespace SmartTask.Web
             });
 
 
-            // Database & Identity
-            //builder.Services.AddDbContext<SmartTaskContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                #region session
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddDistributedMemoryCache();
+
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+            #endregion
+
+
+
+
+            #region Authentication
 
             // Authorizing Users
             builder.Services.AddAuthorization(options =>
@@ -129,7 +143,7 @@ namespace SmartTask.Web
             // Middleware Pipeline
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseSession(); // Enable session middleware
+           // app.UseSession();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -152,9 +166,10 @@ namespace SmartTask.Web
             services.AddSingleton(new DynamicAuthorizationOptions { DefaultAdminUser = "aelashry@outlook.com" });
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<ITaskService, TaskService>();
+            services.AddScoped<IDashboardService, DashboardService>();
 
-            // Repository Interfaces to Implementations
-         
+            // Repositories
             services.AddScoped<IAISuggestionRepository, AISuggestionRepository>();
             services.AddScoped<IAssignTaskRepository, AssignTaskRepository>();
             services.AddScoped<IAttachmentRepository, AttachmentRepository>();
@@ -172,6 +187,7 @@ namespace SmartTask.Web
             services.AddScoped<ITaskDependencyRepository, TaskDependencyRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserDashboardPreferenceRepository, UserDashboardPreferenceRepository>();
 
             services.AddScoped<IBranchService, BranchService>();
             services.AddScoped<IUserLoginHistoryRepository, UserLoginHistoryRepository>();

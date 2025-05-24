@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Graph.Models;
 using SmartTask.BL.IServices;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
@@ -123,6 +124,8 @@ namespace SmartTask.BL.Services
                 existingPreference.UpdatedAt = DateTime.Now;
 
                 await _preferenceRepository.UpdateAsync(existingPreference);
+                await _preferenceRepository.UpdateAsync(settings);
+
             }
 
             // Also save to session for quick access (exclude navigation properties)

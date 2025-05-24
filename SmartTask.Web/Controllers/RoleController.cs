@@ -7,6 +7,8 @@ using SmartTask.BL.IServices;
 using SmartTask.Core.Models.BasePermission;
 using SmartTask.Web.ViewModels;
 using SmartTask.BL.IServices;
+using SmartTask.Core.ViewModels;
+using SmartTask.Web.ViewModels;
 
 namespace SmartTask.Web.Controllers
 {

@@ -31,7 +31,13 @@ namespace SmartTask.DataAccess.Data
         public DbSet<AISuggestion> AISuggestions { get; set; }
         public DbSet<AssignTask> AssignTasks { get; set; }
         public DbSet<Audit> Audits { get; set; }
-        public DbSet<UserLoginHistory> UserLoginHistories { get; set; }
+        public DbSet<UserLoginHistory>UserLoginHistories { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
+        public virtual DbSet<UserGroups> UserGroups { get; set; }
+        public virtual DbSet<UserConnection> UserConnections { get; set; }
+        public virtual DbSet<Groups> Groups { get; set; }
+        public DbSet<UserColumnPreference> UserColumnPreferences { get; set; }
+        public DbSet <UserDashboardPreference> UserDashboardPreferences { get; set; }
 
         public DbSet<UserDashboardPreference> UserDashboardPreferences { get; set; }
 

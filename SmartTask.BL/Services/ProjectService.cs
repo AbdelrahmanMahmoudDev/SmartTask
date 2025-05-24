@@ -61,9 +61,14 @@ namespace SmartTask.BL.Services
                 query = query.Where(p => p.DepartmentId == departmentId.Value);
             }
 
-            return PaginatedList<Project>.Create(query, page, pageSize);
-        }
+            // Apply department filter for Dashboard filtering
+            if (departmentId.HasValue)
+            {
+                query = query.Where(p => p.DepartmentId == departmentId.Value);
+            }
 
+            return await PaginatedList<Project>.CreateAsync(query, page, pageSize);
+        }
 
 
         public async Task<Project> AddProjectAsync(Project project)

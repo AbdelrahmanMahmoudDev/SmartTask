@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using Microsoft.EntityFrameworkCore;
+using SmartTask.Core.Models.Enums;
 using ModelTask = SmartTask.Core.Models.Task;
 
 
@@ -22,5 +23,12 @@ namespace SmartTask.Core.IRepositories
         Task UpdateAsync(ModelTask task);
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
+        Task<bool> ISAParent(int id);
+        Task<IEnumerable<ModelTask>> GetAllTasksPerProject(int projectId);
+
+        Task<IEnumerable<ModelTask>> GetTasksOverviewAsync();
+
+        Task SaveChangesAsync();
+      
     }
 }

@@ -6,6 +6,9 @@ using SmartTask.Web.Controllers;
 using SmartTask.Bl.Hubs;
 
 namespace SignalR.Controllers
+//using SmartTask.BL.Service.Hubs;
+
+namespace SmartTask.Web.Controllers
 {
     public class NotificationController : Controller
     {

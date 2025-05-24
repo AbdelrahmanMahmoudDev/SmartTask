@@ -32,6 +32,11 @@
             border: none;
             position: sticky;
             top: 0;
+            cursor: pointer;
+        }
+
+        #projectsTable thead th:hover {
+            background-color: #d5dbdb;
         }
 
         #projectsTable tbody td {
@@ -94,7 +99,6 @@
             margin-left: 10px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-
 
             .dataTables_filter input:focus {
                 border-color: var(--primary-color);
@@ -265,103 +269,104 @@
         gap: 5px;
     }
 
-    @@media (max-width: 768px) {
-        .dataTables_filter input {
-            width: 100%;
+    /* Custom filter section */
+    .custom-filters {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid #e9ecef;
+    }
+
+    .custom-filters .form-control,
+    .custom-filters .form-select {
+        border-radius: 6px;
+        border: 1px solid #d1d3e2;
+    }
+
+    .custom-filters .form-control:focus,
+    .custom-filters .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+    }
+
+    .filter-btn {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        transition: all 0.3s;
+    }
+
+    .filter-btn:hover {
+        background-color: var(--primary-hover);
+        border-color: var(--primary-hover);
+        color: white;
+    }
+
+    .clear-btn {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+
+    .clear-btn:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+        color: white;
+    }
+
+    .sorting_asc:after {
+        content: "\f0de";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        float: right;
+        color: var(--primary-color);
+    }
+
+    .sorting_desc:after {
+        content: "\f0dd";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        float: right;
+        color: var(--primary-color);
+    }
+
+    .sorting:after {
+        content: "\f0dc";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        float: right;
+        color: #ccc;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+        .filter-actions .btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
-        .action-icons {
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-    }
-
-
-    .card-header.bg-light {
-        background-color: #f8f9fa !important;
-        border-bottom: 1px solid #eee;
-    }
-
-
-    .card-header.bg-light {
-        background-color: #f8f9fa !important;
-        border-bottom: 1px solid #eee;
-    }
-
-    .form-label {
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-        color: #495057;
-    }
-
-    #btnApplyFilter {
-        min-width: 120px;
-    }
-
-    #btnResetFilter {
-        min-width: 100px;
-    }
-
-    .daterangepicker {
-        z-index: 1050 !important;
-    }
-
-
-    #projectsTable tbody td {
-        transition: all 0.3s ease;
-        position: relative;
-    }
-
-        #projectsTable tbody td:hover {
-            background-color: #f5f5f5;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-            #projectsTable tbody td:hover::after {
-                content: '';
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 3px;
-                height: 100%;
-                background-color: var(--primary-color);
+            .filter-actions .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             }
 
-    .btn-action {
-        transition: all 0.3s ease;
+    .dt-buttons .btn {
+        margin-right: 5px;
+        margin-bottom: 5px;
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-size: 0.875rem;
     }
 
-        .btn-action:hover {
-            transform: scale(1.1);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-    .form-control:hover, .form-select:hover {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.1);
-    }
-
-    .card-body .row {
-        align-items: flex-end;
-    }
-
-    .form-label {
-        margin-bottom: 0.5rem;
-        display: block;
-    }
-
-    .btn-outline-secondary {
-        height: 38px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .form-control, .form-select {
-        height: 38px;
-    }
-
+   
 </style>
 
 @{
@@ -380,90 +385,170 @@
             </a>
         </secure-content>
     </div>
-
-    @* apply filter *@
-
+   
     <div class="card">
-        <div class="card mb-4">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">
-                    <i class="fas fa-filter me-2"></i>Advanced Filter
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-3 align-items-end">
-                    <!-- أضف align-items-end هنا -->
-                    <div class="col-md-2">
-                        <label class="form-label">Project Name</label>
-                        <input type="text" id="filterName" class="form-control" placeholder="Filter by name...">
+        <div class="card-body">
+            <!-- Advanced Filter Section -->
+            <div class="custom-filters">
+                <div class="filter-actions mb-3">
+                    <button id="applyFilters" class="btn btn-primary me-2">
+                        <i class="fas fa-filter me-1"></i> Apply Filters
+                    </button>
+                    <button id="resetFilters" class="btn btn-secondary me-2">
+                        <i class="fas fa-undo me-1"></i> Reset Filters
+                    </button>
+                    @* <button id="clearFilters" class="btn btn-outline-danger"> *@
+                    @*     <i class="fas fa-times me-1"></i> Clear All *@
+                    @* </button> *@
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            <i class="fas fa-search me-1"></i> Search Text
+                        </label>
+                        <input type="text" id="searchText" class="form-control" placeholder="Search by name or description..." />
                     </div>
+
                     <div class="col-md-2">
-                        <label class="form-label">Owner</label>
-                        <input type="text" id="filterOwner" class="form-control" placeholder="Filter by owner...">
+                        <label class="form-label">
+                            <i class="fas fa-building me-1"></i> Department
+                        </label>
+                        <select id="departmentFilter" class="form-select">
+                            <option value="">All Departments</option>
+                            @foreach (var dept in Model.Departments)
+                            {
+                                @if (Model.SelectedDepartmentId == dept.Id)
+                                {
+                                    <option value="@dept.Name" selected>@dept.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@dept.Name">@dept.Name</option>
+                                }
+                            }
+                        </select>
                     </div>
+
                     <div class="col-md-2">
-                        <label class="form-label">Status</label>
-                        <select id="filterStatus" class="form-select">
-                            <option value="">All Statuses</option>
+                        <label class="form-label">
+                            <i class="fas fa-map-marker-alt me-1"></i> Branch
+                        </label>
+                        <select id="branchFilter" class="form-select">
+                            <option value="">All Branches</option>
+                            @foreach (var branch in Model.Branches)
+                            {
+                                @if (Model.SelectedBranchId == branch.Id)
+                                {
+                                    <option value="@branch.Name" selected>@branch.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@branch.Name">@branch.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">
+                            <i class="fas fa-calendar me-1"></i> Start Date From
+                        </label>
+                        <input type="date" id="startDateFrom" class="form-control" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">
+                            <i class="fas fa-calendar me-1"></i> Start Date To
+                        </label>
+                        <input type="date" id="startDateTo" class="form-control" />
+                    </div>
+
+               
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-2">
+                        <label class="form-label">
+                            <i class="fas fa-calendar me-1"></i> End Date From
+                        </label>
+                        <input type="date" id="endDateFrom" class="form-control" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">
+                            <i class="fas fa-calendar me-1"></i> End Date To
+                        </label>
+                        <input type="date" id="endDateTo" class="form-control" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">
+                            <i class="fas fa-tasks me-1"></i> Status
+                        </label>
+                        <select id="statusFilter" class="form-select">
+                            <option value="">All Status</option>
                             <option value="Active">Active</option>
                             <option value="Pending">Pending</option>
                             <option value="Completed">Completed</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Date Range</label>
-                        <input type="text" id="filterDateRange" class="form-control" placeholder="Select date range...">
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <!-- استخدم d-flex و align-items-end -->
-                        <button id="btnResetFilter" class="btn btn-outline-secondary w-100">
-                            <!-- أضف w-100 -->
-                            <i class="fas fa-undo me-1"></i> Reset
-                        </button>
+
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="text-muted small">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Use filters above to narrow down projects. All filters work together.
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card">
-            <div class="card-body">
-                <table id="projectsTable" class="table table-hover" style="width:100%">
-                    <thead>
+            <!-- DataTable -->
+            <table id="projectsTable" class="table table-hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-signature me-2"></i>Name</th>
+                        <th><i class="fas fa-user-tie me-2"></i>Owner</th>
+                        <th><i class="fas fa-flag-checkered me-2"></i>Start Date</th>
+                        <th><i class="fas fa-calendar-day me-2"></i>End Date</th>
+                        <th><i class="fas fa-tasks me-2"></i>Status</th>
+                        <th><i class="fas fa-building me-2"></i>Department</th>
+                        <th><i class="fas fa-map-marker-alt me-2"></i>Branch</th>
+                        <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var project in Model.Projects)
+                    {
                         <tr>
-                            <th><i class="fas fa-signature me-2"></i>Name</th>
-                            <th><i class="fas fa-user-tie me-2"></i>Owner</th>
-                            <th><i class="fas fa-flag-checkered me-2"></i>Start Date</th>
-                            <th><i class="fas fa-calendar-day me-2"></i>End Date</th>
-                            <th><i class="fas fa-tasks me-2"></i>Status</th>
-                            <th><i class="fas fa-cogs me-2"></i>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var project in Model.Projects)
-                        {
-                            <tr>
-                                <td>
-                                    <i class="fas fa-folder-open text-warning me-2"></i>
-                                    @project.Name
-                                </td>
-                                <td>@project.Owner?.FullName</td>
-                                <td class="date-cell">@project.StartDate?.ToString("dd MMM yyyy")</td>
-                                <td class="date-cell">@project.EndDate?.ToString("dd MMM yyyy")</td>
-                                <td>
-                                    <span class="badge @GetStatusBadge(project.Status)">
-                                        <i class="@GetStatusIcon(project.Status) me-1"></i>
-                                        @project.Status
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="action-icons">
-                                        <secure-content asp-area="" asp-controller="Project" asp-action="Details">
-                                            <a asp-action="Details" asp-route-id="@project.Id"
-                                               class="btn btn-sm btn-outline-primary btn-action"
-                                               title="Details">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        </secure-content>
+                            <td>
+                                <i class="fas fa-folder-open text-warning me-2"></i>
+                                @project.Name
+                            </td>
+                            <td>@project.Owner?.FullName</td>
+                            <td class="date-cell" data-sort="@project.StartDate?.ToString("yyyy-MM-dd")">
+                                @project.StartDate?.ToString("dd MMM yyyy")
+                            </td>
+                            <td class="date-cell" data-sort="@project.EndDate?.ToString("yyyy-MM-dd")">
+                                @project.EndDate?.ToString("dd MMM yyyy")
+                            </td>
+                            <td>
+                                <span class="badge @GetStatusBadge(project.Status)">
+                                    <i class="@GetStatusIcon(project.Status) me-1"></i>
+                                    @project.Status
+                                </span>
+                            </td>
+                            <td>@project.Department?.Name</td>
+                            <td>@project.Branch?.Name</td>
+                            <td>
+                                <div class="action-icons">
+                                    <secure-content asp-area="" asp-controller="Project" asp-action="Details">
+                                        <a asp-action="Details" asp-route-id="@project.Id"
+                                           class="btn btn-sm btn-outline-primary btn-action"
+                                           title="Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </secure-content>
 
                                         <secure-content asp-area="" asp-controller="Project" asp-action="Edit">
                                             <a asp-action="Edit" asp-route-id="@project.Id"
@@ -525,148 +610,147 @@
 
 
 
+@section Scripts
+{
+    <!-- jQuery and jQuery UI -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <!-- DataTables and Extensions -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/colreorder/1.7.0/js/dataTables.colReorder.min.js"></script>
+
+    <!-- DataTables Buttons -->
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
 
 
-    @section Scripts {
-        <!-- jQuery  -->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-        <!--   DataTables -->
-        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-        <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js"></script>
-
-
-
-
-
-
-        <script>
+    <script>
                 $(document).ready(function() {
-                // Initialize date range picker
-                $('#filterDateRange').daterangepicker({
-                    autoUpdateInput: false,
-                    locale: {
-                        cancelLabel: 'Clear',
-                        format: 'DD/MM/YYYY'
-                    }
-                });
-
-                // Handle date range apply event
-                $('#filterDateRange').on('apply.daterangepicker', function(ev, picker) {
-                    $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
-                    applyFilters(); // Call applyFilters directly here
-                });
-
-                $('#filterDateRange').on('cancel.daterangepicker', function(ev, picker) {
-                    $(this).val('');
-                    applyFilters(); // Call applyFilters directly here
-                });
-
-                 var table = $('#projectsTable').DataTable({
-                dom: '<"top"<"row"<"col-md-6"l><"col-md-6"f>>>rt<"bottom"<"row"<"col-md-6"i><"col-md-6"p>>><"clear">',
-                responsive: true,
+            // Initialize DataTable
+            var table = $('#projectsTable').DataTable({
+                dom: 'Bfrtip',
                 buttons: [
                     {
+                        extend: 'colvis',
+                        text: '<i class="fas fa-columns"></i> Columns',
+                        className: 'btn btn-sm btn-outline-secondary'
+                    },
+                    {
+                        extend: 'copy',
+                        text: '<i class="fas fa-copy"></i> Copy',
+                        className: 'btn btn-sm btn-outline-secondary'
+                    },
+                    {
                         extend: 'excel',
-                        text: '<i class="fas fa-file-excel me-2"></i> Export to Excel',
-                        className: 'btn btn-sm',
-                        title: 'Projects_List'
+                        text: '<i class="fas fa-file-excel"></i> Excel',
+                        className: 'btn btn-sm btn-outline-success'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="fas fa-file-pdf"></i> PDF',
+                        className: 'btn btn-sm btn-outline-danger'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fas fa-print"></i> Print',
+                        className: 'btn btn-sm btn-outline-info'
                     }
 
                 ],
-                language: {
-                    search: '<i class="fas fa-search me-2"></i>',
-                    searchPlaceholder: "Search projects...",
-                    lengthMenu: "Show _MENU_ projects",
-                    info: "Showing _START_ to _END_ of _TOTAL_ projects",
-                    infoEmpty: "No projects available",
-                    infoFiltered: "(filtered from _MAX_ total projects)",
-                    paginate: {
-                        first: '<i class="fas fa-angle-double-left"></i>',
-                        last: '<i class="fas fa-angle-double-right"></i>',
-                        next: '<i class="fas fa-angle-right"></i>',
-                        previous: '<i class="fas fa-angle-left"></i>'
-                    }
-                },
+                responsive: true,
+                colReorder: true,
+                order: [[2, 'asc']], // Default sort by Start Date
+                columnDefs: [
+                    { targets: [2, 3], type: 'date' }, // Specify date columns
+                    { orderable: true, targets: '_all' } // Make all columns sortable
+                ],
                 initComplete: function() {
-                    $('.dataTables_length select').addClass('form-select');
-                    $('.dataTables_filter input').addClass('form-control');
-                    $('.dt-buttons').addClass('mb-3');
+                    // Add custom filter dropdowns
+                    this.api().columns([5, 6]).every(function() {
+                        var column = this;
+                        var select = $('<select class="form-select form-select-sm"><option value="">All</option></select>')
+                            .appendTo($(column.header()).empty())
+                            .on('change', function() {
+                                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                                column.search(val ? '^' + val + '$' : '', true, false).draw();
+                            });
 
-                    $('.dataTables_length label').css('font-size', '16px');
-                    $('.dataTables_filter label').css('font-size', '16px');
+                        column.data().unique().sort().each(function(d) {
+                            select.append('<option value="' + d + '">' + d + '</option>');
+                        });
+                    });
                 }
             });
 
-                // Apply filters on typing
-                $('#filterName, #filterOwner').on('keyup', function() {
-                    applyFilters();
-                });
-
-                // Apply filters on select change
-                $('#filterStatus').on('change', function() {
-                    applyFilters();
-                });
-
-                // Apply all filters function
-                function applyFilters() {
-                    // Clear any previous date filters
-                    $.fn.dataTable.ext.search.pop();
-
-                    // Apply column filters
-                    table.columns(0).search($('#filterName').val().trim());
-                    table.columns(1).search($('#filterOwner').val().trim());
-                    table.columns(4).search($('#filterStatus').val().trim());
-
-                    // Date range filtering
-                    var dateRange = $('#filterDateRange').val();
-                    if (dateRange) {
-                        var dates = dateRange.split(' - ');
-                        if (dates.length === 2) {
-                            var startDate = moment(dates[0], 'DD/MM/YYYY');
-                            var endDate = moment(dates[1], 'DD/MM/YYYY');
-
-                            if (startDate.isValid() && endDate.isValid()) {
-                                // Add custom filter function for date range
-                                $.fn.dataTable.ext.search.push(
-                                    function(settings, data, dataIndex) {
-                                        var rowStartDate = moment(data[2], 'DD MMM YYYY');
-                                        var rowEndDate = moment(data[3], 'DD MMM YYYY');
-
-                                        if (!rowStartDate.isValid() || !rowEndDate.isValid()) {
-                                            return false;
-                                        }
-
-                                        return (rowStartDate.isSameOrAfter(startDate) && rowStartDate.isSameOrBefore(endDate)) ||
-                                               (rowEndDate.isSameOrAfter(startDate) && rowEndDate.isSameOrBefore(endDate)) ||
-                                               (rowStartDate.isSameOrBefore(startDate) && rowEndDate.isSameOrAfter(endDate));
-                                    }
-                                );
-                            }
-                        }
-                    }
-
-                    // Redraw the table to apply filters
-                    table.draw();
-                }
-
-                // Reset all filters
-                $('#btnResetFilter').click(function() {
-                    $('#filterName').val('');
-                    $('#filterOwner').val('');
-                    $('#filterStatus').val('');
-                    $('#filterDateRange').val('');
-
-                    // Clear all filters
-                    table.columns().search('');
-                    $.fn.dataTable.ext.search.pop();
-                    table.draw();
-                });
+            // Custom filter functions
+            $('#searchText').on('keyup', function() {
+                table.search(this.value).draw();
             });
-        </script>
-    }
+
+            $('#departmentFilter, #branchFilter, #statusFilter').on('change', function() {
+                var columnIndex = $(this).attr('id') === 'departmentFilter' ? 5 :
+                                 $(this).attr('id') === 'branchFilter' ? 6 : 4;
+                var val = $(this).val();
+                table.column(columnIndex).search(val).draw();
+            });
+
+            // Date range filtering
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    var minStart = $('#startDateFrom').val() ? new Date($('#startDateFrom').val()) : null;
+                    var maxStart = $('#startDateTo').val() ? new Date($('#startDateTo').val()) : null;
+                    var minEnd = $('#endDateFrom').val() ? new Date($('#endDateFrom').val()) : null;
+                    var maxEnd = $('#endDateTo').val() ? new Date($('#endDateTo').val()) : null;
+
+                    var startDate = new Date(data[2]);
+                    var endDate = new Date(data[3]);
+
+                    // Start date range
+                    if (minStart && startDate < minStart) return false;
+                    if (maxStart && startDate > maxStart) return false;
+
+                    // End date range
+                    if (minEnd && endDate < minEnd) return false;
+                    if (maxEnd && endDate > maxEnd) return false;
+
+                    return true;
+                }
+            );
+
+            // Apply filters button
+            $('#applyFilters').on('click', function() {
+                table.draw();
+            });
+
+            // Reset all filters
+            $('#resetFilters').on('click', function() {
+                $('#searchText').val('');
+                $('#departmentFilter, #branchFilter, #statusFilter').val('');
+                $('#startDateFrom, #startDateTo, #endDateFrom, #endDateTo').val('');
+                table.search('').columns().search('').draw();
+            });
+
+            // Clear all filters
+            $('#clearFilters').on('click', function() {
+                $('#searchText').val('');
+                $('#departmentFilter, #branchFilter, #statusFilter').val('');
+                $('#startDateFrom, #startDateTo, #endDateFrom, #endDateTo').val('');
+                table.search('').columns().search('').draw();
+            });
+
+            // Make table rows sortable (if needed)
+            $("tbody").sortable({
+                items: "tr",
+                cursor: 'move',
+                opacity: 0.6,
+                update: function() {
+                    // Handle row reordering if needed
+                }
+            }).disableSelection();
+        });
+    </script>
+}

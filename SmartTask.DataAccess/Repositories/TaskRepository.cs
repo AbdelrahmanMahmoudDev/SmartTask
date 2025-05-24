@@ -142,5 +142,30 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Tasks.AnyAsync(t => t.Id == id);
         }
+        public async Task<bool> ISAParent(int id)
+        {
+            return await _context.Tasks.AnyAsync(t => t.ParentTaskId== id);
+        }
+
+        public async Task<IEnumerable<ModelTask>> GetAllTasksPerProject(int projectId)
+        {
+
+            return await _context.Tasks.Where(t => t.ProjectId == projectId).Include(t => t.Project).ToListAsync();
+        }
+
+        public async Task<IEnumerable<ModelTask>> GetTasksOverviewAsync()
+        {
+            return await _context.Tasks
+                .Include(t => t.Project)
+                .Include(t => t.Assignments)
+                    .ThenInclude(a => a.User)
+                .ToListAsync();
+        }
+
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

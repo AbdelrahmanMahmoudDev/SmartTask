@@ -1,193 +1,158 @@
-﻿@model SmartTask.Core.Models.UserDashboardPreference
-
+﻿@using Microsoft.AspNetCore.Identity
+@model SmartTask.Core.Models.UserDashboardPreference
+@using Microsoft.AspNetCore.Identity
+@using SmartTask.Core.Models
+@using SmartTask.Core.Models.Enums
+@inject UserManager<ApplicationUser> _UserManager
 @{
     ViewData["Title"] = "Dashboard Settings";
+    var currentUser = await _UserManager.GetUserAsync(User);
 }
 
-<div class="container-fluid py-5">
-    <div class="row mb-5">
-        <div class="col-lg-8 mx-auto text-center">
-            <h1 class="display-4 fw-bold">Dashboard Settings</h1>
-            <p class="lead text-muted">Personalize your workspace experience</p>
-        </div>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Simple Design</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8 col-md-10">
-            <div class="card shadow-sm border-0 rounded-3 mb-4">
-                <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="widgets-tab" data-bs-toggle="tab" data-bs-target="#widgets" type="button" role="tab" aria-controls="widgets" aria-selected="true">
-                                <i class="bi bi-grid-3x3-gap me-2"></i>Widgets
-                            </button>
-                        </li>
-                        @* <li class="nav-item" role="presentation"> *@
-                        @*     <button class="nav-link" id="display-tab" data-bs-toggle="tab" data-bs-target="#display" type="button" role="tab" aria-controls="display" aria-selected="false"> *@
-                        @*         <i class="bi bi-laptop me-2"></i>Display *@
-                        @*     </button> *@
-                        @* </li> *@
-                    </ul>
-                </div>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
 
-                <div class="card-body p-4">
-                    <form asp-action="Settings" method="post" id="settingsForm">
-                        <input type="hidden" asp-for="Id" />
-                        <input type="hidden" asp-for="UserId" />
-                        <input type="hidden" asp-for="CreatedAt" />
-                        <input type="hidden" asp-for="UpdatedAt" />
-                        <input type="hidden" asp-for="LastLoginDate" />
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
 
-                        <div class="tab-content" id="settingsTabContent">
-                            <!-- Widgets Tab -->
-                            <div class="tab-pane fade show active" id="widgets" role="tabpanel" aria-labelledby="widgets-tab">
-                                <p class="text-muted mb-4">Choose which widgets to display on your dashboard</p>
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-                                <div class="row g-4">
-                                    <div class="col-md-6">
-                                        <div class="card h-100 border widget-card">
-                                            <div class="card-body d-flex align-items-center p-3">
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" asp-for="ShowRecentProjects" id="showRecentProjects">
-                                                </div>
-                                                <div class="ms-3">
-                                                    <h5 class="mb-1">Recent Projects</h5>
-                                                    <p class="text-muted mb-0 small">Quick access to your latest work</p>
-                                                </div>
-                                                <div class="ms-auto text-muted">
-                                                    <i class="bi bi-folder-fill fs-3"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+        .header-left h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
 
-                                    <div class="col-md-6">
-                                        <div class="card h-100 border widget-card">
-                                            <div class="card-body d-flex align-items-center p-3">
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" asp-for="ShowProjectStatus" id="showProjectStatus">
-                                                </div>
-                                                <div class="ms-3">
-                                                    <h5 class="mb-1">Project Status</h5>
-                                                    <p class="text-muted mb-0 small">Overview of all project progress</p>
-                                                </div>
-                                                <div class="ms-auto text-muted">
-                                                    <i class="bi bi-pie-chart-fill fs-3"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+        .header-left p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
 
-                                    <div class="col-md-6">
-                                        <div class="card h-100 border widget-card">
-                                            <div class="card-body d-flex align-items-center p-3">
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" asp-for="ShowUpcomingTasks" id="showUpcomingTasks">
-                                                </div>
-                                                <div class="ms-3">
-                                                    <h5 class="mb-1">Upcoming Tasks</h5>
-                                                    <p class="text-muted mb-0 small">Tasks due in the next 7 days</p>
-                                                </div>
-                                                <div class="ms-auto text-muted">
-                                                    <i class="bi bi-calendar-check-fill fs-3"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+        .back-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: #475569;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
 
-                                    <div class="col-md-6">
-                                        <div class="card h-100 border widget-card">
-                                            <div class="card-body d-flex align-items-center p-3">
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" id="showActivityChart" name="ShowActivityChart">
-                                                </div>
-                                                <div class="ms-3">
-                                                    <h5 class="mb-1">Activity Chart</h5>
-                                                    <p class="text-muted mb-0 small">Visual representation of your activity</p>
-                                                </div>
-                                                <div class="ms-auto text-muted">
-                                                    <i class="bi bi-bar-chart-fill fs-3"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+            .back-btn:hover {
+                background: #e2e8f0;
+                color: #334155;
+            }
 
-                            <!-- Display Tab -->
-                            @* <div class="tab-pane fade" id="display" role="tabpanel" aria-labelledby="display-tab"> *@
-                            @*     <p class="text-muted mb-4">Customize how information is displayed</p> *@
+        /* Settings Form */
+        .settings-form {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
 
-                            @*     <div class="mb-4"> *@
-                            @*         <label for="RecentProjectsCount" class="form-label d-flex justify-content-between"> *@
-                            @*             <span>Recent Projects to Display</span> *@
-                            @*             <span class="badge bg-primary rounded-pill" id="projectCountValue">@Model.RecentProjectsCount</span> *@
-                            @*         </label> *@
-                            @*         <input type="range" class="form-range" id="RecentProjectsCount" asp-for="RecentProjectsCount" min="1" max="20" *@
-                            @*                oninput="document.getElementById('projectCountValue').textContent = this.value"> *@
-                            @*         <div class="d-flex justify-content-between small text-muted"> *@
-                            @*             <span>1</span> *@
-                            @*             <span>10</span> *@
-                            @*             <span>20</span> *@
-                            @*         </div> *@
-                            @*     </div> *@
+        .section {
+            padding: 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
 
-                            @*     <div class="mb-4"> *@
-                            @*         <label class="form-label">Layout View</label> *@
-                            @*         <div class="row g-2"> *@
-                            @*             <div class="col-6"> *@
-                            @*                 <div class="custom-option border rounded p-3 @(Model.PreferredView == "grid" ? "active-option" : "")"> *@
-                            @*                     <input class="form-check-input" type="radio" name="PreferredView" id="gridView" value="grid" @(Model.PreferredView == "grid" ? "checked" : "")> *@
-                            @*                     <label class="form-check-label w-100" for="gridView"> *@
-                            @*                         <div class="text-center mb-2"> *@
-                            @*                             <i class="bi bi-grid-3x3-gap fs-4"></i> *@
-                            @*                         </div> *@
-                            @*                         <strong>Grid View</strong> *@
-                            @*                         <p class="small text-muted mb-0">Compact, multiple columns</p> *@
-                            @*                     </label> *@
-                            @*                 </div> *@
-                            @*             </div> *@
-                            @*             <div class="col-6"> *@
-                            @*                 <div class="custom-option border rounded p-3 @(Model.PreferredView == "list" ? "active-option" : "")"> *@
-                            @*                     <input class="form-check-input" type="radio" name="PreferredView" id="listView" value="list" @(Model.PreferredView == "list" ? "checked" : "")> *@
-                            @*                     <label class="form-check-label w-100" for="listView"> *@
-                            @*                         <div class="text-center mb-2"> *@
-                            @*                             <i class="bi bi-list-ul fs-4"></i> *@
-                            @*                         </div> *@
-                            @*                         <strong>List View</strong> *@
-                            @*                         <p class="small text-muted mb-0">Full-width, single column</p> *@
-                            @*                     </label> *@
-                            @*                 </div> *@
-                            @*             </div> *@
-                            @*         </div> *@
-                            @*     </div> *@
-                            @* </div> *@
-                        </div>
+            .section:last-child {
+                border-bottom: none;
+            }
 
-                        <div class="d-flex justify-content-between pt-4 border-top mt-4">
-                            <button type="button" class="btn btn-outline-danger" id="resetDefaultsBtn">
-                                <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Defaults
-                            </button>
-                            <div>
-                                <a asp-action="Index" class="btn btn-light me-2">Cancel</a>
-                                <button type="submit" class="btn btn-primary px-4" id="saveChangesBtn">
-                                    <i class="bi bi-check2 me-2"></i>Save Changes
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
 
-            
-        </div>
-    </div>
-</div>
+        .section-desc {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
 
-@section Scripts {
-    <script>
-        $(document).ready(function() {
-            $('#projectCountValue').text($('#RecentProjectsCount').val());
+        /* Widget Options */
+        .widget-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .widget-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border: 1px solid #f1f5f9;
+            border-radius: 8px;
+            background: #fafbfc;
+            transition: all 0.2s;
+        }
+
+            .widget-item:hover {
+                background: #f8fafc;
+                border-color: #e2e8f0;
+            }
+
+        .widget-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .widget-icon {
+            width: 32px;
+            height: 32px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+            .widget-icon.success {
+                background: #10b981;
+            }
 
             const originalValues = {
                 recentProjectsCount: $('#RecentProjectsCount').val(),
@@ -197,38 +162,62 @@
                 showUpcomingTasks: $('#showUpcomingTasks').is(':checked'),
                 showActivityChart: $('#showActivityChart').is(':checked')
             };
+            .widget-icon.warning {
+                background: #f59e0b;
+            }
 
-            $('input[name="PreferredView"]').change(function() {
-                $('.custom-option').removeClass('active-option');
-                $(this).closest('.custom-option').addClass('active-option');
-                changeViewType($(this).val());
-            });
+            .widget-icon.info {
+                background: #06b6d4;
+            }
 
-           
-            $('#RecentProjectsCount').on('input', function() {
-                const count = parseInt($(this).val());
-                $('#projectCountValue').text(count);
-            });
+        .widget-text h4 {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 0.1rem;
+        }
 
-            $('#RecentProjectsCount').on('change', function() {
-                const count = parseInt($(this).val());
-                if (!isNaN(count) && count >= 1 && count <= 20) {
-                    $(this).attr('value', count);
-                    updateRecentProjectsCount(count);
-                }
-            });
+        .widget-text p {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
 
-            $('#showRecentProjects').change(function() {
-                updateWidgetVisibility('recent-projects', $(this).is(':checked'));
-            });
+        /* Simple Toggle Switch */
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
 
-            $('#showProjectStatus').change(function() {
-                updateWidgetVisibility('project-status', $(this).is(':checked'));
-            });
+            .toggle input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
 
-            $('#showUpcomingTasks').change(function() {
-                updateWidgetVisibility('upcoming-tasks', $(this).is(':checked'));
-            });
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+            .toggle-slider:before {
+                position: absolute;
+                content: "";
+                height: 18px;
+                width: 18px;
+                left: 3px;
+                bottom: 3px;
+                background-color: white;
+                transition: 0.3s;
+                border-radius: 50%;
+            }
 
             $('#showActivityChart').change(function() {
                 updateWidgetVisibility('activity-chart', $(this).is(':checked'));
@@ -242,11 +231,32 @@
                     //alert('Recent projects count must be between 1 and 20.');
                     return false;
                 }
+        .toggle input:checked + .toggle-slider {
+            background-color: #3b82f6;
+        }
 
-                $('#RecentProjectsCount').attr('value', projectsCount);
+            .toggle input:checked + .toggle-slider:before {
+                transform: translateX(20px);
+            }
 
-                return true;
-            });
+        /* Preferences */
+        .pref-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .pref-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .pref-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1e293b;
+        }
 
             $('#resetDefaultsBtn').click(function() {
                 if (confirm('Are you sure you want to reset all dashboard settings to defaults?')) {
@@ -260,177 +270,491 @@
                     $('#gridView').prop('checked', true);
                     $('.custom-option').removeClass('active-option');
                     $('#gridView').closest('.custom-option').addClass('active-option');
+        .pref-select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 0.9rem;
+            color: #374151;
+        }
 
                     updateWidgetVisibility('recent-projects', true);
                     updateWidgetVisibility('project-status', true);
                     updateWidgetVisibility('upcoming-tasks', true);
                     updateWidgetVisibility('activity-chart', true);
+            .pref-select:focus {
+                outline: none;
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
 
-                    updateRecentProjectsCount(5);
+        /* Radio Buttons for View Mode */
+        .radio-group {
+            display: flex;
+            gap: 0.5rem;
+        }
 
-                    changeViewType('grid');
-                }
-            });
+        .radio-option {
+            flex: 1;
+            position: relative;
+        }
 
-            $('form').submit(function(e) {
-                const projectsCount = parseInt($('#RecentProjectsCount').val());
-                if (isNaN(projectsCount) || projectsCount < 1 || projectsCount > 20) {
-                    e.preventDefault();
-                    //alert('Recent projects count must be between 1 and 20.');
-                    return false;
-                }
-                return true;
-            });
+            .radio-option input {
+                position: absolute;
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
 
-            // Handle real-time widget visibility updates
-            $('#showRecentProjects').change(function() {
-                updateWidgetVisibility('recent-projects', $(this).is(':checked'));
-            });
+            .radio-option label {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.5rem;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                background: white;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-size: 0.85rem;
+                gap: 0.4rem;
+            }
 
-            $('#showProjectStatus').change(function() {
-                updateWidgetVisibility('project-status', $(this).is(':checked'));
-            });
+            .radio-option input:checked + label {
+                background: #3b82f6;
+                color: white;
+                border-color: #3b82f6;
+            }
 
-            $('#showUpcomingTasks').change(function() {
-                updateWidgetVisibility('upcoming-tasks', $(this).is(':checked'));
-            });
+            .radio-option label:hover {
+                border-color: #9ca3af;
+            }
 
             $('#showActivityChart').change(function() {
                 updateWidgetVisibility('activity-chart', $(this).is(':checked'));
             });
+        /* Action Buttons */
+        .actions {
+            padding: 1.5rem;
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+        }
 
-            // Handle real-time view changes
-            $('input[name="PreferredView"]').change(function() {
-                changeViewType($(this).val());
+        .btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background: #2563eb;
+            }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+            .btn-secondary:hover {
+                background: #e2e8f0;
+            }
+
+        /* Preview Panel */
+        .preview {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+            .preview h3 {
+                font-size: 1rem;
+                font-weight: 600;
+                color: #1e293b;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .preview-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .preview-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+        }
+
+            .preview-item:last-child {
+                border-bottom: none;
+            }
+
+            .preview-item span {
+                color: #64748b;
+            }
+
+            .preview-item strong {
+                color: #1e293b;
+            }
+
+        .active-widgets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .widget-badge {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1000;
+        }
+
+            .toast.success {
+                border-left: 4px solid #10b981;
+            }
+
+            .toast.error {
+                border-left: 4px solid #ef4444;
+            }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .pref-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>@ViewData["Title"]</h1>
+                <p>Customize your dashboard layout and preferences</p>
+            </div>
+            <a href="@Url.Action("Index", "Dashboard")" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Settings Form -->
+        <form asp-action="Settings" method="post" class="settings-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="UserId" value="@currentUser.Id" />
+
+            <!-- Widget Configuration -->
+            <div class="section">
+                <h2 class="section-title">Dashboard Widgets</h2>
+                <p class="section-desc">Choose which widgets to display on your dashboard</p>
+
+                <div class="widget-list">
+                    <div class="widget-item">
+                        <div class="widget-info">
+                            <div class="widget-icon">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="widget-text">
+                                <h4>Project Status</h4>
+                                <p>Overview of project statistics</p>
+                            </div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" asp-for="ShowProjectStatus" id="showProjectStatus" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="widget-item">
+                        <div class="widget-info">
+                            <div class="widget-icon info">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <div class="widget-text">
+                                <h4>Recent Projects</h4>
+                                <p>Your recently updated projects</p>
+                            </div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" asp-for="ShowRecentProjects" id="showRecentProjects" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="widget-item">
+                        <div class="widget-info">
+                            <div class="widget-icon success">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div class="widget-text">
+                                <h4>Tasks Overview</h4>
+                                <p>Summary of all task statuses</p>
+                            </div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" asp-for="ShowTasksOverview" id="showTasksOverview" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="widget-item">
+                        <div class="widget-info">
+                            <div class="widget-icon warning">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="widget-text">
+                                <h4>My Tasks</h4>
+                                <p>Tasks assigned to you</p>
+                            </div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" asp-for="ShowMyTasks" id="showMyTasks" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Display Preferences -->
+            <div class="section">
+                <h2 class="section-title">Display Preferences</h2>
+                <p class="section-desc">Customize how information is displayed</p>
+
+                <div class="pref-grid">
+                    <div class="pref-item">
+                        <label class="pref-label" asp-for="RecentProjectsCount">Recent Projects Count</label>
+                        <select asp-for="RecentProjectsCount" class="pref-select" id="recentProjectsCount">
+                            <option value="3">3 Projects</option>
+                            <option value="5">5 Projects</option>
+                            <option value="10">10 Projects</option>
+                        </select>
+                        <span asp-validation-for="RecentProjectsCount" class="text-danger"></span>
+                    </div>
+
+                    <div class="pref-item">
+                        
+                        <span asp-validation-for="PreferredView" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="@Url.Action("Index", "Dashboard")" class="btn btn-secondary" id="cancelBtn">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary" id="saveBtn">
+                    <i class="fas fa-check"></i>
+                    Save Settings
+                </button>
+            </div>
+        </form>
+
+        <div class="preview">
+            <h3>
+                <i class="fas fa-eye"></i>
+                Current Settings
+            </h3>
+            <div class="preview-content">
+                <div class="preview-item">
+                    <span>Active Widgets:</span>
+                    <div class="active-widgets" id="activeWidgets">
+                        @if (Model?.ShowProjectStatus == true)
+                        {
+                            <span class="widget-badge">Project Status</span>
+                        }
+                        @if (Model?.ShowRecentProjects == true)
+                        {
+                            <span class="widget-badge">Recent Projects</span>
+                        }
+                        @if (Model?.ShowTasksOverview == true)
+                        {
+                            <span class="widget-badge">Tasks Overview</span>
+                        }
+                        @if (Model?.ShowMyTasks == true)
+                        {
+                            <span class="widget-badge">My Tasks</span>
+                        }
+                        @if (Model == null || (!Model.ShowProjectStatus && !Model.ShowRecentProjects && !Model.ShowTasksOverview && !Model.ShowMyTasks))
+                        {
+                            <span style="color: #64748b; font-style: italic;">No widgets selected</span>
+                        }
+                    </div>
+                </div>
+                <div class="preview-item">
+                    <span>Projects to show:</span>
+                    <strong id="projectsCount">@(Model?.RecentProjectsCount ?? 5)</strong>
+                </div>
+               
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Settings saved successfully!</span>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                showToast('@TempData["SuccessMessage"]', 'success');
             });
+        </script>
+    }
 
-            // Handle real-time project count changes
-            $('#RecentProjectsCount').change(function() {
-                const count = parseInt($(this).val());
-                if (!isNaN(count) && count >= 1 && count <= 20) {
-                    updateRecentProjectsCount(count);
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                showToast('@TempData["ErrorMessage"]', 'error');
+            });
+        </script>
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const widgets = document.querySelectorAll('.widget-item input[type="checkbox"]');
+            const projectsCount = document.getElementById('recentProjectsCount');
+            const viewModeInputs = document.querySelectorAll('input[name="DefaultViewMode"]');
+            const saveBtn = document.getElementById('saveBtn');
+
+            function updatePreview() {
+                const activeWidgets = document.getElementById('activeWidgets');
+                activeWidgets.innerHTML = '';
+
+                const widgetNames = {
+                    'ShowProjectStatus': 'Project Status',
+                    'ShowRecentProjects': 'Recent Projects',
+                    'ShowTasksOverview': 'Tasks Overview',
+                    'ShowMyTasks': 'My Tasks'
+                };
+
+                let hasActiveWidgets = false;
+                widgets.forEach(widget => {
+                    if (widget.checked) {
+                        const badge = document.createElement('span');
+                        badge.className = 'widget-badge';
+                        badge.textContent = widgetNames[widget.name];
+                        activeWidgets.appendChild(badge);
+                        hasActiveWidgets = true;
+                    }
+                });
+
+                if (!hasActiveWidgets) {
+                    activeWidgets.innerHTML = '<span style="color: #64748b; font-style: italic;">No widgets selected</span>';
                 }
+
+                document.getElementById('projectsCount').textContent = projectsCount.value;
+
+                const selectedView = document.querySelector('input[name="DefaultViewMode"]:checked');
+                if (selectedView) {
+                    const viewModeText = selectedView.value === '@(Model.PreferredView)' ? 'List' : 'Grid';
+                    document.getElementById('viewMode').textContent = viewModeText;
+                }
+            }
+
+            widgets.forEach(widget => {
+                widget.addEventListener('change', updatePreview);
             });
 
-            // Function to update widget visibility
-            function updateWidgetVisibility(widgetType, isVisible) {
-                $.ajax({
-                    url: '/Dashboard/UpdateLayout',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        widgetType: widgetType,
-                        isVisible: isVisible
-                    }),
-                    success: function(response) {
-                        if (response.success) {
-                            console.log('Widget visibility updated: ' + widgetType + ' - ' + isVisible);
-                        } else {
-                            console.error('Failed to update widget visibility');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error updating widget visibility:', error);
-                    }
-                });
+            projectsCount.addEventListener('change', updatePreview);
+
+            viewModeInputs.forEach(input => {
+                input.addEventListener('change', updatePreview);
+            });
+
+        const form = document.querySelector('.settings-form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); 
+
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            saveBtn.disabled = true;
+
+         
+            setTimeout(() => {
+                form.submit();
+            }, 100);
+        });
+            window.showToast = function(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                const toastMessage = document.getElementById('toastMessage');
+
+                toastMessage.textContent = message;
+                toast.className = `toast ${type}`;
+                toast.style.display = 'flex';
+
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 3000);
             }
 
-            // Function to change view type
-            function changeViewType(viewType) {
-                $.ajax({
-                    url: '/Dashboard/ChangeView',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        viewType: viewType
-                    }),
-                    success: function(response) {
-                        if (response.success) {
-                            console.log('View type changed to: ' + viewType);
-                        } else {
-                            console.error('Failed to change view type');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error changing view type:', error);
-                    }
-                });
-            }
-
-            // Function to update recent projects count
-            function updateRecentProjectsCount(count) {
-                $.ajax({
-                    url: '/Dashboard/UpdateRecentProjectsCount',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        count: count
-                    }),
-                    success: function(response) {
-                        if (response.success) {
-                            console.log('Recent projects count updated to: ' + count);
-                        } else {
-                            console.error('Failed to update recent projects count');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error updating recent projects count:', error);
-                    }
-                });
-            }
+            updatePreview();
         });
     </script>
 
-    <style>
-        /* Custom styles for the settings page */
-        .widget-card {
-            transition: all 0.2s ease;
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
         }
-
-            .widget-card:hover {
-                border-color: #0d6efd !important;
-                box-shadow: 0 0.125rem 0.25rem rgba(13, 110, 253, 0.15) !important;
-            }
-
-        .form-check-input:checked {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-
-        .form-switch .form-check-input {
-            width: 2.5em;
-            height: 1.25em;
-        }
-
-        .custom-option {
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-            .custom-option:hover {
-                border-color: #0d6efd !important;
-            }
-
-            .custom-option.active-option {
-                border-color: #0d6efd !important;
-                background-color: rgba(13, 110, 253, 0.05);
-            }
-
-            .custom-option input[type="radio"] {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-            }
-
-        .accordion-button:not(.collapsed) {
-            background-color: rgba(13, 110, 253, 0.05);
-            color: #0d6efd;
-        }
-
-        .accordion-button:focus {
-            box-shadow: none;
-            border-color: rgba(13, 110, 253, 0.25);
-        }
-    </style>
-}
+    }
+</body>
+</html>

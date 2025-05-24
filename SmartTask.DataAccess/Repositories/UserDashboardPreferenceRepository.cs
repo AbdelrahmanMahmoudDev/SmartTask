@@ -11,7 +11,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace SmartTask.DataAccess.Repositories
 {
-    public class UserDashboardPreferenceRepository: IUserDashboardPreferenceRepository
+    public class UserDashboardPreferenceRepository : IUserDashboardPreferenceRepository
     {
         private readonly SmartTaskContext _context;
 
@@ -40,7 +40,7 @@ namespace SmartTask.DataAccess.Repositories
         // Get preferences by preference ID
         public async Task<UserDashboardPreference> GetByIdAsync(int id)
         {
-            
+
             return await _context.UserDashboardPreferences.FindAsync(id);
         }
 
@@ -79,7 +79,8 @@ namespace SmartTask.DataAccess.Repositories
             existingPreference.ShowRecentProjects = preference.ShowRecentProjects;
             existingPreference.ShowProjectStatus = preference.ShowProjectStatus;
             existingPreference.ShowUpcomingTasks = preference.ShowUpcomingTasks;
-            existingPreference.ShowActivityChart = preference.ShowActivityChart;
+            existingPreference.ShowMyTasks = preference.ShowMyTasks;
+            existingPreference.ShowTasksOverview = preference.ShowTasksOverview;
             existingPreference.RecentProjectsCount = preference.RecentProjectsCount;
             existingPreference.PreferredView = preference.PreferredView;
             existingPreference.UpdatedAt = DateTime.Now;
@@ -105,7 +106,8 @@ namespace SmartTask.DataAccess.Repositories
                 existingPreference.ShowRecentProjects = preference.ShowRecentProjects;
                 existingPreference.ShowProjectStatus = preference.ShowProjectStatus;
                 existingPreference.ShowUpcomingTasks = preference.ShowUpcomingTasks;
-                existingPreference.ShowActivityChart = preference.ShowActivityChart;
+                existingPreference.ShowMyTasks = preference.ShowMyTasks;
+                existingPreference.ShowTasksOverview = preference.ShowTasksOverview;
                 existingPreference.RecentProjectsCount = preference.RecentProjectsCount;
                 existingPreference.PreferredView = preference.PreferredView;
                 existingPreference.UpdatedAt = DateTime.Now;

@@ -15,6 +15,13 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using SmartTask.BL.Services;
 using SmartTask.Core.Models.BasePermission;
+using System.Text.Json;
+using Task = SmartTask.Core.Models.Task;
+using SmartTask.DataAccess.Data;
+using SmartTask.Core.IRepositories;
+using SmartTask.Core.Models.Enums;
+using StackExchange.Redis;
+
 
 namespace SmartTask.Web.Controllers
 {
@@ -26,6 +33,10 @@ namespace SmartTask.Web.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IDepartmentService _departmentService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ITaskService _taskService;
+        private readonly ITaskRepository _taskRepository;
+        private readonly SmartTaskContext _context;
         private const int PageSize = 10;
 
        
@@ -35,13 +46,23 @@ namespace SmartTask.Web.Controllers
             IDashboardService dashboardService,
            UserManager<ApplicationUser> userManager,
            RoleManager<ApplicationRole> roleManager,
-           IDepartmentService departmentService)
+           IDepartmentService departmentService,
+           IHttpContextAccessor httpContextAccessor,
+           ITaskService taskService,
+           ITaskRepository taskRepository,
+           SmartTaskContext context
+           )
         {
             _projectService = projectService;
             _dashboardService = dashboardService;
             _userManager = userManager;
             _roleManager = roleManager;
             _departmentService = departmentService;
+            _httpContextAccessor = httpContextAccessor;
+            _taskService = taskService;
+            _taskRepository = taskRepository;
+            _context = context;
+
         }
 
         // GET: Dashboard - Main dashboard page with user preferences
@@ -53,21 +74,76 @@ namespace SmartTask.Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Get user preferences for dashboard
-            var userPreference = await _dashboardService.GetUserDashboardSettingsAsync(currentUser.Id);
+           
+            var userPreference = await _context.UserDashboardPreferences
+                .Include(u => u.User)
+                .FirstOrDefaultAsync(u => u.UserId == currentUser.Id);
 
-            // Pass user information to ViewBag
-            ViewBag.UserFullName = userPreference.User?.FullName ?? currentUser.FullName ?? "User";
-            ViewBag.LastLoginDate = userPreference.LastLoginDate ?? DateTime.Now;
+        
+            ViewBag.UserFullName = userPreference?.User?.FullName ?? currentUser.FullName ?? "User";
+            ViewBag.LastLoginDate = userPreference?.LastLoginDate ?? DateTime.Now;
             ViewBag.UserPreference = userPreference;
 
-            // Get departments for filter dropdown
-            var departments = await _departmentService.GetAllDepartmentsAsync();
+      
+            var departments = await _context.Departments.ToListAsync();
             ViewBag.Departments = new SelectList(departments, "Id", "Name");
             ViewBag.SelectedDepartment = departmentId;
             ViewBag.SearchString = searchString;
 
-            // Get projects based on authorization
+           
+            var allProjects = await _context.Projects.ToListAsync();
+            var allTasks = await _context.Tasks.ToListAsync();
+
+        
+            var myTasks = await _context.Tasks
+                .Where(t => t.Assignments.Any(a => a.UserId == currentUser.Id))
+                .ToListAsync();
+
+       
+            var viewModel = new DashboardViewModel
+            {
+            
+                TotalProjects = allProjects.Count,
+                TotalTasks = allTasks.Count,
+                CompletedProjects = allProjects.Count(p => p.Status == "Completed"),
+                InProgressProjects = allProjects.Count(p => p.Status == "InProgress"),
+                PendingProjects = allProjects.Count(p => p.Status == "Pending"),
+                ArchievedProjects = allProjects.Count(p => p.Status == "Archived"),
+                CancelledProjects = allProjects.Count(p => p.Status == "Cancelled"),
+
+           
+                TodoTasks = myTasks.Count(t => t.Status == Status.Todo),
+                InProgressTasks = myTasks.Count(t => t.Status == Status.InProgress),
+                CompletedTasks = myTasks.Count(t => t.Status == Status.Done),
+                OverdueTasks = myTasks.Count(t => t.EndDate.HasValue &&
+                                                 t.EndDate.Value < DateTime.Today &&
+                                                 t.Status != Status.Done),
+                CancelledTasks = myTasks.Count(t => t.Status == Status.Cancelled),
+                ArchievedTasks = myTasks.Count(t => t.Status == Status.Archieved),
+
+                Projects = new List<ProjectViewModel>(),
+                MyTasks = myTasks.Select(t => new TaskViewModel
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Description = t.Description,
+                    Status = t.Status,
+                    Priority = t.Priority,
+                    DueDate = t.EndDate,
+                    AssignedToName = string.Join(", ", t.Assignments.Select(a => a.User.FullName)),
+                    ProjectName = t.Project?.Name,
+                    ProjectId = t.ProjectId
+                }),
+                RecentProjects = new List<ProjectViewModel>()
+            };
+
+         
+            IQueryable<Project> projectsQuery = _context.Projects
+                .Include(p => p.Department)
+                .Include(p => p.Tasks)
+                    .ThenInclude(t => t.Assignments)
+                        .ThenInclude(a => a.User);
+
             if (User.IsInRole("Admin"))
             {
                 // Admin sees all projects with pagination and filtering
@@ -76,8 +152,9 @@ namespace SmartTask.Web.Controllers
             }
             else
             {
-                // Regular users and Project Managers see their own projects
-                var userProjects = await _projectService.GetUserProjectsAsync(currentUser.Id);
+                
+                projectsQuery = projectsQuery
+                    .Where(p => p.Tasks.Any(t => t.Assignments.Any(a => a.UserId == currentUser.Id)));
 
                 // Apply filters
                 if (!string.IsNullOrEmpty(searchString))
@@ -94,74 +171,75 @@ namespace SmartTask.Web.Controllers
                         .ToList();
                 }
 
-                // Manual pagination for filtered user projects
-                var totalCount = userProjects.Count;
-                var totalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
-                var paginatedProjects = userProjects
-                    .Skip((page - 1) * PageSize)
-                    .Take(PageSize)
-                    .ToList();
+            var totalCount = await projectsQuery.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
 
-                ViewBag.CurrentPage = page;
-                ViewBag.TotalPages = totalPages;
-                ViewBag.HasPreviousPage = page > 1;
-                ViewBag.HasNextPage = page < totalPages;
+            var projects = await projectsQuery
+                .OrderByDescending(p => p.StartDate)
+                .Skip((page - 1) * PageSize)
+                .Take(PageSize)
+                .ToListAsync();
 
-                return View(paginatedProjects);
-            }
-        }
-
-        // GET: Dashboard/Settings - User dashboard preferences
-        public async Task<IActionResult> Settings()
-        {
-            var currentUser = await _userManager.GetUserAsync(User);
-
-            if (currentUser == null)
+         
+            viewModel.Projects = projects.Select(p => new ProjectViewModel
             {
-                return RedirectToAction("Login", "Account");
-            }
-
-            var preference = await _dashboardService.GetUserPreferenceAsync(currentUser.Id);
-
-            // Pass user information to ViewBag
-            ViewBag.UserFullName = preference.User?.FullName ?? currentUser.FullName ?? "User";
-            ViewBag.LastLoginDate = preference.LastLoginDate ?? DateTime.Now;
-            return View(preference);
-        }
-
-        // POST: Dashboard/Settings - Update user dashboard preferences
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Settings(UserDashboardPreference model)
-        {
-            var currentUser = await _userManager.GetUserAsync(User);
-
-            if (!ModelState.IsValid)
-            {
-                if (currentUser != null)
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Status = p.Status,
+                StartDate = p.StartDate,
+                EndDate = p.EndDate,
+                Department = new DepartmentViewModel
                 {
-                    // If model is not valid, get the user preference again 
-                    var preference = await _dashboardService.GetUserPreferenceAsync(currentUser.Id);
-                    ViewBag.UserFullName = preference.User?.FullName ?? currentUser.FullName ?? "User";
-                    ViewBag.LastLoginDate = preference.LastLoginDate ?? DateTime.Now;
-                }
-                return View(model);
-            }
+                    Id = p.Department.Id,
+                    Name = p.Department.Name
+                },
+                Tasks = p.Tasks.Select(t => new TaskViewModel
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Description = t.Description,
+                    Status = t.Status,
+                    Priority = t.Priority,
+                    DueDate = t.EndDate,
+                    ProjectId = t.ProjectId,
+                    ProjectName = p.Name,
+                    AssignedToName = string.Join(", ", t.Assignments.Select(a => a.User.FullName))
+                }),
+                CompletionPercentage = CalculateCompletionPercentage(p.Tasks)
+            });
 
-            if (currentUser == null)
+        
+            var recentProjects = await _context.Projects
+                .OrderByDescending(p => p.UpdatedAt)
+                .Take(5)
+                .ToListAsync();
+
+            viewModel.RecentProjects = recentProjects.Select(p => new ProjectViewModel
             {
-                return RedirectToAction("Login", "Account");
-            }
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Status = p.Status,
+                StartDate = p.StartDate,
+                EndDate = p.EndDate
+            });
 
-            model.UserId = currentUser.Id;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.HasPreviousPage = page > 1;
+            ViewBag.HasNextPage = page < totalPages;
 
-            // Save new preference in database
-            await _dashboardService.SaveUserDashboardSettingsAsync(currentUser.Id, model);
+            return View(viewModel);
+        }
 
-            TempData["SuccessMessage"] = "Dashboard preferences updated successfully!";
+        private double CalculateCompletionPercentage(ICollection<Task> tasks)
+        {
+            if (tasks == null || tasks.Count == 0)
+                return 0;
 
-            // Redirect to the Dashboard Index
-            return RedirectToAction("Index", "Dashboard");
+            var completedTasks = tasks.Count(t => t.Status == Status.Done);
+            return (completedTasks * 100.0) / tasks.Count;
         }
 
         // GET: Dashboard/Details/5
@@ -455,6 +533,89 @@ namespace SmartTask.Web.Controllers
             return RedirectToAction(nameof(Details), new { id = projectId });
         }
 
+
+        //***************** Settings Part ****************
+
+        // GET: Dashboard/Settings - User dashboard preferences
+        public async Task<IActionResult> Settings()
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (currentUser == null)
+                return RedirectToAction("Login", "Account");
+
+            var session = _httpContextAccessor.HttpContext?.Session;
+            var sessionKey = $"dashboard_{currentUser.Id}";
+
+            UserDashboardPreference preference;
+
+            // جرب تجيبها من السيشن الأول
+            var sessionData = session?.GetString(sessionKey);
+
+            if (!string.IsNullOrEmpty(sessionData))
+            {
+                preference = JsonSerializer.Deserialize<UserDashboardPreference>(sessionData);
+            }
+            else
+            {
+                // أول مرة يدخل أو مفيش بيانات، جيب من الداتا بيز وخزنها في السيشن
+                preference = await _dashboardService.GetUserPreferenceAsync(currentUser.Id);
+
+                if (preference != null)
+                {
+                    session?.SetString(sessionKey, JsonSerializer.Serialize(preference));
+                    preference.User = currentUser;
+                }
+                else
+                {
+                    preference = new UserDashboardPreference
+                    {
+                        UserId = currentUser.Id,
+                        CreatedAt = DateTime.Now
+                    };
+                }
+            }
+
+            ViewBag.UserFullName = preference.User?.FullName ?? currentUser.FullName ?? "User";
+            ViewBag.LastLoginDate = preference.LastLoginDate ?? DateTime.Now;
+
+            return View(preference);
+        }
+
+
+        // POST: Dashboard/Settings - Update user dashboard preferences
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Settings(UserDashboardPreference model)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (!ModelState.IsValid)
+            {
+                if (currentUser != null)
+                {
+                    // If model is not valid, get the user preference again 
+                    var preference = await _dashboardService.GetUserPreferenceAsync(currentUser.Id);
+                    ViewBag.UserFullName = preference.User?.FullName ?? currentUser.FullName ?? "User";
+                    ViewBag.LastLoginDate = preference.LastLoginDate ?? DateTime.Now;
+                }
+                return View(model);
+            }
+
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            model.UserId = currentUser.Id;
+
+            await _dashboardService.SaveUserDashboardSettingsAsync(currentUser.Id, model);
+
+            TempData["SuccessMessage"] = "Dashboard preferences updated successfully!";
+
+            return RedirectToAction("Settings", "Dashboard");
+        }
+
         // Update the visibility of a specific widget on the dashboard
         [HttpPost]
         public async Task<IActionResult> UpdateLayout([FromBody] WidgetUpdateViewModel model)
@@ -540,5 +701,59 @@ namespace SmartTask.Web.Controllers
 
             return Json(new { success = true });
         }
+        
+
+        [HttpGet]
+        public async Task<IActionResult> MyTasks()
+        {
+            List<Task> tasks;
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            tasks = await _taskService.TasksForUser(currentUser.Id);
+
+
+            return View(tasks);
+
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateTask(Task updatedTask)
+        {
+            var task = await _taskRepository.GetByIdAsync(updatedTask.Id);
+            if (task == null)
+                return NotFound();
+
+            task.Title = updatedTask.Title;
+            task.Description = updatedTask.Description;
+            task.Status = updatedTask.Status;
+            task.Priority = updatedTask.Priority;
+            task.StartDate = updatedTask.StartDate;
+            task.EndDate = updatedTask.EndDate;
+
+            await _taskRepository.UpdateAsync(task);
+            await _taskRepository.SaveChangesAsync();
+
+            return RedirectToAction("MyTasks");
+        }
+
+
+        public async Task<IActionResult> TaskOverview()
+        {
+            var tasks = await _taskRepository.GetTasksOverviewAsync();
+
+            ViewBag.TotalTasks = tasks.Count();
+            ViewBag.TodoTasks = tasks.Count(t => t.Status == Status.Todo);
+            ViewBag.InProgressTasks = tasks.Count(t => t.Status == Status.InProgress);
+            ViewBag.CompletedTasks = tasks.Count(t => t.Status == Status.Done);
+            ViewBag.ArchievedTasks = tasks.Count(t => t.Status == Status.Archieved);
+            ViewBag.CancelledTasks = tasks.Count(t => t.Status == Status.Cancelled); 
+            ViewBag.OverdueTasks = tasks.Count(t => t.EndDate < DateTime.Now && t.Status != Status.Done);
+
+            return View(tasks);
+        }
+
     }
+
 }
+
