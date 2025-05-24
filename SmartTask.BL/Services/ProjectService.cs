@@ -29,7 +29,6 @@ namespace SmartTask.BL.Services
             _userManager = userManager;
         }
 
-        public async Task< PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int page, int pageSize)
         public async Task<PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int page, int pageSize)
         {
             var query = _projectRepository.GetQueryable();
@@ -196,8 +195,6 @@ namespace SmartTask.BL.Services
 
 
             return await  PaginatedList<Project>.CreateAsync(query, page, pageSize);
-
-            return PaginatedList<Project>.Create(query, page, pageSize);
         }
 
         public async Task<bool> AddMemberAsync(int projectId, string userId)
