@@ -1,34 +1,69 @@
-﻿@model SmartTask.Core.Models.ApplicationUser
+﻿@model SmartTask.Web.ViewModels.EditUserViewModel
 
-@{
-    ViewData["Title"] = "Edit User";
-}
-
-<h2>Edit User</h2>
-
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ExistingImagePath" />
 
+    <!-- Full Name -->
     <div class="form-group">
         <label asp-for="FullName"></label>
         <input asp-for="FullName" class="form-control" />
         <span asp-validation-for="FullName" class="text-danger"></span>
     </div>
 
+    <!-- Email (Read Only) -->
     <div class="form-group">
         <label asp-for="Email"></label>
         <input asp-for="Email" class="form-control" readonly />
     </div>
 
+    <!-- Department -->
     <div class="form-group">
         <label asp-for="DepartmentId">Department</label>
-        <select asp-for="DepartmentId" class="form-control"
-                asp-items="ViewBag.Departments">
+        <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.Departments">
             <option value="">-- Select Department --</option>
         </select>
         <span asp-validation-for="DepartmentId" class="text-danger"></span>
     </div>
 
+    <!-- Current Image -->
+    @if (!string.IsNullOrEmpty(Model.ExistingImagePath))
+    {
+        <div class="form-group">
+            <label>Current Image:</label><br />
+            <img src="@Model.ExistingImagePath" alt="User Image" style="max-width:150px;" />
+        </div>
+    }
+
+    <!-- Upload New Image -->
+    <div class="form-group">
+        <label asp-for="ImageFile">Upload New Image</label>
+        <input asp-for="ImageFile" type="file" class="form-control" />
+        <span asp-validation-for="ImageFile" class="text-danger"></span>
+    </div>
+
+    @* <hr /> *@
+    @* <h4>Change Password</h4> *@
+
+    <div class="form-group">
+        <label asp-for="CurrentPassword"></label>
+        <input asp-for="CurrentPassword" class="form-control" />
+        <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="NewPassword"></label>
+        <input asp-for="NewPassword" class="form-control" />
+        <span asp-validation-for="NewPassword" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ConfirmPassword"></label>
+        <input asp-for="ConfirmPassword" class="form-control" />
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
+
+
     <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    <a asp-action="GetAll" class="btn btn-secondary">Cancel</a>
 </form>

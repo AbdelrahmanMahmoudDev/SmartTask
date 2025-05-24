@@ -15,10 +15,12 @@ namespace SmartTask.Web.Controllers
     [Authorize]
     public class UserController : Controller
     {
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUserService _userService;
         private readonly IDepartmentService _departmentService;
-        public UserController(IUserService userService, IDepartmentService departmentService)
+        public UserController(IUserService userService, IDepartmentService departmentService, UserManager<ApplicationUser> userManager)
         {
+            _userManager = userManager;
             _userService = userService;
             _departmentService = departmentService;
         }
@@ -97,27 +99,101 @@ namespace SmartTask.Web.Controllers
         {
             var user = await _userService.GetByIdAsync(id);
             if (user == null) return NotFound();
+
+            var viewModel = new EditUserViewModel
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email,
+                DepartmentId = user.DepartmentId,
+                    ExistingImagePath = user.ImagePath
+
+            };
+
             var departments = await _departmentService.GetAllDepartmentsAsync();
-            ViewBag.Departments = new SelectList(departments, "Id", "Name");
-            return View(user);
+            ViewBag.Departments = new SelectList(departments, "Id", "Name", user.DepartmentId);
+
+            return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "CanEditUser")]
-        public async Task<IActionResult> Edit(string id, ApplicationUser user)
+        public async Task<IActionResult> Edit(string id, EditUserViewModel model)
         {
-            if (id != user.Id) return NotFound();
-            if (ModelState.IsValid)
+            if (id != model.Id) return NotFound();
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _userService.GetByIdAsync(model.Id);
+            if (user == null) return NotFound();
+
+            user.FullName = model.FullName;
+            user.DepartmentId = model.DepartmentId;
+            user.updatedAt = DateTime.UtcNow;
+
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
             {
-                var success = await _userService.UpdateAsync(user);
-                if (!success) return NotFound();
-                return RedirectToAction(nameof(GetAll));
+                if (!string.IsNullOrEmpty(model.ExistingImagePath))
+                {
+                    var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", model.ExistingImagePath.TrimStart('/'));
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                var uploadsFolder = Path.Combine("wwwroot", "images", "users");
+                Directory.CreateDirectory(uploadsFolder); 
+
+                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.ImageFile.CopyToAsync(stream);
+                }
+
+                user.ImagePath = $"/images/users/{uniqueFileName}";
             }
-            var departments = await _departmentService.GetAllDepartmentsAsync();
-            ViewBag.Departments = new SelectList(departments, "Id", "Name");
-            return View(user);
+
+            var updateResult = await _userService.UpdateAsync(user);
+            if (!updateResult)
+            {
+                ModelState.AddModelError("", "Failed to update user data.");
+                return View(model);
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.NewPassword))
+            {
+                if (string.IsNullOrWhiteSpace(model.CurrentPassword))
+                {
+                    ModelState.AddModelError("CurrentPassword", "Current password is required.");
+                    return View(model);
+                }
+
+                var passwordCheck = await _userManager.CheckPasswordAsync(user, model.CurrentPassword);
+                if (!passwordCheck)
+                {
+                    ModelState.AddModelError("CurrentPassword", "Current password is incorrect.");
+                    return View(model);
+                }
+
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var resetResult = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+
+                if (!resetResult.Succeeded)
+                {
+                    foreach (var error in resetResult.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                    return View(model);
+                }
+            }
+
+            return RedirectToAction(nameof(GetAll));
         }
+
         public async Task<IActionResult> Delete(string id)
         {
             var user = await _userService.GetByIdAsync(id);
@@ -133,5 +209,8 @@ namespace SmartTask.Web.Controllers
             await _userService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
+
+        
+
     }
 }
