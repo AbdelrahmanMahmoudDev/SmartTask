@@ -43,15 +43,16 @@ namespace SmartTask.Web.Controllers
         private readonly ITaskService _taskService;
         private readonly IWebHostEnvironment _environment;
         private readonly IUserColumnPreferenceService _userColumnPreferenceService;
-
+        private readonly ITaskDependencyRepository _taskDependencyRepo;
         private readonly INotificationService _notificationService;
-
+        private readonly IEventRepository eventRepository;
         public TaskController(ITaskRepository taskRepository, IProjectRepository projectRepository,
             UserManager<ApplicationUser> usermanager, SmartTaskContext context,
             IAssignTaskRepository assignTaskRepository, INotificationRepository notificationRepository,
             IHubContext<NotificationHub> hub, ITaskService taskService
             , IWebHostEnvironment environment, INotificationService notificationService
-            , IUserColumnPreferenceService userColumnPreferenceService)
+            , IUserColumnPreferenceService userColumnPreferenceService, ITaskDependencyRepository taskDependencyRepo
+            , IEventRepository eventRepository)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
@@ -64,6 +65,8 @@ namespace SmartTask.Web.Controllers
             _environment = environment;
             _userColumnPreferenceService = userColumnPreferenceService;
             _notificationService = notificationService;
+            _taskDependencyRepo = taskDependencyRepo;
+            this.eventRepository = eventRepository;
         }
         [DisplayName("Task Details")]
         public async Task<IActionResult> Details(int id)
@@ -191,9 +194,10 @@ namespace SmartTask.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             string NotificationMessage = $"{user.FullName} Deleted Task : {task.Title}";
             _notificationService.sendSignalRNotificationAsync(users, user.Id, type, NotificationMessage, taskid);
-            
+
 
             //Delete Task
+            await eventRepository.DeleteAssignTaskAsync(taskid);
             await _taskService.DeleteDepend(taskid);
             await _taskService.Delete(taskid);
             return Ok();
@@ -207,16 +211,17 @@ namespace SmartTask.Web.Controllers
                 {
                     Id = n.TaskId,
                     Name = n.Name,
-                    IsSelected = n.IsSelected
+                    IsSelected = n.IsSelected,
+                    DependencyType = n.DependencyType
                 };
             }).ToList();
             return PartialView("_TaskDend", taskViewDeps);
         }
         [DisplayName("Add Dependencies")]
         [HttpPost]
-        public async Task<IActionResult> SaveSelectedTasks(int SelectedTaskId, List<int> selectedTaskIds)
+        public async Task<IActionResult> SaveSelectedTasks(int SelectedTaskId, List<int> selectedTaskIds, List<DependencyType> dependencyTypes)
         {
-            await _taskService.SaveSelectedTasks(SelectedTaskId, selectedTaskIds);
+            await _taskService.SaveSelectedTasks(SelectedTaskId, selectedTaskIds, dependencyTypes);
             return Ok();
         }
         [DisplayName("View All Tasks")]
@@ -252,6 +257,32 @@ namespace SmartTask.Web.Controllers
             ViewBag.Users = await _userManager.Users.ToListAsync();
 
             return View(taskViewModels);
+        }
+        [DisplayName("transfer project status")]
+        public async Task<IActionResult> IncreaseStatus(int id)
+        {
+            var task = await _taskRepository.GetByIdAsync(id);
+            var sucsessortasks = await _taskDependencyRepo.GetBySuccessorIdAsync(id);
+            if (task == null)
+            {
+                return NotFound(new { message = "Task Not found" });
+            }
+            foreach (var sucsessortask in sucsessortasks)
+            {
+
+                if (sucsessortask.DependencyType == DependencyType.FinishToStart && sucsessortask.Predecessor.Status != Core.Models.Enums.Status.Done)
+                {
+                    return BadRequest(new { message = "This task depends on another task. You must finish it first." });
+                }
+            }
+            if (task.Status == Core.Models.Enums.Status.Done)
+            {
+                return BadRequest(new { message = "Task is already completed." });
+            }
+            ++task.Status;
+            await _taskRepository.UpdateAsync(task);
+
+            return PartialView("PartialViews/_Status", task);
         }
         [HttpGet]
         [DisplayName("Create Task")]
@@ -350,6 +381,7 @@ namespace SmartTask.Web.Controllers
                 {
                     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                     var _task = await _taskRepository.GetByIdAsync(taskVM.Id);
+                    await _assignTaskRepository.ModifyTasksToUserByIds(userId, _task, taskVM.AssignedToId);
                     _task.Title = taskVM.Title;
                     _task.Description = taskVM.Description;
                     _task.StartDate = taskVM.StartDate;
@@ -359,7 +391,6 @@ namespace SmartTask.Web.Controllers
                     _task.Status = taskVM.Status;
                     _task.Priority = taskVM.Priority;
                     _task.ParentTaskId = taskVM.ParentTaskId;
-                    await _assignTaskRepository.ModifyTasksToUserByIds(userId, _task, taskVM.AssignedToId);
                     await _taskRepository.UpdateAsync(_task);
 
                     //SignalR Part

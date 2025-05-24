@@ -77,7 +77,16 @@ namespace SmartTask.DataAccess.Repositories
                 await _context.SaveChangesAsync();
             }
         }
-
+        public async Task DeleteAssignTaskAsync(int taskid)
+        {
+            var eventEntity =  _context.Events.FirstOrDefault(x=>x.TaskId==taskid);
+            
+            if (eventEntity != null)
+            {
+                eventEntity.TaskId=null;
+                await _context.SaveChangesAsync();
+            }
+        }
         public async Task<bool> ExistsAsync(int id)
         {
             return await _context.Events.AnyAsync(e => e.Id == id);

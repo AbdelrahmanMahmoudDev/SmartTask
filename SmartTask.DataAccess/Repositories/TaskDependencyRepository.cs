@@ -56,7 +56,12 @@ namespace SmartTask.DataAccess.Repositories
             await _context.SaveChangesAsync();
             return taskDependency;
         }
-
+        public async Task<TaskDependency> UpdateAsync(TaskDependency taskDependency)
+        {
+            _context.TaskDependencies.Update(taskDependency);
+            await _context.SaveChangesAsync();
+            return taskDependency;
+        }
         public async Task DeleteAsync(int id)
         {
             var taskDependency = await _context.TaskDependencies.FindAsync(id);

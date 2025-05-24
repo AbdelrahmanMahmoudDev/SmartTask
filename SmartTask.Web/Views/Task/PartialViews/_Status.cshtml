@@ -1,0 +1,40 @@
+﻿@using SmartTask.Core.Models.Enums
+@model SmartTask.Core.Models.Task
+
+
+@{
+	Status status = Model.Status;
+	bool isCancelled = status == Status.Cancelled;
+	int filledSegments = status switch
+	{
+	Status.Todo => 1,
+	Status.Cancelled or Status.InProgress => 2,
+	Status.Done => 3,
+	_ => 0
+	};
+	string barColor = status switch
+	{
+	Status.Todo => "bg-primary",
+	Status.InProgress => "bg-warning",
+	Status.Cancelled => "bg-danger",
+	Status.Done => "bg-success",
+	_ => "bg-secondary"
+	};
+	string textClass = isCancelled ? "text-decoration-line-through text-muted" : "";
+	}
+	<div class="d-flex align-items-center flex-column">
+		<span class="ms-2 small fw-bold @textClass">@Model.Status</span>
+		<div class="d-flex flex-row w-100 align-items-center" style="gap: 2px;">
+			@for (int i = 1; i <= 3; i++)
+			{
+				<div class="flex-fill rounded" style="height: 8px; background-color: #e0e0e0;">
+					@if (i <= filledSegments)
+					{
+						<div class="@barColor h-100 w-100 rounded"></div>
+					}
+				</div>
+			}
+			<i class="bi bi-arrow-up-square fs-4" onclick="IncreaseStatus(@Model.Id)"></i>
+		</div>
+
+	</div>

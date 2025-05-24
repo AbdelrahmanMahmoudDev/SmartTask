@@ -138,7 +138,9 @@ namespace SmartTask.Web.Controllers
         {
             var department = await _departmentService.GetDepartmentWithDetailsAsync(id);
             if (department == null)
+            {
                 return View("NotFound");
+            }
 
             var managers = await _userManager.GetUsersInRoleAsync("DepartmentManager");
             var allBranches = await _branchService.GetAllAsync();
@@ -172,7 +174,9 @@ namespace SmartTask.Web.Controllers
 
             var existingDepartment = await _departmentService.GetDepartmentWithDetailsAsync(model.Id);
             if (existingDepartment == null)
+            {
                 return View("NotFound");
+            }
 
             existingDepartment.Name = model.Name;
             existingDepartment.ManagerId = model.ManagerId;
@@ -193,6 +197,7 @@ namespace SmartTask.Web.Controllers
             }
 
             var selectedUserIds = model.SelectedUserIds ?? new List<string>();
+
             existingDepartment.Users = await _userManager.Users
                 .Where(u => selectedUserIds.Contains(u.Id) && u.BranchId.HasValue && newBranchIds.Contains(u.BranchId.Value))
                 .ToListAsync();

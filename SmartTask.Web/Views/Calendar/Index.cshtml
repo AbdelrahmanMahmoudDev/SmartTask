@@ -1,0 +1,245 @@
+﻿@using SmartTask.Core.Models
+@{
+	Layout = "_Layout";
+
+	ViewData["Title"] = "Calendar";
+}
+
+
+@section Styles {
+
+	<link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css' rel='stylesheet'>
+
+
+
+	<style>
+
+
+		#calendarWrapper .fc-h-event {
+			color: #3788d8 !important;
+			border: 1px,solid, #3788d8 !important;
+			background-color: #3788d8 !important;
+		}
+
+		#calendarWrapper .fc-toolbar-title {
+			font-weight: bold !important;
+			font-size: 1.25rem !important;
+		}
+
+		.fc-event.fc-event-draggable, .fc-event[href] {
+			cursor: pointer !important;
+			transition: ease-in-out 0.1s;
+		}
+		.fc .fc-scrollgrid{
+			border-collapse: separate !important;
+		}
+
+		.fc-event-resizing {
+			transition: ease-in-out 0.1s !important;
+			z-index: 9999 !important;
+		}
+		
+		.fc-event-resizable::after {
+			content: "";
+			position: absolute;
+			right: 0;
+			bottom: 0;
+			width: 10px;
+			height: 10px;
+			background: #fff;
+			border: 2px solid #3788d8;
+			border-radius: 2px;
+			cursor: se-resize;
+		}
+
+		.fc-event {
+			transition: transform 0.2s ease-in-out, 
+			width 0.2s ease-in-out, height 0.2s ease-in-out,
+			background-color 0.2s ease-in-out, 
+			box-shadow 0.2s ease-in-out;
+		}
+
+		.fc-event-resizing {
+			box-shadow: 0 0 10px rgba(55, 136, 216, 0.6);
+			opacity: 0.9;
+			z-index: 9999 !important;
+		}
+
+		.fc-h-event {
+			transition: all 0.2s ease-in-out;
+		}
+
+	</style>
+
+ }
+<select id="SelectedProject" onchange="OnSelection()">
+	@foreach (Project project in ViewBag.Projects)
+	{
+		@if (project.Id == 1)
+		{
+			<option value="@project.Id" selected>@project.Name</option>
+		}
+		else
+		{
+			<option value="@project.Id">@project.Name</option>
+		}
+
+	}
+
+</select>
+<div id="calendarWrapper">
+	<div id="calendar"></div>
+</div>
+<div class="modal fade" id="taskDetailsModal" tabindex="-1">
+	<div class="modal-dialog modal-lg modal-dialog-centered">
+		<div class="modal-content shadow" id="taskDetailsContent">
+			<!-- Content will be loaded here -->
+		</div>
+	</div>
+</div>
+@section Scripts {
+
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	@* <script src="~/js/index.global.js"></script> *@
+	<script src="~/js/index.global.min.js"></script>
+	<script>
+		var data = [];
+
+		$(document).ready(function () {
+			   var projectId = document.getElementById("SelectedProject").value;
+			$.ajax({
+				url: '@Url.Action("GetTasksForProject", "Calendar")',
+				method: 'GET',
+				data: { ProjectId: projectId },
+				success: function (Tasks) {
+					data = Tasks;
+					initializeCalendar(); // Call after data is ready
+				},
+				error: function () {
+					alert("Failed to load tasks.");
+					$('#taskTable').slideDown(200); // restore if error
+				}
+			});
+		});
+
+		   function OnSelection() {
+				 var projectId = document.getElementById("SelectedProject").value;
+			$.ajax({
+				url: '@Url.Action("GetTasksForProject", "Calendar")',
+				method: 'GET',
+				data: { ProjectId: projectId },
+				success: function (Tasks) {
+					data = Tasks;
+					initializeCalendar(); // Call after data is ready
+					console.log(data);
+				},
+				error: function () {
+					alert("Failed to load tasks.");
+					$('#taskTable').slideDown(200); // restore if error
+				}
+			});
+		}
+				function asyncAjax() {
+			var projectId = document.getElementById("SelectedProject").value;
+
+			return new Promise((resolve, reject) => {
+				$.ajax({
+					url: '@Url.Action("GetProjectById", "Calendar")',
+					method: 'GET',
+					data: { ProjectId: projectId },
+					success: function (Project) {
+						resolve(Project);
+					},
+					error: function () {
+						alert("Failed to load tasks.");
+						$('#taskTable').slideDown(200);
+						reject("AJAX call failed");
+					}
+				});
+			});
+		}
+
+			 async function initializeCalendar() {
+			var calendarEl = document.getElementById('calendar');
+
+			let project=await asyncAjax();
+			console.log(project);
+			const now = new Date();
+
+			// Sample project-level date range (adjust based on your logic)
+			const projectStart = new Date(project.startDate);
+
+			const projectEnd = new Date(project.endDate);
+
+			var calendar = new FullCalendar.Calendar(calendarEl, {
+				timeZone: 'UTC',
+				themeSystem: 'bootstrap5',
+				headerToolbar: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+				},
+				initialDate: now,
+				navLinks: true,
+				nowIndicator: true,
+				weekNumbers: true,
+				weekNumberCalculation: 'ISO',
+				editable: true,
+				selectable: true,
+				dayMaxEvents: true,
+				events: data,
+
+				// Restrict dragging/resizing
+				eventAllow: function (dropInfo, draggedEvent) {
+					const start = dropInfo.start;
+					const end = dropInfo.end || dropInfo.start;
+
+					// Check if within the project date range
+					const isWithinProject = start >= projectStart && end <= projectEnd;
+
+					// Optional: If each event has taskStart and taskEnd
+					const taskStart = draggedEvent.extendedProps.taskStart
+						? new Date(draggedEvent.extendedProps.taskStart)
+						: projectStart;
+
+					const taskEnd = draggedEvent.extendedProps.taskEnd
+						? new Date(draggedEvent.extendedProps.taskEnd)
+						: projectEnd;
+
+					const isWithinTask = start >= taskStart && end <= taskEnd;
+
+					return isWithinProject && isWithinTask;
+				},
+
+				eventClick: function (info) {
+					loadTaskDetails(info.event.id);
+				},
+				// eventDrop: function (info) {
+				//     updateEvent(info.event);
+				// },
+				// eventResize: function (info) {
+				//     updateEvent(info.event);
+				// }
+			});
+
+			calendar.render();
+		}
+
+			function loadTaskDetails(taskId) {
+			$.ajax({
+				url: '@Url.Action("Details", "Task")/' + taskId,
+				type: 'GET',
+				success: function(response) {
+					$('#taskDetailsContent').html(response);
+					var detailsModal = new bootstrap.Modal(document.getElementById('taskDetailsModal'));
+					detailsModal.show();
+				},
+				error: function(error) {
+					console.log('Error loading task details:', error);
+					alert('Failed to load task details. Please try again.');
+				}
+			});
+		}
+	</script>
+
+}

@@ -13,6 +13,7 @@ namespace SmartTask.Core.IRepositories
         Task<Event> AddAsync(Event eventEntity);
         Task UpdateAsync(Event eventEntity);
         Task DeleteAsync(int id);
+        Task DeleteAssignTaskAsync(int id);
         Task<bool> ExistsAsync(int id);
     }
 }

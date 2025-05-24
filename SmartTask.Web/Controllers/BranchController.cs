@@ -162,6 +162,7 @@ namespace SmartTask.Web.Controllers
                 var departments = await departmentService.GetAllDepartmentsAsync();
                 ViewBag.Managers = new SelectList(managers, "Id", "FullName", model.ManagerId);
                 model.AllDepartments = departments;
+
                 return View(model);
             }
 
@@ -176,6 +177,7 @@ namespace SmartTask.Web.Controllers
                     DepartmentId = id
                 }).ToList()
             };
+
             await branchService.UpdateAsync(branch);
 
             var existingUsers = await userManager.Users

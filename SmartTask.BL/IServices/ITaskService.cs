@@ -30,6 +30,6 @@ namespace SmartTask.BL.IServices
 
         Task<List<TaskDenpendDto>> Loadnodes(int id);
 
-        Task SaveSelectedTasks(int selectedTaskId, List<int> selectedTaskIds);
+        Task SaveSelectedTasks(int selectedTaskId, List<int> selectedTaskIds,List<DependencyType> dependencyTypes) ;
     }
 }

@@ -29,9 +29,11 @@ namespace SmartTask.BL.Services
             _userManager = userManager;
         }
 
+        public async Task< PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int page, int pageSize)
         public async Task<PaginatedList<Project>> GetFilteredProjectsAsync(string searchString, int page, int pageSize)
         {
             var query = _projectRepository.GetQueryable();
+            
 
             if (!string.IsNullOrEmpty(searchString))
             {
@@ -42,6 +44,7 @@ namespace SmartTask.BL.Services
 
             return  await PaginatedList<Project>.CreateAsync(query, page, pageSize);
         }
+
 
         public async Task<Project> AddProjectAsync(Project project)
         {
@@ -78,7 +81,7 @@ namespace SmartTask.BL.Services
             if (isArchiving)
             {
                 await ArchiveProjectTasksAsync(project.Id);
-            }
+        }
             else if (isUnarchiving)
             {
                 await UnarchiveProjectTasksAsync(project.Id);
@@ -172,11 +175,13 @@ namespace SmartTask.BL.Services
         {
             var query = _projectRepository.GetQueryable();
 
+
             if (!string.IsNullOrEmpty(searchString))
             {
                 query = query.Where(p =>
                     p.Name.Contains(searchString) ||
                     p.Description.Contains(searchString));
+
             }
 
             if (departmentId > 0)
@@ -191,7 +196,8 @@ namespace SmartTask.BL.Services
 
 
             return await  PaginatedList<Project>.CreateAsync(query, page, pageSize);
-          
+
+            return PaginatedList<Project>.Create(query, page, pageSize);
         }
 
         public async Task<bool> AddMemberAsync(int projectId, string userId)
@@ -201,7 +207,7 @@ namespace SmartTask.BL.Services
                 return false;
 
             var existingMember = project.ProjectMembers.FirstOrDefault(pm => pm.UserId == userId);
-            if (existingMember != null) return true;
+            if (existingMember != null) return true; 
 
             project.ProjectMembers.Add(new ProjectMember
             {
