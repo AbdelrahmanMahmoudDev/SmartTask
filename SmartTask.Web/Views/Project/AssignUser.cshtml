@@ -1,0 +1,92 @@
+﻿@model int
+@{
+    ViewData["Title"] = "Assign Users to Project";
+}
+
+<div class="container mt-4">
+    <h1>Assign Users to Project</h1>
+
+    <form asp-action="AssignUser" method="post">
+        <input type="hidden" name="projectId" value="@Model" />
+
+        <div class="mb-3">
+            <label for="userDropdown" class="form-label">Select User</label>
+            <select id="userDropdown" name="selectedUserIds" class="form-select select2" multiple="multiple"
+                    data-placeholder="-- Select users --">
+                @* <option selected disabled>Choose a user...</option> *@
+                @foreach (var user in ViewBag.Users as SelectList)
+                {
+                    <option value="@user.Value">@user.Text</option>
+                }
+            </select>
+        </div>
+
+        <div id="selectedUsersContainer" class="mb-3">
+            <label class="form-label">Selected Users</label>
+            <div id="selectedUsersList">
+                
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</div>
+
+<script src="~/lib/jquery/jquery.min.js"></script>
+<script src="~/lib/select2/js/select2.min.js"></script>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#userDropdown').select2({
+                tags: true,
+                placeholder: "-- Select Users --",
+                allowClear: true,
+                width: '100%',
+            });
+        });
+    </script>
+}
+
+<script>
+ 
+    const userDropdown = document.getElementById("userDropdown");
+    const selectedUsersList = document.getElementById("selectedUsersList");
+
+   
+    userDropdown.addEventListener("change", function () {
+        const selectedValue = userDropdown.value;
+        const selectedText = userDropdown.options[userDropdown.selectedIndex].text;
+
+        if (!document.querySelector(`#checkbox-${selectedValue}`)) {
+            const checkboxContainer = document.createElement("div");
+            checkboxContainer.classList.add("form-check");
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "form-check-input";
+            checkbox.id = `checkbox-${selectedValue}`;
+            checkbox.name = "selectedUserIds";
+            checkbox.value = selectedValue;
+            checkbox.checked = true;
+
+            const label = document.createElement("label");
+            label.className = "form-check-label";
+            label.htmlFor = `checkbox-${selectedValue}`;
+            label.innerText = selectedText;
+
+            checkboxContainer.appendChild(checkbox);
+            checkboxContainer.appendChild(label);
+            selectedUsersList.appendChild(checkboxContainer);
+        }
+    });
+
+    selectedUsersList.addEventListener("change", function (event) {
+        if (event.target.type === "checkbox" && !event.target.checked) {
+            const container = event.target.parentElement;
+            container.remove();
+        }
+    });
+
+</script>

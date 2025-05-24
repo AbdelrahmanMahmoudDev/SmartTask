@@ -10,7 +10,7 @@ using SmartTask.DataAccess.Data;
 
 namespace SmartTask.Bl.Services
 {
-    public class PaginatedService<T> : IPaginatedService<T> where T : class
+    public class  PaginatedService<T> : IPaginatedService<T> where T : class
     {
         private readonly SmartTaskContext _context;
 
@@ -19,16 +19,10 @@ namespace SmartTask.Bl.Services
             _context = context;
         }
 
-        public PaginatedList<T> GetFiltered(Expression<Func<T, bool>>? filter, int page, int pageSize)
+        public async Task<PaginatedList<T>> GetFilteredAsync(IQueryable<T> query, int page, int pageSize)
         {
-            IQueryable<T> query = _context.Set<T>();
-
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
-
-            return PaginatedList<T>.Create(query, page, pageSize);
+           
+            return await PaginatedList<T>.CreateAsync(query, page, pageSize);
         }
     }
 }

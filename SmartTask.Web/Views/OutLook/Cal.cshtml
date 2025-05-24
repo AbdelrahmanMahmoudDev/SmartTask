@@ -1,0 +1,459 @@
+﻿@using SmartTask.Core.Models
+@model IEnumerable<Event>
+
+@{
+    ViewData["Title"] = "Outlook Calendar";
+}
+
+<!-- CSS Styles -->
+<style>
+    :root {
+        --primary-color: #3a86ff;
+        --primary-light: #e0edff;
+        --secondary-color: #6c757d;
+        --success-color: #10b981;
+        --bg-color: #f9fafc;
+        --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        --hover-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+        --accent-gradient: linear-gradient(135deg, #3a86ff, #4dabff);
+    }
+
+    body {
+        background-color: var(--bg-color);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .calendar-wrapper {
+        padding: 20px;
+    }
+
+    .calendar-header {
+        position: relative;
+        margin-bottom: 30px;
+    }
+
+    .calendar-title {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1.75rem;
+        margin-bottom: 8px;
+    }
+
+    .calendar-subtitle {
+        color: var(--secondary-color);
+        font-size: 1rem;
+        font-weight: 400;
+    }
+
+    .calendar-card {
+        padding: 3px;
+    }
+
+
+    .sync-btn {
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 600;
+        background: var(--accent-gradient);
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+
+    .sync-icon {
+        transition: transform 0.6s ease;
+    }
+
+    .sync-btn:hover .sync-icon {
+        transform: rotate(180deg);
+    }
+
+    /* Table styling */
+    .events-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin: 0;
+    }
+
+        .events-table th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .events-table td {
+            padding: 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+
+
+    .event-subject {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.95rem;
+    }
+
+    .event-pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 100px;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .event-time {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'SF Mono', 'Roboto Mono', monospace;
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+
+    .attendees-list {
+        max-width: 220px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .add-task-btn {
+        border-radius: 100px;
+        padding: 8px 16px;
+        font-weight: 500;
+        background: var(--accent-gradient);
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .add-task-btn:hover {
+            transform: translateY(-2px);
+        }
+
+    .project-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 100px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+    }
+
+    /* Status indicators */
+    .status-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .status-upcoming {
+        background-color: var(--primary-color);
+    }
+
+    .status-past {
+        background-color: var(--secondary-color);
+    }
+
+    /* Empty state */
+    .empty-state {
+        padding: 40px;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        font-size: 48px;
+        color: #e2e8f0;
+        margin-bottom: 16px;
+    }
+
+    .empty-state-text {
+        color: #94a3b8;
+        font-size: 1rem;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .calendar-card {
+            border-radius: 12px;
+        }
+
+        .events-table th:nth-child(2),
+        .events-table td:nth-child(2) {
+            display: none;
+        }
+    }
+</style>
+
+<!-- Main Content -->
+<div class="calendar-wrapper">
+    <div class="calendar-header d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h2 class="calendar-title">
+                <i class="fas fa-calendar-week text-primary me-2"></i>
+                My Calendar
+            </h2>
+            <p class="calendar-subtitle">
+                Manage your meetings and link them to tasks
+            </p>
+        </div>
+        <button class="btn sync-btn"
+                title="Sync with Outlook"
+                onclick="location.href='@Url.Action("syncoutlook", "Outlook")'">
+            <i class="fas fa-sync-alt sync-icon"></i> Sync Calendar
+        </button>
+    </div>
+
+    <div class="calendar-card">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table events-table datatable" id="eventsTable">
+                    <thead>
+                        <tr>
+                            <th>Meeting</th>
+                            <th>Attendees</th>
+                            <th>Project</th>
+                            <th>Start</th>
+                            <th>End</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var e in Model)
+                        {
+                            <tr class="event-row">
+                                <td>
+                                    <div class="event-subject">
+                                        @if (!e.TaskId.HasValue)
+                                        {
+                                            <span class="status-dot status-upcoming" title="Upcoming"></span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-dot status-past" title="Past"></span>
+                                        }
+                                        @e.Subject
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="attendees-list">
+                                        <i class="fas fa-users text-secondary"></i>
+                                        @e.Attendees
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (!e.TaskId.HasValue)
+                                    {
+                                        <span id="task-cell-@e.Id">
+                                            <button class="btn btn-sm add-task-btn"
+                                                    data-event-id="@e.Id"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#addTaskModal">
+                                                <i class="fas fa-plus"></i> Add Task
+                                            </button>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span id="task-cell-@e.Id">
+                                            <span class="project-tag">
+                                                <i class="fas fa-project-diagram"></i> @e.Task.Project.Name
+                                            </span>
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="event-time">
+                                        <i class="far fa-calendar-alt text-primary"></i>
+                                        @e.Start.ToString("MMM dd")
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="event-time">
+                                        <i class="far fa-clock text-primary"></i>
+                                        @e.End.ToString("MMM dd")
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="far fa-calendar"></i>
+                </div>
+                <h5>No events found</h5>
+                <p class="empty-state-text">
+                    Sync with Outlook to see your upcoming meetings
+                </p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Add Task Modal -->
+<div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-tasks me-2 text-primary"></i>
+                    Add Event as Task
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="addTaskModalBody">
+                <!-- Partial view content loads here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+
+
+    $(document).on('click', '.add-task-btn', function () {
+        var eventId = $(this).data('event-id');
+
+
+        // Show loading spinner
+        $('#addTaskModalBody').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i><p class="mt-2">Loading form...</p></div>');
+        
+        $('#addTaskModalBody').load('/Outlook/LoadAddTaskPartial?eventId=' + eventId, function () {
+            // Initialize Select2 after content is loaded
+            if ($.fn.select2) {
+                $('#userDropdown').select2({
+                    placeholder: 'Select users',
+                    width: '100%',
+                });
+            }
+        });
+    });
+
+    $(document).on('change', '#projectDropdown', function () {
+        var projectId = $(this).val();
+        if (!projectId) return;
+
+        // Show loading spinner
+        $('#userDropdown').html('<option>Loading...</option>');
+
+        $.getJSON('/Outlook/GetUsersForProject?projectId=' + projectId, function (data) {
+            var $userDropdown = $('#userDropdown');
+            $userDropdown.empty();
+
+            data.forEach(function (user) {
+                $userDropdown.append(`<option value="${user.id}">${user.fullName}</option>`);
+            });
+
+            $userDropdown.trigger('change');
+        });
+    });
+
+    $(document).on('submit', '#addTaskForm', function (e) {
+        e.preventDefault();
+
+        var form = $(this);
+        var submitBtn = form.find('button[type="submit"]');
+
+        // Disable button and show loading state
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Adding...');
+
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: form.serialize(),
+            success: function (response) {
+                const cellId = `#task-cell-${response.eventId}`;
+                $(cellId).html(`<span class="project-tag"><i class="fas fa-project-diagram me-1"></i> ${response.projectName}</span>`);
+
+                $('#addTaskModal').modal('hide');
+                
+                // Show success notification
+                showNotification('Task added successfully!', 'success');
+            },
+            error: function (xhr) {
+                
+                $('#addTaskModalBody').html(xhr.responseText);
+                showNotification('Error adding task. Please try again.', 'error');
+            },
+            complete: function() {
+                submitBtn.prop('disabled', false).html('Add Task');
+            }
+        });
+    });
+    // Simple notification function
+    function showNotification(message, type) {
+    //     Create notification element
+        var notification = $(`<div class="notification ${type}"><i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}</div>`);
+
+    //     Add styles for notification
+        notification.css({
+            'position': 'fixed',
+            'bottom': '20px',
+            'right': '20px',
+            'padding': '12px 20px',
+            'border-radius': '4px',
+            'color': 'white',
+            'font-weight': '500',
+            'z-index': '9999',
+            'box-shadow': '0 4px 12px rgba(0,0,0,0.15)',
+            'background-color': type === 'success' ? '#28a745' : '#dc3545',
+            'opacity': '0',
+            'transform': 'translateY(10px)'
+        });
+
+    //     Add to body
+        $('body').append(notification);
+
+    //     Fade in
+        notification.animate({
+            opacity: 1,
+            transform: 'translateY(0)'
+        }, 300);
+
+    //     Auto remove after 3 seconds
+        setTimeout(() => {
+        notification.css({
+            'opacity': '0',
+            'transform': 'translateY(10px)'
+        });
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+    }
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

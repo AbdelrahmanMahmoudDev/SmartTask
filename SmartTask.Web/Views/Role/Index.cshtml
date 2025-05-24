@@ -4,65 +4,87 @@
     ViewData["Title"] = "Role List";
 }
 
-<h2>Role List</h2>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Role List</h2>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Create Role
+        </a>
+    </div>
 
-<a asp-action="Create">Create Role</a>
-<div class="row">
-    <div class="col-md-4">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th> @Html.DisplayNameFor(m => m.Name) </th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var role in Model)
-                {
-                    <tr>
-                        <td>@Html.DisplayFor(m => role.Name)</td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@role.Id">Edit</a> |
-                            <a asp-action="Delete" asp-route-id="@role.Id" class="delete-item">Delete</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <div class="card shadow">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>@Html.DisplayNameFor(m => m.First().Name)</th>
+                                <th style="width: 150px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var role in Model)
+                            {
+                                <tr>
+                                    <td>@role.Name</td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-sm btn-primary me-1">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                        </a>
+                                        <button class="btn btn-sm btn-danger delete-item" data-url="@Url.Action("Delete", new { id = role.Id })">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">No roles found.</div>
+            }
+        </div>
     </div>
 </div>
 
-@section scripts {
+
+@section Scripts {
     <script>
-        $('.delete-item').click(function (e) {
-            confirm("Are you sure want delete this role ?");
-            e.preventDefault();
-            var anchor = $(this);
-            var url = $(anchor).attr('href');
-            $.ajax({
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                processData: false,
-                type: 'DELETE',
-                url: url,
-                success: function () {
-                    $(anchor).parent('td').parent('tr').fadeOut('slow',
-                        function () {
+        $(document).ready(function () {
+            $('.delete-item').click(function (e) {
+                e.preventDefault();
+
+                if (!confirm("Are you sure you want to delete this role?")) return;
+
+                const button = $(this);
+                const url = button.data('url');
+
+                $.ajax({
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    processData: false,
+                    type: 'DELETE',
+                    url: url,
+                    success: function () {
+                        button.closest('tr').fadeOut('slow', function () {
                             $(this).remove();
                         });
-
-                },
-                error: function (xmlHttpRequest, textStatus, errorThrown) {
-                    let message = `${textStatus} ${xmlHttpRequest.status} ${errorThrown}`;
-                    if (xmlHttpRequest.responseText != null) {
-                        const response = JSON.parse(xmlHttpRequest.responseText);
-                        for (var error of response["Error"]) {
-                            message += `\n${error}`;
-                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        let message = `Error: ${textStatus} (${xhr.status}) - ${errorThrown}`;
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response?.Error) {
+                                message += "\n" + response.Error.join("\n");
+                            }
+                        } catch { }
+                        alert(message);
                     }
-
-                    alert(message);
-                }
+                });
             });
         });
     </script>

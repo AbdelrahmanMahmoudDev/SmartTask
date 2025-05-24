@@ -1,0 +1,110 @@
+﻿@using SmartTask.Core.Models
+@using SmartTask.Web.ViewModels.DepartmentVM
+@model DepartmentFormViewModel
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+<h1>Edit Department</h1>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ManagerId"></label>
+        <select asp-for="ManagerId" asp-items="@ViewBag.Managers" class="form-control select2-single">
+            <option value="">-- Select Manager --</option>
+        </select>
+        <span asp-validation-for="ManagerId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Branches</label>
+        <select id="branchesDropdown"
+                name="SelectedBranchIds"
+                class="form-control select2-multiple"
+                multiple="multiple"
+                data-placeholder="-- Select Branches --">
+            @foreach (var branch in ViewBag.Branches as IEnumerable<Branch>)
+            {
+                <option value="@branch.Id" selected="@Model.SelectedBranchIds.Contains(branch.Id)">
+                    @branch.Name
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Select Users</label>
+        <select id="usersDropdown"
+                name="SelectedUserIds"
+                class="form-control select2-multiple"
+                multiple="multiple"
+                data-placeholder="-- Select Users --">
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.select2-multiple').select2({
+                placeholder: $(this).data('placeholder'),
+                allowClear: true,
+                width: '100%'
+            });
+
+            // تحديد الفروع الحالية عند التحميل
+            var initialBranchIds = @Html.Raw(Json.Serialize(Model.SelectedBranchIds ?? new List<int>()));
+            $('#branchesDropdown').val(initialBranchIds).trigger('change');
+
+            // تحميل المستخدمين عند تغيير الفروع
+            $('#branchesDropdown').on('change', function () {
+                var branchIds = $(this).val();
+                loadUsers(branchIds);
+            });
+
+            // تحميل المستخدمين الحاليين عند فتح الصفحة
+            var initialUserIds = @Html.Raw(Json.Serialize(Model.SelectedUserIds ?? new List<string>()));
+            loadUsers(initialBranchIds, initialUserIds);
+
+            function loadUsers(branchIds, selectedUserIds = []) {
+                if (!branchIds || branchIds.length === 0) {
+                    $('#usersDropdown').empty().trigger('change');
+                    return;
+                }
+                $.ajax({
+                    url: '@Url.Action("GetUsersByBranches", "Department")',
+                    type: 'GET',
+                    data: {
+                        branchIds: branchIds,
+                        departmentId: @Model.Id
+                    },
+                    traditional: true,
+                    success: function (users) {
+                        var $userDropdown = $('#usersDropdown');
+                        $userDropdown.empty();
+                        $.each(users, function (i, user) {
+                            $userDropdown.append(
+                                $('<option>', {
+                                    value: user.id,
+                                    text: user.fullName + ' (' + user.email + ')',
+                                    selected: selectedUserIds.includes(user.id)
+                                })
+                            );
+                        });
+                        $userDropdown.trigger('change');
+                    }
+                });
+            }
+        });
+    </script>
+}

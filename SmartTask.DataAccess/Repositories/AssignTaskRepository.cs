@@ -63,8 +63,23 @@ namespace SmartTask.DataAccess.Repositories
                 .ToListAsync();
         }
 
+        public List<string> GetUsersIdByTaskId(int taskId)
+        {
+            return _context.AssignTasks
+                .Where(a => a.TaskId == taskId)
+                .Select(a => a.UserId)
+                .ToList();
+        }
+
         public async Task<AssignTask> AddAsync(AssignTask assignTask)
         {
+            var oldAssignedTask = await _context.AssignTasks
+                .FirstOrDefaultAsync(a => a.TaskId == assignTask.TaskId && a.UserId == assignTask.UserId);
+            if (oldAssignedTask != null)
+            {
+                _context.AssignTasks.Remove(oldAssignedTask);
+                await _context.SaveChangesAsync();
+            }
             _context.AssignTasks.Add(assignTask);
             await _context.SaveChangesAsync();
             return assignTask;
@@ -99,11 +114,13 @@ namespace SmartTask.DataAccess.Repositories
         }
         public async Task AssignTasksToUserByIds(List<string> ids, TaskModel task, ClaimsPrincipal user)
         {
-            var assignedTasks = new List<AssignTask>();
+            //var assignedTasks = new List<AssignTask>();
+            AssignTask assignedTask ;
+
             var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
             foreach (var id in ids)
             {
-                assignedTasks.Add(new AssignTask
+                assignedTask = new AssignTask
                 {
                     UserId = id,
                     TaskId = task.Id,
@@ -111,9 +128,11 @@ namespace SmartTask.DataAccess.Repositories
                     AssignedById = userId,
                     Status = task.Status,
                     Comments = ""
-                });
+                };
+                _context.AssignTasks.Add(assignedTask);
+
             }
-            _context.AssignTasks.AddRange(assignedTasks);
+            //_context.AssignTasks.AddRange(assignedTasks);
             await _context.SaveChangesAsync();
         }
         public async Task ModifyTasksToUserByIds(string userId, TaskModel _task, List<string> assignments)
@@ -137,6 +156,7 @@ namespace SmartTask.DataAccess.Repositories
                     Comments = ""
                 });
             }
+            await _context.SaveChangesAsync();
         }
     }
 }

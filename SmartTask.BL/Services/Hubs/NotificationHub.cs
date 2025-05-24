@@ -6,7 +6,7 @@ using SmartTask.DataAccess.Data;
 //using SignalRProject.ViewModels;
 using System.Security.Claims;
 
-namespace SignalRProject.Service.Hubs
+namespace SmartTask.BL.Service.Hubs
 {
     
     public class NotificationHub : Hub
@@ -29,63 +29,63 @@ namespace SignalRProject.Service.Hubs
         {
             Clients.Group(groupName).SendAsync("groupTask", notification);
         }
+        #region on connected and disconnected methods
+        //public override async Task<Task> OnConnectedAsync()
+        //{
+        //    var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        public override async Task<Task> OnConnectedAsync()
-        {
-            var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    db.UserConnections.Add(new UserConnection
+        //    {
+        //        UserID = userId,
+        //        connectionID = Context.ConnectionId
+        //    });
 
-            db.UserConnections.Add(new UserConnection
-            {
-                UserID = userId,
-                connectionID = Context.ConnectionId
-            });
+        //    db.SaveChanges();
 
-            db.SaveChanges();
+        //    // Get all group names this user belongs to
+        //    var groupNames =  db.UserGroups
+        //                        .Include(ug => ug.groups)
+        //                        .Where(ug => ug.UserID == userId)
+        //                        .Select( ug => ug.groups.Name)
+        //                        .ToList();
 
-            // Get all group names this user belongs to
-            var groupNames =  db.UserGroups
-                                .Include(ug => ug.groups)
-                                .Where(ug => ug.UserID == userId)
-                                .Select( ug => ug.groups.Name)
-                                .ToList();
+        //    // Add connection to all groups
+        //    foreach (var groupName in groupNames)
+        //    {
+        //         Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+        //    }
 
-            // Add connection to all groups
-            foreach (var groupName in groupNames)
-            {
-                 Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-            }
+        //    //if (string.IsNullOrEmpty(userId))
+        //    //    return;
 
-            //if (string.IsNullOrEmpty(userId))
-            //    return;
+        //    return base.OnConnectedAsync();
+        //}
 
-            return base.OnConnectedAsync();
-        }
+        //public override async Task OnDisconnectedAsync(Exception? exception)
+        //{
+        //    var connection = await db.UserConnections
+        //        .FirstOrDefaultAsync(uc => uc.connectionID == Context.ConnectionId);
 
-        public override async Task OnDisconnectedAsync(Exception? exception)
-        {
-            var connection = await db.UserConnections
-                .FirstOrDefaultAsync(uc => uc.connectionID == Context.ConnectionId);
+        //    if (connection != null)
+        //    {
+        //        var groupNames = await db.UserGroups
+        //            .Include(ug => ug.groups)
+        //            .Where(ug => ug.UserID == connection.UserID)
+        //            .Select(ug => ug.groups.Name)
+        //            .ToListAsync();
 
-            if (connection != null)
-            {
-                var groupNames = await db.UserGroups
-                    .Include(ug => ug.groups)
-                    .Where(ug => ug.UserID == connection.UserID)
-                    .Select(ug => ug.groups.Name)
-                    .ToListAsync();
+        //        // Remove from SignalR groups
+        //        foreach (var groupName in groupNames)
+        //        {
+        //            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+        //        }
 
-                // Remove from SignalR groups
-                foreach (var groupName in groupNames)
-                {
-                    await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-                }
-
-                // Remove the connection from DB
-                db.UserConnections.Remove(connection);
-                await db.SaveChangesAsync();
-            }
-        }
-
+        //        // Remove the connection from DB
+        //        db.UserConnections.Remove(connection);
+        //        await db.SaveChangesAsync();
+        //    }
+        //}
+        #endregion
         #region comment
         //public override async Task OnConnectedAsync()
         //{

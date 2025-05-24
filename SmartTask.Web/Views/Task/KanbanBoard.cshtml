@@ -1,0 +1,58 @@
+﻿@model SmartTask.Web.ViewModels.KanbanVM.KanbanViewModel
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Kanban Board</h2>
+  
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <select id="priorityFilter" class="form-select">
+                <option value="All" selected>All Priorities</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <select id="statusFilter" class="form-control">
+                <option value="All">All Status</option>
+                <option value="Todo">Todo</option>
+                <option value="InProgress">In Progress</option>
+                <option value="Done">Done</option>
+            </select>
+        </div>
+    </div>
+     
+    <div class="row" id="kanban-board">
+        @foreach (var column in Model.Columns.OrderBy(c => c.Order))
+        {
+            <div class="col-md-4">
+                <div class="kanban-column"
+                     data-status="@column.Status"
+                     data-column-id="@column.Id">
+                    <div class="kanban-header bg-secondary text-white p-2">
+                        <h5 class="text-center">
+                            <span class="display-name">@column.DisplayName</span>
+                            <button class="btn btn-sm btn-light edit-column-name"
+                                    data-status="@column.Status">
+                                Edit
+                            </button>
+                        </h5>
+                    </div>
+                    <div class="kanban-tasks p-2" id="column-@column.Status">
+                        @foreach (var task in Model.Tasks.Where(t => t.Status == column.Status))
+                        {
+                            @Html.Partial("PartialViews/_TaskCard", task)
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+
+@Html.Partial("PartialViews/_EditTaskModal")
+

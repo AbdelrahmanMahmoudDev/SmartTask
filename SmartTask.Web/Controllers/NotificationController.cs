@@ -1,62 +1,98 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using SmartTask.Web.Models;
+//using SmartTask.Web.Models;
 //using SignalRNotifications.Hubs;
 using SmartTask.Web.Controllers;
-using SmartTask.Bl.Hubs;
 
-namespace SignalR.Controllers
+using SmartTask.BL.Service.Hubs;
+using SmartTask.BL.IServices;
+using Microsoft.AspNetCore.Identity;
+using SmartTask.Core.Models;
+
+namespace SmartTask.Web.Controllers
 {
     public class NotificationController : Controller
     {
-        private readonly IHubContext<NotificationHub> _hubContext;
-        private readonly ILogger<NotificationController> _logger;
+        private readonly INotificationService _notificationService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public NotificationController(IHubContext<NotificationHub> hubContext,ILogger<NotificationController> logger)
+        public NotificationController(INotificationService notificationService, UserManager<ApplicationUser> usermanager)
         {
-            _hubContext = hubContext;
-            _logger = logger;
+            _notificationService = notificationService;
+            _userManager = usermanager;
         }
 
-        public IActionResult Index() 
+        [HttpGet]
+        public async Task<IActionResult> GetAllNotifications()
         {
-            // For demo purposes, let's set up a mock user ID if not logged in
-            if (string.IsNullOrEmpty(User.Identity?.Name))
+            try
             {
-                ViewBag.UserId = "demo-user-" + new Random().Next(1000, 9999);
+                var user = await _userManager.GetUserAsync(User); // Or however you get the current user ID
+                var notifications = await _notificationService.GetUserNotificationsAsync(user.Id);
+                var hasUnread = notifications.Any(n => (bool)!n.IsRead);
+
+                return Json(new
+                {
+                    success = true,
+                    notifications = notifications.Select(n => new
+                    {
+                        id = n.Id,
+                        message = n.Message,
+                        type = n.Type,
+                        timestamp = n.CreatedAt,
+                        isRead = n.IsRead,
+                        link = n.link // If you have a link property
+                    }),
+                    hasUnread = hasUnread
+                });
             }
-            else
+            catch (Exception ex)
             {
-                ViewBag.UserId = User.Identity.Name;
+                return Json(new { success = false, message = "Failed to load notifications" });
             }
-            return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendNotification(string message, string type, string? userId = null)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAllAsRead()
         {
-            var notification = new Notification
+            try
             {
-                Message = message,
-                Type = string.IsNullOrEmpty(type) ? "info" : type,
-                UserId = userId,
-                Timestamp = DateTime.Now
-            };
+                var user = await _userManager.GetUserAsync(User);  // Or however you get the current user ID
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+                await _notificationService.MarkAllNotificationAsReadAsync(user.Id);
 
-            if (string.IsNullOrEmpty(userId))
-            {
-                // Broadcast to all connected clients
-                await _hubContext.Clients.All.SendAsync("ReceiveNotification", notification);
-                _logger.LogInformation($"Broadcast notification: {notification.Message}");
+                return Json(new { success = true, message = "All notifications marked as read" });
             }
-            else
+            catch (Exception ex)
             {
-                // Send to specific user
-                await _hubContext.Clients.Group(userId).SendAsync("ReceiveNotification", notification);
-                _logger.LogInformation($"Notification sent to user {userId}: {notification.Message}");
+                return Json(new { success = false, message = "Failed to mark notifications as read" });
             }
+        }
 
-            return Ok(new { Success = true });
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAsRead(int notificationId)
+        {
+            try
+            {
+                //var userId = User.Identity.Name; // Or however you get the current user ID
+                await _notificationService.MarkNotificationAsReadAsync(notificationId);
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Failed to mark notification as read" });
+            }
+        }
+
+        public IActionResult Index()
+        {
+            return View();
         }
     }
 }

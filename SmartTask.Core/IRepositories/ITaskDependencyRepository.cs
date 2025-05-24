@@ -12,7 +12,9 @@ namespace SmartTask.Core.IRepositories
         Task<IEnumerable<TaskDependency>> GetByPredecessorIdAsync(int predecessorId);
         Task<IEnumerable<TaskDependency>> GetBySuccessorIdAsync(int successorId);
         Task<TaskDependency> AddAsync(TaskDependency taskDependency);
+        Task<TaskDependency> UpdateAsync(TaskDependency taskDependency);
         Task DeleteAsync(int id);
+        public Task DeleteRangeAsync(List<TaskDependency> td);
         Task<bool> ExistsAsync(int id);
         Task<bool> ExistsByTaskIdsAsync(int predecessorId, int successorId);
     }

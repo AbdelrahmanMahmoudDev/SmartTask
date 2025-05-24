@@ -22,6 +22,7 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Events
                 .Include(e => e.Task)
+                .ThenInclude(t => t.Project)
                 .Include(e => e.ImportedBy)
                 .ToListAsync();
         }
@@ -30,6 +31,7 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Events
                 .Include(e => e.Task)
+                .ThenInclude(t => t.Project)
                 .Include(e => e.ImportedBy)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
@@ -47,6 +49,7 @@ namespace SmartTask.DataAccess.Repositories
         {
             return await _context.Events
                 .Include(e => e.Task)
+                .ThenInclude(t => t.Project)
                 .Where(e => e.ImportedById == importedById)
                 .OrderBy(e => e.Start)
                 .ToListAsync();

@@ -1,0 +1,33 @@
+﻿ @using SmartTask.Core.Models.Enums
+@model SmartTask.Core.Models.Task
+
+@{
+    var isDone = Model.Status == Status.Done;
+}
+
+<div class="kanban-task card mb-2 @(isDone ? "disabled" : "")" data-id="@Model.Id" data-priority="@Model.Priority" data-status="@Model.Status">
+    <div class="card-body">
+        <h6 class="card-title fw-bold">@Model.Title</h6>
+        <p class="card-text">
+            Priority: <span class="badge bg-@(GetPriorityColor(Model.Priority))">@Model.Priority</span>
+        </p>
+        <p class="card-text">
+            Status: <span class="badge bg-dark text-white status-badge">@Model.Status</span>
+        </p>
+        <button class="btn btn-sm btn-primary" onclick="openEditTaskModal(@Model.Id)">Edit</button>
+        <a href="details/@Model.Id" class="btn btn-sm btn-success">Details</a>
+    </div>
+</div>
+
+@functions {
+    string GetPriorityColor(Priority priority)
+    {
+        return priority switch
+        {
+            Priority.High => "danger",
+            Priority.Medium => "warning",
+            Priority.Low => "success",
+            _ => "secondary"
+        };
+    }
+}

@@ -1,13 +1,17 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph;
 using SmartTask.Core.IRepositories;
 using SmartTask.Core.Models;
 using SmartTask.Core.Models.AuditModels;
 using SmartTask.Core.Models.BasePermission;
 using SmartTask.Core.ViewModels;
 using System.Data.SqlTypes;
-
+using SmartTask.BL.Services;
+using SmartTask.Web.ViewModels;
 namespace SmartTask.Web.Controllers
 {
     public class AccountController : Controller
@@ -16,13 +20,16 @@ namespace SmartTask.Web.Controllers
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly RoleManager<ApplicationRole> roleManager;
         private readonly IUserLoginHistoryRepository _userLoginHistory;
-
-        public AccountController(UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, RoleManager<ApplicationRole> _roleManager, IUserLoginHistoryRepository userLoginHistory)
+        IConfiguration _config;
+        public AccountController(UserManager<ApplicationUser> _userManager,
+            SignInManager<ApplicationUser> _signInManager, RoleManager<ApplicationRole> _roleManager,
+            IUserLoginHistoryRepository userLoginHistory, IConfiguration config)
         {
             userManager = _userManager;
             signInManager = _signInManager;
             roleManager = _roleManager;
             _userLoginHistory = userLoginHistory;
+            _config = config;
         }
 
         [HttpGet]
@@ -35,7 +42,7 @@ namespace SmartTask.Web.Controllers
         public async Task<IActionResult> Login(LoginViewModel account)
         {
             ApplicationUser user = new ApplicationUser();   
-            Console.WriteLine($"{account.UserName}");
+            //Console.WriteLine($"{account.UserName}");
             if (ModelState.IsValid)
             {
                 try
@@ -190,5 +197,11 @@ namespace SmartTask.Web.Controllers
             TempData["Message"] = "Roles updated successfully!";
             return RedirectToAction("ManageUserRoles");
         }
+    }
+    public class OAuthResponse
+    {
+        public string access_token { get; set; }
+        public int expires_in { get; set; }
+        public string refresh_token { get; set; }
     }
 }

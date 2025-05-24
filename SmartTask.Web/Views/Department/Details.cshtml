@@ -1,0 +1,58 @@
+﻿@model SmartTask.Web.ViewModels.DepartmentVM.DepartmentDetailsViewModel
+
+@{
+    ViewData["Title"] = "Department Details";
+}
+
+<div class="container mt-5">
+    <h2>Department Details</h2>
+    <hr />
+
+    <dl class="row">
+        <dt class="col-sm-3">Department Name:</dt>
+        <dd class="col-sm-9">@Model.Name</dd>
+
+        <dt class="col-sm-3">Manager:</dt>
+        <dd class="col-sm-9">@Model.ManagerName</dd>
+    </dl>
+
+    <div class="mt-4">
+        <h4>Branches</h4>
+        @if (Model.Branches != null && Model.Branches.Any())
+        {
+            <ul class="list-group">
+                @foreach (var branch in Model.Branches)
+                {
+                    <li class="list-group-item">@branch.Name</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <span class="text-muted">No branches assigned.</span>
+        }
+    </div>
+
+    <div class="mt-4">
+        <h4>Users</h4>
+        @if (Model.Users != null && Model.Users.Any())
+        {
+            <ul class="list-group">
+                @foreach (var user in Model.Users)
+                {
+                    <li class="list-group-item">
+                        <strong>@user.FullName</strong> (@user.UserName) - @user.Email
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-muted">No users assigned to this department.</p>
+        }
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

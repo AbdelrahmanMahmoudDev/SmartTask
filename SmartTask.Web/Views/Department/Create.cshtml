@@ -1,0 +1,99 @@
+﻿@using SmartTask.Core.Models
+@using SmartTask.Web.ViewModels.DepartmentVM
+@model DepartmentFormViewModel
+
+<link rel="stylesheet" href="~/lib/select2/css/select2.min.css" />
+<h1>Create New Department</h1>
+
+<form asp-action="Create">
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ManagerId"></label>
+        <select asp-for="ManagerId" asp-items="@ViewBag.Managers" class="form-select">
+            <option value="">-- Select Manager --</option>
+        </select>
+        <span asp-validation-for="ManagerId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Branches</label>
+        <select id="branchesDropdown"
+                name="SelectedBranchIds"
+                class="form-control select2-multiple"
+                multiple="multiple"
+                data-placeholder="-- Select Branches --">
+            @foreach (var branch in ViewBag.Branches as IEnumerable<Branch>)
+            {
+                <option value="@branch.Id">@branch.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Select Users</label>
+        <select id="usersDropdown"
+                name="SelectedUserIds"
+                class="form-control select2-multiple"
+                multiple="multiple"
+                data-placeholder="-- Select Users --">
+        </select>
+    </div>
+
+    @* <div class="form-group"> 
+         <label>Assigned Users:</label> 
+         <div id="assignedUsersContainer"></div> 
+     </div>*@
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.select2-multiple').select2({
+                placeholder: $(this).data('placeholder'),
+                allowClear: true,
+                width: '100%'
+            });
+
+            $('#branchesDropdown').on('change', function () {
+            var branchIds = $(this).val();
+
+            if (!branchIds || branchIds.length === 0) {
+                $('#usersDropdown').empty().trigger('change');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetUsersByBranches", "Department")',
+                type: 'GET',
+                data: { branchIds: branchIds },
+                traditional: true,
+                success: function (users) {
+                    var $userDropdown = $('#usersDropdown');
+                    $userDropdown.empty();
+
+                    $.each(users, function (i, user) {
+                        $userDropdown.append(
+                            $('<option>', {
+                                value: user.id,
+                                text: user.fullName + ' (' + user.email + ')'
+                            })
+                        );
+                    });
+
+                    $userDropdown.trigger('change');
+                }
+            });
+        });
+        });
+    </script>
+}
