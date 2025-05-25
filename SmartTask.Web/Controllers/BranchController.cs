@@ -112,11 +112,15 @@ namespace SmartTask.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
-            var branch = await branchService.GetBranchAsync(id);
-            if(branch == null) return View("NotFound");
-
-            await branchService.DeleteAsync(id);
-            return RedirectToAction("Index");
+            try
+            {
+                await branchService.DeleteAsync(id);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                return View("NotFound");
+            }
 
         }
 

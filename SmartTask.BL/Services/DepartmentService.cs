@@ -22,11 +22,11 @@ namespace SmartTask.BL.Services
 
         public DepartmentService(
             IDepartmentRepository departmentRepository,
-            IPaginatedService<Department> paginatedService,UserManager<ApplicationUser> _userManager)
+            IPaginatedService<Department> paginatedService,UserManager<ApplicationUser> userManager)
         {
             _departmentRepository = departmentRepository;
             _paginatedService = paginatedService;
-            _userManager = _userManager;
+            _userManager = userManager;
         }
 
         public async Task<PaginatedList<Department> >GetFilteredDepartments(string searchString, int page, int pageSize)
@@ -48,41 +48,67 @@ namespace SmartTask.BL.Services
 
         public async Task UpdateDepartmentAsync(Department department)
         {
-       
             var existingDepartment = await _departmentRepository.GetQueryable()
                 .Include(d => d.BranchDepartments)
                 .Include(d => d.Users)
                 .FirstOrDefaultAsync(d => d.Id == department.Id);
 
             if (existingDepartment == null)
-            {
                 throw new InvalidOperationException("Department not found");
-            }
 
             existingDepartment.Name = department.Name;
             existingDepartment.ManagerId = department.ManagerId;
 
-            var currentUserIds = existingDepartment.Users.Select(u => u.Id).ToList();
+            var newBranchIds = department.BranchDepartments.Select(bd => bd.BranchId).ToList();
+            var existingBranchIds = existingDepartment.BranchDepartments.Select(bd => bd.BranchId).ToList();
+
+            foreach (var bd in existingDepartment.BranchDepartments.ToList())
+            {
+                if (!newBranchIds.Contains(bd.BranchId))
+                    existingDepartment.BranchDepartments.Remove(bd);
+            }
+            foreach (var branchId in newBranchIds)
+            {
+                if (!existingBranchIds.Contains(branchId))
+                    existingDepartment.BranchDepartments.Add(new BranchDepartment
+                    {
+                        BranchId = branchId,
+                        DepartmentId = department.Id
+                    });
+            }
+
+            await _departmentRepository.UpdateAsync(existingDepartment);
+
+            existingDepartment = await _departmentRepository.GetQueryable()
+                .Include(d => d.BranchDepartments)
+                .Include(d => d.Users)
+                .FirstOrDefaultAsync(d => d.Id == department.Id);
+
             var newUserIds = department.Users.Select(u => u.Id).ToList();
+            var currentUserIds = existingDepartment.Users.Select(u => u.Id).ToList();
 
-            var usersToAddIds = newUserIds.Except(currentUserIds).ToList();
-            var usersToRemoveIds = currentUserIds.Except(newUserIds).ToList();
-
-            foreach (var userId in usersToAddIds)
+            foreach (var userId in currentUserIds.Except(newUserIds).ToList())
             {
                 var user = await _userManager.FindByIdAsync(userId);
                 if (user != null)
                 {
-                    existingDepartment.Users.Add(user);
+                    user.DepartmentId = null;
+                    await _userManager.UpdateAsync(user);
+                    existingDepartment.Users.Remove(user);
                 }
             }
 
-            foreach (var userId in usersToRemoveIds)
+            foreach (var userId in newUserIds.Except(currentUserIds).ToList())
             {
-                var user = existingDepartment.Users.FirstOrDefault(u => u.Id == userId);
+                var user = await _userManager.FindByIdAsync(userId);
                 if (user != null)
                 {
-                    existingDepartment.Users.Remove(user);
+                    if (user.BranchId.HasValue && !existingDepartment.BranchDepartments.Any(bd => bd.BranchId == user.BranchId.Value))
+                        continue;
+
+                    user.DepartmentId = department.Id;
+                    await _userManager.UpdateAsync(user);
+                    existingDepartment.Users.Add(user);
                 }
             }
 

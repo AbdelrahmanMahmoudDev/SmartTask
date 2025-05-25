@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
 <h1>Edit Department</h1>
 
+<div asp-validation-summary="All"></div>
 <form asp-action="Edit">
     <input type="hidden" asp-for="Id" />
 
@@ -72,13 +73,13 @@
 
             $('#branchesDropdown').on('change', function () {
                 var branchIds = $(this).val();
-                var selectedUserIds = $('#usersDropdown').val();
+                var selectedUserIds = $('#usersDropdown').val() || [];
                 loadUsers(branchIds, selectedUserIds);
             });
 
             function loadUsers(branchIds, selectedUserIds = []) {
                 if (!branchIds || branchIds.length === 0) {
-                    $('#usersDropdown').empty().trigger('change');
+                    $('#usersDropdown').empty().val([]).trigger('change.select2');
                     return;
                 }
                 $.ajax({
@@ -93,16 +94,23 @@
                     success: function (users) {
                         var $userDropdown = $('#usersDropdown');
                         $userDropdown.empty();
+
+                        var validUserIds = users.map(function (u) { return u.id; });
+
+                        var filteredSelectedUserIds = (selectedUserIds || []).filter(function (uid) {
+                            return validUserIds.includes(uid);
+                        });
+
                         $.each(users, function (i, user) {
                             $userDropdown.append(
                                 $('<option>', {
                                     value: user.id,
-                                    text: user.fullName + ' (' + user.email + ')',
-                                    selected: selectedUserIds && selectedUserIds.includes(user.id)
+                                    text: user.fullName + ' (' + user.email + ')'
                                 })
                             );
                         });
-                        $userDropdown.trigger('change');
+
+                        $userDropdown.val(filteredSelectedUserIds).trigger('change.select2');
                     }
                 });
             }

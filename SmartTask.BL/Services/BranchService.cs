@@ -50,6 +50,23 @@ namespace SmartTask.Bl.Services
 
         public async Task DeleteAsync(int id)
         {
+            var branch = await branchRepository.GetWithDetailsAsync(id);
+            if (branch == null) throw new Exception("Branch Not Found");
+
+            foreach(var project in branch.Projects)
+            {
+                project.BranchId = null;
+            }
+
+            foreach(var user in branch.Users)
+            {
+                user.BranchId = null;
+                user.DepartmentId = null;
+                await _userManager.UpdateAsync(user);
+            }
+
+           branch.BranchDepartments.Clear();
+
             await branchRepository.DeleteAsync(id);
         }
 

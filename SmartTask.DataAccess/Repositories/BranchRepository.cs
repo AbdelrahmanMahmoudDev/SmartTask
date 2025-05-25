@@ -38,6 +38,8 @@ namespace SmartTask.DataAccess.Repositories
                 .Include(b => b.Manager)
                 .Include(b => b.BranchDepartments)
                     .ThenInclude(bd => bd.Department)
+                    .Include(b => b.Users)
+                    .Include(b => b.Projects)
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
